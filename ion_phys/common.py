@@ -2,7 +2,7 @@ import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
 
-import operators
+from ion_phys import operators
 
 
 level = namedtuple("level", "n,L,S,J")

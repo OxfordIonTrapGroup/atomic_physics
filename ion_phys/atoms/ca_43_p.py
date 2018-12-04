@@ -8,7 +8,7 @@ References:
 """
 
 import scipy.constants as consts
-from common import level
+from ion_phys.common import level
 
 atom = {}
 atom["I"] = 7/2
