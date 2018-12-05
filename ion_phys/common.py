@@ -29,7 +29,7 @@ def init(atom, B):
 
     for level, data in atom["levels"].items():
 
-        gJ = data["gJ"] = data.get("gJ", 2)
+        gJ = data["gJ"] = data.get("gJ", Lande_g(level))
 
         J_dim = np.rint(2.0*level.J+1).astype(int)
 
@@ -58,6 +58,19 @@ def init(atom, B):
 
         M = data["MI"] + data["MJ"]
         data["M"] = M[np.argmax(np.abs(data["V"]), 0)]
+
+
+def Lande_g(level):
+    gL = 1
+    gS = -consts.physical_constants["electron g factor"]
+
+    S = level.S
+    J = level.J
+    L = level.L
+
+    gJ = gL*(J*(J+1) - S*(S+1) + L*(L+1)) / (2*J*(J+1)) \
+        + gS*(J*(J+1) + S*(S+1) - L*(L+1)) / (2*J*(J+1))
+    return gJ
 
 
 def calc_m1(atom):
