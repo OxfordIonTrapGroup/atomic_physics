@@ -21,6 +21,8 @@ def init(atom, B):
       V - V[:, i] is the state with energy E[i], represented in the basis of
         high-field (MI, MJ) energy eigenstates.
       MI, MJ - high-field energy eigenstate basis vectors
+      F - The value of F:=I+J each state would have if the field were
+        adiabatically reduced to 0.
     """
     atom["B"] = B
     I = atom["I"] = atom.get("I", 0)
@@ -29,13 +31,14 @@ def init(atom, B):
 
     for level, data in atom["levels"].items():
 
+        J = level.J
         gJ = data["gJ"] = data.get("gJ", Lande_g(level))
 
-        J_dim = np.rint(2.0*level.J+1).astype(int)
+        J_dim = np.rint(2.0*J+1).astype(int)
 
-        Jp = np.kron(operators.Jp(level.J), np.identity(I_dim))
-        Jm = np.kron(operators.Jm(level.J), np.identity(I_dim))
-        Jz = np.kron(operators.Jz(level.J), np.identity(I_dim))
+        Jp = np.kron(operators.Jp(J), np.identity(I_dim))
+        Jm = np.kron(operators.Jm(J), np.identity(I_dim))
+        Jz = np.kron(operators.Jz(J), np.identity(I_dim))
 
         Ip = np.kron(np.identity(J_dim), operators.Jp(I))
         Im = np.kron(np.identity(J_dim), operators.Jm(I))
@@ -43,9 +46,18 @@ def init(atom, B):
 
         H = gJ*_uB*B*Jz
         if atom["I"] != 0:
-            A = data["Ahfs"]
+
             gI = data["gI"]
-            H += A*(Iz@Jz + (1/2)*(Ip@Jm + Im@Jp)) - gI*_uN*B*Iz
+            IdotJ = (Iz@Jz + (1/2)*(Ip@Jm + Im@Jp))
+
+            H += - gI*_uN*B*Iz
+            H += data["Ahfs"]*IdotJ
+
+            if J > 1/2:
+                IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
+                ident = np.identity(I_dim*J_dim)
+                H += data["Bhfs"]/(2*I*J*(2*I-1)*(2*J-1))*(
+                    3*IdotJ2 + (3/2)*IdotJ - ident*I*(I+1)*J*(J+1))
 
         E, V = np.linalg.eig(H)
 
@@ -54,15 +66,22 @@ def init(atom, B):
         data["V"] = V[:, inds]
 
         data["MI"] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
-        data["MJ"] = np.kron(np.arange(-level.J, level.J + 1), np.ones(I_dim))
+        data["MJ"] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
+        data["M"] = np.rint(2*np.diag(data["V"].T@(Iz+Jz)@data["V"]))/2
 
-        M = data["MI"] + data["MJ"]
-        data["M"] = M[np.argmax(np.abs(data["V"]), 0)]
+        F_list = np.arange(atom["I"]-J, atom["I"]+J+1)
+        if data["Ahfs"] < 0:
+            F_list = F_list[::-1]
+
+        data["F"] = np.zeros(J_dim*I_dim, dtype=float)
+        for M in set(data["M"]):
+            for Fidx, idx in np.ndenumerate(np.where(data["M"] == M)):
+                data["F"][idx] = F_list[abs(M) <= F_list][Fidx[1]]
 
 
 def Lande_g(level):
     gL = 1
-    gS = -consts.physical_constants["electron g factor"]
+    gS = -consts.physical_constants["electron g factor"][0]
 
     S = level.S
     J = level.J
