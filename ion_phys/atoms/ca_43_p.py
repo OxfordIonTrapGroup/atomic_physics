@@ -14,7 +14,7 @@ atom = {}
 atom["I"] = 7/2
 
 atom["levels"] = {
-    level(n=4, L=0, S=1, J=1/2): {
+    level(n=4, L=0, S=1/2, J=1/2): {
         "Ahfs": -3225.60828640e6 * consts.h / 4,  # [1]
         "gJ": 2.00225664,  # [2]
         "gI": (2 / 7) * -1.315348  # [3]
@@ -23,8 +23,8 @@ atom["levels"] = {
 
 atom["transitions"] = {
     "397": {
-        "lower": level(n=4, L=0, S=1, J=1/2),
-        "upper": level(n=4, L=1, S=1, J=1/2),
+        "lower": level(n=4, L=0, S=1/2, J=1/2),
+        "upper": level(n=4, L=1, S=1/2, J=1/2),
         "A": 132e6,  # [?]
         "f0": 755.2227662e12  # [?]
     }
