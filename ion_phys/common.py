@@ -5,7 +5,7 @@ import scipy.constants as consts
 from ion_phys import operators
 
 
-level = namedtuple("level", "n,L,S,J")
+Level = namedtuple("Level", "n,L,S,J")
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
