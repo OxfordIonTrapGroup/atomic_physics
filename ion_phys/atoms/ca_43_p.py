@@ -5,6 +5,7 @@ References:
   Clusters, 31, 27 (1994)
 [2] - G. Tommaseo, et al., The European Physical Journal D, 25 (2003)
 [3] - T. P. Harty, et al. Phys. Rev. Lett 113, 220501 (2014)
+[4] - W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
 """
 
 import scipy.constants as consts
@@ -17,6 +18,10 @@ atom["levels"] = {
     Level(n=4, L=0, S=1/2, J=1/2): {
         "Ahfs": -3225.60828640e6 * consts.h / 4,  # [1]
         "gJ": 2.00225664,  # [2]
+        "gI": (2 / 7) * -1.315348  # [3]
+    },
+    Level(n=4, L=1, S=1/2, J=1/2): {
+        "Ahfs": -145.4e6 * consts.h,  # [4]
         "gI": (2 / 7) * -1.315348  # [3]
     }
 }
