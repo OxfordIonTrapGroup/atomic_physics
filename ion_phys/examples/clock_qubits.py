@@ -59,7 +59,8 @@ def clock_qubit_field(F1, F2):
                                          options={'xatol': 1E-10,
                                                   'maxiter': 500})
                 magic_field = float(res.x*1e4)
-                if magic_field < lower_field + 1 or magic_field > upper_field-1:
+                if (magic_field < (lower_field + 1)
+                   or magic_field > (upper_field - 1)):
                     print('{} --> {}: No magic field'.format(m_init, m_final))
                 else:
                     print('{} --> {}: Magic field: {:.2f} G'.

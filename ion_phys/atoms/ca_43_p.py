@@ -29,13 +29,13 @@ atom["levels"] = {
         "Ahfs": -31.4e6 * consts.h,  # [4]
         "Bhfs": -6.9 * consts.h,  # [4]
         "gI": (2 / 7) * -1.315348  # [3]
-    },    
+    },
     Level(n=4, L=2, S=1/2, J=3/2): {
         "Ahfs": -47.3e6 * consts.h,  # [4]
         "Bhfs": -3.7 * consts.h,  # [4]
         "gI": (2 / 7) * -1.315348  # [3]
     },
-        Level(n=4, L=2, S=1/2, J=5/2): {
+    Level(n=4, L=2, S=1/2, J=5/2): {
         "Ahfs": -3.8931e6 * consts.h,  # [5]
         "Bhfs": 4.241 * consts.h,  # [5]
         "gI": (2 / 7) * -1.315348  # [3]
