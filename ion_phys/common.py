@@ -67,7 +67,7 @@ def init(atom, B):
 
         data["MI"] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
         data["MJ"] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
-        data["M"] = np.rint(2*np.diag(data["V"].T@(Iz+Jz)@data["V"]))/2
+        data["M"] = np.rint(2*np.diag(data["V"].conj().T@(Iz+Jz)@data["V"]))/2
 
         F_list = np.arange(atom["I"]-J, atom["I"]+J+1)
         if data["Ahfs"] < 0:
@@ -150,4 +150,4 @@ def calc_m1(atom):
             psi_i = data["V"][:, i]
             psi_j = data["V"][:, j]
 
-            data["R_m1"][i, j] = ((-1)**(q+1)) * psi_i.T@u[q+1]@psi_j
+            data["R_m1"][i, j] = ((-1)**(q+1)) * psi_i.conj().T@u[q+1]@psi_j
