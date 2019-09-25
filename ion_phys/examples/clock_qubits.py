@@ -19,4 +19,3 @@ if __name__ == '__main__':
                       .format(M3-q, M3, f0, B0*1e3, d2fdB2*1e-11))
             else:
                 print("4, {} --> 3, {}: none found".format(M3-q, M3))
-
