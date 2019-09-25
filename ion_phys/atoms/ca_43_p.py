@@ -8,7 +8,6 @@ References:
 [4] - W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
 [5] - J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
 """
-
 import scipy.constants as consts
 from ion_phys.common import Level
 
@@ -48,5 +47,23 @@ atom["transitions"] = {
         "upper": Level(n=4, L=1, S=1/2, J=1/2),
         "A": 132e6,  # [?]
         "f0": 755.2227662e12  # [?]
-    }
+    },
+    "393": {
+        "lower": Level(n=4, L=0, S=1/2, J=1/2),
+        "upper": Level(n=4, L=1, S=1/2, J=3/2),
+        "A": 132e6,  # [?]
+        "f0": consts.c/393e-9  # [?]
+    },
+    "866": {
+        "lower": Level(n=3, L=2, S=1/2, J=3/2),
+        "upper": Level(n=4, L=1, S=1/2, J=1/2),
+        "A": 0,  # [?]
+        "f0": consts.c/866e-9  # [?]
+    },
+    "854": {
+        "lower": Level(n=3, L=2, S=1/2, J=5/2),
+        "upper": Level(n=4, L=1, S=1/2, J=3/2),
+        "A": 0,  # [?]
+        "f0": consts.c/854e-9  # [?]
+    },
 }
