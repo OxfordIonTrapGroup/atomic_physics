@@ -3,6 +3,7 @@ import scipy.optimize as opt
 import scipy.constants as consts
 import ion_phys.common as ip
 
+
 def transition_freq(B, atom, level, lower, upper):
     """ Returns the frequency of a transition between two states in the same
     level at a given magnetic field.
@@ -24,6 +25,7 @@ def transition_freq(B, atom, level, lower, upper):
     return (E[np.logical_and(F == upper[0], M == upper[1])]
             - E[np.logical_and(F == lower[0], M == lower[1])])[0]
 
+
 def df_dB(B, atom, level, lower, upper, eps=1e-4):
     """ Returns the field-sensitivity (Hz/T) of a transition between two states
     in the same level at a given magnetic field.
@@ -40,6 +42,7 @@ def df_dB(B, atom, level, lower, upper, eps=1e-4):
     return (transition_freq(B+eps, atom, level, lower, upper)
             - transition_freq(B, atom, level, lower, upper))/eps
 
+
 def d2f_dB2(B, atom, level, lower, upper, eps=1e-4):
     """ Returns the second-order field-sensitivity (Hz/T^2) of a transition
     between two states in the same level at a given magnetic field.
@@ -55,6 +58,7 @@ def d2f_dB2(B, atom, level, lower, upper, eps=1e-4):
     """
     return (df_dB(B+eps, atom, level, lower, upper)
             - df_dB(B, atom, level, lower, upper))/eps
+
 
 def field_insensitive_point(atom, level, lower, upper, B_min=1e-3, B_max=1e-1):
     """ Returns the magnetic field at which the frequency of a transition
