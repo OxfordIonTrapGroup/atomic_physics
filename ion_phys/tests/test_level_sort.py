@@ -2,7 +2,7 @@ import unittest
 import collections
 import numpy as np
 import scipy.constants as consts
-from ion_phys.common import _sort_levels
+from ion_phys.utils import sort_levels
 
 
 def trans_freq(lower, upper):
@@ -22,7 +22,7 @@ def add_transition(atom, lower, upper):
 class TestLevelSort(unittest.TestCase):
 
     def check_order(self, atom):
-        _sort_levels(atom)
+        sort_levels(atom)
         levels = np.array(list(atom["levels"].keys()))
         levels.sort()
         self.assertEqual(len(atom["sorted_levels"]), len(atom["levels"]))

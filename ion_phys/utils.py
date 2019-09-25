@@ -1,78 +1,121 @@
-import numpy as np
-import scipy.optimize as opt
 import scipy.constants as consts
-import ion_phys.common as ip
 
 
-def transition_freq(B, atom, level, lower, upper):
-    """ Returns the frequency of a transition between two states in the same
-    level at a given magnetic field.
+def sort_levels(atom):
+    """ Use the transition data to sort the atomic levels in energy order. """
 
-    :param B: the field
-    :param atom: the atom to work with
-    :param level: the level the states are in
-    :param lower: (F, MF) tuple for the lower-energy state
-    :param upper: (F, MF) tuple for the higher-energy state
-    :return: the transition frequency (Hz)
-    """
-    if isinstance(B, np.ndarray):
-        B = B[0]
+    def get_trans(trans):
+        lower = atom["transitions"][trans]["lower"]
+        upper = atom["transitions"][trans]["upper"]
+        dE = atom["transitions"][trans]["f0"]*consts.h
+        return lower, upper, dE
 
-    ip.init(atom, B)
-    E = level["E"]/consts.h
-    M = level["M"]
-    F = level["F"]
-    return (E[np.logical_and(F == upper[0], M == upper[1])]
-            - E[np.logical_and(F == lower[0], M == lower[1])])[0]
+    transitions = list(atom["transitions"].keys())
+    sorted_levels = {}
 
+    # use any transition as our starting point, to define an ordering for two
+    # states
+    lower, upper, dE = get_trans(transitions[0])
+    transitions.remove(transitions[0])
+    sorted_levels[lower] = {"above": upper, "above_dE": dE}
+    sorted_levels[upper] = {"below": lower, "below_dE": dE}
 
-def df_dB(B, atom, level, lower, upper, eps=1e-4):
-    """ Returns the field-sensitivity (Hz/T) of a transition between two states
-    in the same level at a given magnetic field.
+    # order the remaining states. Each time, we add a transition that connects
+    # to a state that we already have an energy order. This avoids growing
+    # separate trees of states, which would have to be joined up later on
+    while transitions:
+        for trans in transitions:
+            lower, upper, dE = get_trans(trans)
+            if lower in sorted_levels.keys() and upper in sorted_levels.keys():
+                raise ValueError(
+                    "Transition '{}' would lead to multiply connected states, "
+                    "which is not currently supported.".format(trans))
+            if lower in sorted_levels.keys() or upper in sorted_levels.keys():
+                break
+        else:
+            raise ValueError(
+                "Transition '{}' would lead to a disconnected level structure,"
+                " which is not currently supported.".format(trans))
+        transitions.remove(trans)
 
-    :param B: the field
-    :param atom: the atom to work with
-    :param level: the level the states are in
-    :param lower: (F, MF) tuple for the lower-energy state
-    :param upper: (F, MF) tuple for the higher-energy state
-    :param eps: field difference (T) to use when calculating derivatives
-      numerically
-    :return: the transition's field sensitivity (Hz/T)
-    """
-    return (transition_freq(B+eps, atom, level, lower, upper)
-            - transition_freq(B, atom, level, lower, upper))/eps
+        # we already have a position for the lower level in the transition, so
+        # now we need to figure out where the upper level fits in
+        if lower in sorted_levels.keys():
+            _next = lower
+            while sorted_levels[_next].get("above") is not None:
+                _next_dE = sorted_levels[_next].get("above_dE")
+                if _next_dE > dE:
+                    break
+                dE -= _next_dE
+                _next = sorted_levels[_next]["above"]
 
+            if dE < 0:
+                raise ValueError("Transition '{}' gives a negative energy gap."
+                                 " Did you get the upper and lower states "
+                                 " the wrong way around for one transition?"
+                                 .format(trans))
 
-def d2f_dB2(B, atom, level, lower, upper, eps=1e-4):
-    """ Returns the second-order field-sensitivity (Hz/T^2) of a transition
-    between two states in the same level at a given magnetic field.
+            sorted_levels[upper] = {"below": _next, "below_dE": dE}
 
-    :param B: the field
-    :param atom: the atom to work with
-    :param level: the level the states are in
-    :param lower: (F, MF) tuple for the lower-energy state
-    :param upper: (F, MF) tuple for the higher-energy state
-    :param eps: field difference (T) to use when calculating derivatives
-      numerically
-    :return: the transition's second-order field sensitivity (Hz/T^2)
-    """
-    return (df_dB(B+eps, atom, level, lower, upper)
-            - df_dB(B, atom, level, lower, upper))/eps
+            if _next is None:
+                continue
 
+            top = sorted_levels[_next].get("above")
+            sorted_levels[_next]["above"] = upper
+            sorted_levels[_next]["above_dE"] = dE
+            if top is not None:
+                sorted_levels[top]["below"] = upper
+                sorted_levels[top]["below_dE"] = (
+                    sorted_levels[top]["below_dE"] - dE)
+                sorted_levels[upper]["above"] = top
+                sorted_levels[upper]["above_dE"] = (
+                    sorted_levels[top]["below_dE"])
 
-def field_insensitive_point(atom, level, lower, upper, B_min=1e-3, B_max=1e-1):
-    """ Returns the magnetic field at which the frequency of a transition
-    between two states in the same level becomes first-order field independent.
+        # otherwise, we need to fit lower in
+        else:
+            _prev = upper
+            while sorted_levels[_prev].get("below") is not None:
+                _prev_dE = sorted_levels[_prev].get("below_dE")
+                if _prev_dE > dE:
+                    break
+                dE -= _prev_dE
+                _prev = sorted_levels[_prev]["below"]
 
-    :param atom: the atom to work with
-    :param level: the level the states are in
-    :param lower: (F, MF) tuple for the lower-energy state
-    :param upper: (F, MF) tuple for the higher-energy state
-    :param B_min: minimum magnetic field used in numerical minimization (T)
-    :param B_max: maximum magnetic field used in numerical maximization (T)
-    :return: the field-independent point (T) or None if none found
-    """
-    res = opt.root(df_dB, x0=1e-8, args=(atom, level, lower, upper),
-                   options={'xtol': 1e-4, 'eps': 1e-7})
+            if dE < 0:
+                raise ValueError("Transition '{}' gives a negative energy gap."
+                                 " Did you get the upper and lower states "
+                                 " the wrong way around for one transition?"
+                                 .format(trans))
 
-    return res.x[0] if res.success else None
+            sorted_levels[lower] = {"above": _prev, "above_dE": dE}
+
+            if _prev is None:
+                continue
+
+            bot = sorted_levels[_prev].get("below")
+            sorted_levels[_prev]["below"] = lower
+            sorted_levels[_prev]["below_dE"] = dE
+            if bot is not None:
+                sorted_levels[bot]["above"] = lower
+                sorted_levels[bot]["above_dE"] = (
+                    sorted_levels[bot]["above_dE"] - dE)
+                assert sorted_levels[bot]["above_dE"] > 0
+                sorted_levels[lower]["below"] = bot
+                sorted_levels[lower]["below_dE"] = (
+                    sorted_levels[bot]["above_dE"])
+
+    # find the ground level
+    ground_level = list(sorted_levels.keys())[0]
+    while sorted_levels[ground_level].get("below") is not None:
+        ground_level = sorted_levels[ground_level]["below"]
+
+    # now sort levels by energy
+    level = ground_level
+    atom["sorted_levels"] = [{"level": level, "energy": 0}]
+    E_total = 0
+
+    while sorted_levels[level].get("above"):
+        E_total += sorted_levels[level]["above_dE"]
+        level = sorted_levels[level].get("above")
+        atom["sorted_levels"].append({"level": level,
+                                      "energy": E_total})

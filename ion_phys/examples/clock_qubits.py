@@ -1,6 +1,7 @@
 import ion_phys.common as ip
 from ion_phys.atoms.ca_43_p import atom
-from ion_phys.utils import field_insensitive_point, transition_freq, d2f_dB2
+from ion_phys.ground_level import (field_insensitive_point, transition_freq,
+                                   d2f_dB2)
 
 
 if __name__ == '__main__':
