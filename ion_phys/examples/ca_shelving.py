@@ -14,7 +14,7 @@ def main():
     ion = Ca43(B=146e-4)
     gl = Level(n=4, S=1/2, L=0, J=1/2)
     shelf = ion.slice(Level(n=3, S=1/2, L=2, J=3/2))
-    stretch = ion.index(gl, 3)
+    stretch = ion.index(gl, 4)
 
     rates = Rates(ion)
     delta = ion.delta(stretch, ion.index(Level(n=4, S=1/2, L=0, J=1/2), +4))
