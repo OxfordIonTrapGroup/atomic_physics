@@ -17,7 +17,7 @@ def main():
     stretch = ion.index(gl, 4)
 
     rates = Rates(ion)
-    delta = ion.delta(stretch, ion.index(Level(n=4, S=1/2, L=0, J=1/2), +4))
+    delta = ion.delta(stretch, ion.index(Level(n=4, S=1/2, L=1, J=3/2), +4))
     Lasers = [Laser("393", q=+1, I=0.01, delta=delta)]  # resonant 393 sigma+
     trans = rates.get_tranitions(Lasers)
 
