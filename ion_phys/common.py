@@ -3,153 +3,349 @@ from collections import namedtuple
 import scipy.constants as consts
 
 from ion_phys import operators
-from ion_phys.utils import sort_levels
-
-Level = namedtuple("Level", "n,L,S,J")
+from ion_phys.utils import Lande_g
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
-
-def init(atom, B):
-    """ Calculate atomic properties at a given B-field (Tesla).
-
-    We add the following fields to each level dictionary:
-      M - Magnetic quantum number for each state
-      E - Energy of each state relative to the level's centre of gravity,
-        sorted in order of increasing energy.
-      V - V[:, i] is the state with energy E[i], represented in the basis of
-        high-field (MI, MJ) energy eigenstates.
-      MI, MJ - high-field energy eigenstate basis vectors
-      F - The value of F:=I+J each state would have if the field were
-        adiabatically reduced to 0.
-    """
-    atom["B"] = B
-    sort_levels(atom)
-
-    I = atom["I"] = atom.get("I", 0)
-
-    I_dim = np.rint(2.0*atom["I"]+1).astype(int)
-
-    for level, data in atom["levels"].items():
-
-        J = level.J
-        gJ = data["gJ"] = data.get("gJ", Lande_g(level))
-
-        J_dim = np.rint(2.0*J+1).astype(int)
-
-        Jp = np.kron(operators.Jp(J), np.identity(I_dim))
-        Jm = np.kron(operators.Jm(J), np.identity(I_dim))
-        Jz = np.kron(operators.Jz(J), np.identity(I_dim))
-
-        Ip = np.kron(np.identity(J_dim), operators.Jp(I))
-        Im = np.kron(np.identity(J_dim), operators.Jm(I))
-        Iz = np.kron(np.identity(J_dim), operators.Jz(I))
-
-        H = gJ*_uB*B*Jz
-        if atom["I"] != 0:
-
-            gI = data["gI"]
-            IdotJ = (Iz@Jz + (1/2)*(Ip@Jm + Im@Jp))
-
-            H += - gI*_uN*B*Iz
-            H += data["Ahfs"]*IdotJ
-
-            if J > 1/2:
-                IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
-                ident = np.identity(I_dim*J_dim)
-                H += data["Bhfs"]/(2*I*J*(2*I-1)*(2*J-1))*(
-                    3*IdotJ2 + (3/2)*IdotJ - ident*I*(I+1)*J*(J+1))
-
-        E, V = np.linalg.eig(H)
-
-        inds = np.argsort(E)
-        data["E"] = E[inds]
-        data["V"] = V[:, inds]
-
-        data["MI"] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
-        data["MJ"] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
-        data["M"] = np.rint(2*np.diag(data["V"].conj().T@(Iz+Jz)@data["V"]))/2
-
-        F_list = np.arange(atom["I"]-J, atom["I"]+J+1)
-        if data["Ahfs"] < 0:
-            F_list = F_list[::-1]
-
-        data["F"] = np.zeros(J_dim*I_dim, dtype=float)
-        for M in set(data["M"]):
-            for Fidx, idx in np.ndenumerate(np.where(data["M"] == M)):
-                data["F"][idx] = F_list[abs(M) <= F_list][Fidx[1]]
+# frequencies in angular units
+Level = namedtuple("Level", "n,L,J,S")
+Transition = namedtuple("Transition", "lower,upper,freq,A")
+Laser = namedtuple("Laser", "transition,q,I,delta")
 
 
-def Lande_g(level):
-    gL = 1
-    gS = -consts.physical_constants["electron g factor"][0]
+class LevelData:
+    """ Stored atomic structure information about a single level. """
+    def __init__(self, g_J=None, g_I=None, Ahfs=None, Bhfs=None):
+        """
+        :param g_J: G factor. If None, we use the Lande g factor.
+        :param g_I: Nuclear g factor.
+        :param Ahfs: Nuclear A coefficient
+        :param Bhfs: Nuclear B quadrupole coefficient
+        """
+        self.g_J = g_J
+        self.g_I = g_I
+        self.Ahfs = Ahfs
+        self.Bhfs = Bhfs
 
-    S = level.S
-    J = level.J
-    L = level.L
+        self.E = None  # In angular frequency units
+        self._num_states = None
+        self._start_ind = None
+        self._stop_ind = None
 
-    gJ = gL*(J*(J+1) - S*(S+1) + L*(L+1)) / (2*J*(J+1)) \
-        + gS*(J*(J+1) + S*(S+1) - L*(L+1)) / (2*J*(J+1))
-    return gJ
+    def slice(self):
+        """ Returns a slice object that selects the states within a given
+        level.
+
+        Internally, we store states in order of increasing energy. This
+        provides a more convenient means of accessing the states within a
+        given level.
+        """
+        return slice(self._start_ind, self._stop_ind)
+
+    def __repr__(self):
+        return ("LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
+                " stop_ind={})""".format(self.g_J, self.g_I, self.E,
+                                         self._num_states, self._start_ind,
+                                         self._stop_ind))
 
 
-def calc_m1(atom):
-    """
-    Calculates the matrix elements for M1 transitions within each level.
+class Ion:
+    """ Base class for storing atomic structure data. """
 
-    The matrix elements for each level are stored as the matrix
-    atom["levels"][level].R_m1 defined so that:
-      - R_m1[i, j] := (-1)**(q+1)<i|u_q|j>
-      - q := Mi - Mj = (-1, 0, 1)
-      - u_q is the qth component of the magnetic dipole operator in spherical
-        coordinates.
+    def __init__(self, B=None, I=0, levels={}, transitions={}):
+        """
+        :param B: Magnetic field (T). To change the B-field later, call
+          :meth setB:
+        :param I: Nuclear spin
+        :param levels: dictionary mapping Level:LevelData
+        :param transitions: dictionary mapping transition name strings to
+          Transition objects.
 
-    NB with this definition, the Rabi frequency is given by:
-      - hbar * W = B_-q * R
-      - t_pi = pi/W
-      - where B_-q is the -qth component of the magnetic field in spherical
-        coordinates.
-    """
-    I = atom["I"]
-    I_dim = np.rint(2.0*I+1).astype(int)
-    eyeI = np.identity(I_dim)
+        Internally, we store all information as vectors/matrices with states
+        ordered in terms of increasing energies.
+        """
+        self.B = None
+        self.I = I
+        self.levels = dict(levels)
+        self.transitions = dict(transitions)
 
-    for level, data in atom["levels"].items():
+        self.num_states = None  # Total number of electronic states
+        self.M = None  # Magnetic quantum number of each state
+        self.F = None  # Hack: guess at the F quantum number for each state
+        self.E = None  # State energies in angular frequency units
 
-        J_dim = np.rint(2.0*level.J+1).astype(int)
-        dim = J_dim*I_dim
-        eyeJ = np.identity(J_dim)
+        self.E1 = None  # Electric dipole matrix elements
+        self.E2 = None  # Electric quadrupole matrix elements
+        self.M1 = None  # Magnetic dipole matrix elements
+        self.Gamma = None  # scattering rates
 
-        # magnetic dipole operator in spherical coordinates
-        Jp = np.kron((-1/np.sqrt(2))*operators.Jp(level.J), eyeI)
-        Jm = np.kron((+1/np.sqrt(2))*operators.Jm(level.J), eyeI)
-        Jz = np.kron(operators.Jz(level.J), eyeI)
+        # V - V[:, i] is the state with energy E[i], represented in the basis
+        #    high-field (MI, MJ) energy eigenstates.
+        #  MI, MJ - high-field energy eigenstate basis vectors
+        # V[:, i] are the expansion coefficients for the state E[i] in the
+        # basis of high-field (MI, MJ) energy eigenstates.
+        self.V = None
+        self.MI = None
+        self.MJ = None
 
-        Ip = np.kron(eyeJ, (-1/np.sqrt(2))*operators.Jp(I))
-        Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
-        Iz = np.kron(eyeJ, operators.Jz(I))
+        for level, data in self.levels.items():
+            if data.g_J is None:
+                data.g_J = Lande_g(level)
 
-        up = (-data["gJ"]*_uB*Jp + data["gI"]*_uN*Ip)
-        um = (-data["gJ"]*_uB*Jm + data["gI"]*_uN*Im)
-        uz = (-data["gJ"]*_uB*Jz + data["gI"]*_uN*Iz)
+        self._sort_levels()  # arrange levels in energy order
 
-        u = [um, uz, up]
+        if B is not None:
+            self.setB(B)
 
-        Mj = np.tile(data["M"], (dim, 1))
-        Mi = Mj.T
-        Q = (Mi - Mj)
+    def slice(self, level):
+        """ Returns a slice object that selects the states within a given
+        level.
 
-        valid = (np.abs(Q) <= 1)
-        valid[np.diag_indices(dim)] = False
+        Internally, we store states in order of increasing energy. This
+        provides a more convenient means of accessing the states within a
+        given level.
+        """
+        return self.levels[level].slice()
 
-        data["R_m1"] = np.zeros((dim, dim))
-        for transition in np.nditer(np.nonzero(valid)):
-            i = transition[0]
-            j = transition[1]
-            q = np.rint(Q[i, j]).astype(int)
+    def index(self, level, M, *, F=None):
+        """ Returns the index of a state.
 
-            psi_i = data["V"][:, i]
-            psi_j = data["V"][:, j]
+        If no kwargs are given, we return an array of indices of all states
+        with a given M. The kwargs can be used to filter the results, for
+        example, only returning the state with a given F.
 
-            data["R_m1"][i, j] = ((-1)**(q+1)) * psi_i.conj().T@u[q+1]@psi_j
+        Valid kwargs: F
+
+        Internally, we store states in order of increasing energy. This
+        provides a more convenient means of accessing a state.
+        """
+        lev = self.slice(level)
+        Mvec = self.M[lev]
+        inds = Mvec == M
+
+        if F is not None:
+            Fvec = self.F[lev]
+            inds = np.logical_and(inds, Fvec == F)
+
+        inds = np.argwhere(inds)
+        if len(inds) == 1:
+            inds = int(inds)
+        return inds
+
+    def level(self, state):
+        """ Returns the level a state lies in. """
+        for level, data in self.levels.items():
+            if state in data.slice():
+                return level
+        raise ValueError("No state with index {}".format(state))
+
+    def delta(self, lower, upper):
+        """ Returns the detuning of the transition between a pair of states
+        from the overall centre of gravity of the set of transitions between
+        the levels containing those states.
+
+        If both states are in the same level, this returns the transition
+        frequency.
+
+        :param lower: index of the lower state
+        :param upper: index of the upper state
+        :return: the detuning (rad/s)
+        """
+        return self.E[upper] - self.E[lower]
+
+    def _sort_levels(self):
+        """ Use the transition data to sort the atomic levels in order of
+        increasing energy.
+        """
+        unsorted = list(self.transitions.keys())
+        lower, upper, dE, _ = self.transitions[unsorted.pop()]
+        sorted_levels = {lower: 0, upper: dE}
+
+        while unsorted:
+            for trans in unsorted:
+                lower, upper, dE, _ = self.transitions[trans]
+                if lower in sorted_levels:
+                    sorted_levels[upper] = sorted_levels[lower]+dE
+                    break
+                elif upper in sorted_levels:
+                    sorted_levels[lower] = sorted_levels[upper]-dE
+                    break
+            else:
+                raise ValueError(
+                    "Transition '{}' would lead to a disconnected level"
+                    " structure.".format(trans))
+            unsorted.remove(trans)
+
+        if sorted_levels.keys() != self.levels.keys():
+            raise ValueError("Disconnected level structure")
+
+        sorted_levels = sorted(sorted_levels.items(), key=lambda x: x[1])
+        E0 = sorted_levels[0][1]  # ground-state energy
+        start_ind = 0
+        for level, energy in sorted_levels:
+            data = self.levels[level]
+            data.E = energy - E0
+            data._num_states = int(np.rint((2*self.I + 1)*(2*level.J + 1)))
+            data._start_ind = start_ind
+            start_ind = data._stop_ind = start_ind + data._num_states
+
+        self.num_states = start_ind
+
+    def setB(self, B):
+        """ Calculate atomic data at a given B-field (Tesla). """
+        self.B = B
+        self.M = np.zeros(self.num_states)
+        self.F = np.zeros(self.num_states)
+        self.E = np.zeros(self.num_states)
+        self.MI = np.zeros(self.num_states)
+        self.MJ = np.zeros(self.num_states)
+        self.V = np.zeros((self.num_states, self.num_states))
+
+        I = self.I
+        I_dim = np.rint(2.0*I+1).astype(int)
+
+        for level, data in self.levels.items():
+
+            J = level.J
+            J_dim = np.rint(2.0*J+1).astype(int)
+
+            Jp = np.kron(operators.Jp(J), np.identity(I_dim))
+            Jm = np.kron(operators.Jm(J), np.identity(I_dim))
+            Jz = np.kron(operators.Jz(J), np.identity(I_dim))
+
+            Ip = np.kron(np.identity(J_dim), operators.Jp(I))
+            Im = np.kron(np.identity(J_dim), operators.Jm(I))
+            Iz = np.kron(np.identity(J_dim), operators.Jz(I))
+
+            H = data.g_J*_uB*B*Jz
+            if self.I != 0:
+                gI = data.g_I
+                IdotJ = (Iz@Jz + (1/2)*(Ip@Jm + Im@Jp))
+
+                H += - gI*_uN*B*Iz
+                H += data.Ahfs*IdotJ
+
+                if J > 1/2:
+                    IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
+                    ident = np.identity(I_dim*J_dim)
+                    H += data.Bhfs/(2*I*J*(2*I-1)*(2*J-1))*(
+                        3*IdotJ2 + (3/2)*IdotJ - ident*I*(I+1)*J*(J+1))
+
+            H /= consts.hbar  # work in angular frequency units
+            lev = data.slice()
+            E, V = np.linalg.eig(H)
+            inds = np.argsort(E)
+
+            self.E[lev] = E[inds]
+            self.V[lev, lev] = V = V[:, inds]
+            self.MI[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
+            self.MJ[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
+            self.M[lev] = M = np.rint(2*np.diag(V.conj().T@(Iz+Jz)@V))/2
+
+            F_list = np.arange(I-J, I+J+1)
+            if data.Ahfs < 0:
+                F_list = F_list[::-1]
+
+            F = np.zeros(J_dim*I_dim, dtype=float)
+            for _M in set(M):
+                for Fidx, idx in np.ndenumerate(np.where(M == _M)):
+                    F[idx] = F_list[abs(_M) <= F_list][Fidx[1]]
+            self.F[lev] = F
+
+        if self.E1 is not None:
+            self.calc_E1()
+        if self.E2 is not None:
+            self.calc_E2()
+        if self.M1 is not None:
+            self.calc_M1()
+        if self.Gamma is not None:
+            self.calc_Scattering()
+
+    def calc_E1(self):
+        """ Calculate the electric dipole matrix elements """
+        pass
+    #     self.Gamma = np.zeros((self.num_states, self.num_states))
+    #     for _, trans in self.transitions:
+    #         A = trans.A
+    #         J = trans.upper.J  # check upper/lower!
+    #         Mu = self.M[trans.upper.slice()]
+    #         Ml = self.M[trans.lower.slice()]
+    #         Gamma = self.Gamma(trans.upper.slice(), trans.lower.slice())
+    #         # store GammaJ?
+    #         for M in Mu:
+    #             for q in [-1., 0., 1.]:
+    #                 if M-q not in Ml:
+    #                     continue
+    #             Gamma[Mu==M, Ml==(M+q)] = A*(2*J+1)*3J(...)**2
+
+    def calc_E2(self):
+        """ Calculate electric quadrupole matrix elements. """
+        pass
+
+    def calc_Scattering(self):
+        """ Calculate scattering rates from each state. """
+        if self.E1 is None:
+            self.calc_E1()
+
+    def calc_M1(self):
+        """ Calculates the matrix elements for M1 transitions within each
+        level.
+
+        The matrix elements, Rij, are defined so that:
+          - R[i, j] := (-1)**(q+1)<i|u_q|j>
+          - q := Mi - Mj = (-1, 0, 1)
+          - u_q is the qth component of the magnetic dipole operator in
+            spherical coordinates.
+
+        NB with this definition, the Rabi frequency is given by:
+          - hbar * W = B_-q * R
+          - t_pi = pi/W
+          - where B_-q is the -qth component of the magnetic field in spherical
+            coordinates.
+        """
+        self.M1 = np.zeros((self.num_states, self.num_states))
+        I = self.I
+        I_dim = np.rint(2.0*I+1).astype(int)
+        eyeI = np.identity(I_dim)
+
+        for level, data in self.levels.items():
+            lev = level.slice()
+            J_dim = np.rint(2.0*level.J+1).astype(int)
+            dim = J_dim*I_dim
+            eyeJ = np.identity(J_dim)
+
+            # magnetic dipole operator in spherical coordinates
+            Jp = np.kron((-1/np.sqrt(2))*operators.Jp(level.J), eyeI)
+            Jm = np.kron((+1/np.sqrt(2))*operators.Jm(level.J), eyeI)
+            Jz = np.kron(operators.Jz(level.J), eyeI)
+
+            Ip = np.kron(eyeJ, (-1/np.sqrt(2))*operators.Jp(I))
+            Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
+            Iz = np.kron(eyeJ, operators.Jz(I))
+
+            up = (-data.g_J*_uB*Jp + data.g_I*_uN*Ip)
+            um = (-data.g_J*_uB*Jm + data.g_I*_uN*Im)
+            uz = (-data.g_J*_uB*Jz + data.g_I*_uN*Iz)
+
+            u = [um, uz, up]
+
+            Mj = np.tile(data.M[lev], (dim, 1))
+            Mi = Mj.T
+            Q = (Mi - Mj)
+
+            valid = (np.abs(Q) <= 1)
+            valid[np.diag_indices(dim)] = False
+
+            M1 = np.zeros((dim, dim))
+            V = self.V[lev, lev]
+            for transition in np.nditer(np.nonzero(valid)):
+                i = transition[0]
+                j = transition[1]
+                q = np.rint(Q[i, j]).astype(int)
+
+                psi_i = V[:, i]
+                psi_j = V[:, j]
+
+                M1[i, j] = ((-1)**(q+1)) * psi_i.conj().T@u[q+1]@psi_j
+            self.M1[lev, lev] = M1

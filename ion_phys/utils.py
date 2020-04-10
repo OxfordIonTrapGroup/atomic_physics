@@ -1,121 +1,116 @@
+import numpy as np
+from copy import deepcopy
+import scipy.optimize as opt
 import scipy.constants as consts
 
+_uB = consts.physical_constants["Bohr magneton"][0]
+_uN = consts.physical_constants["nuclear magneton"][0]
 
-def sort_levels(atom):
-    """ Use the transition data to sort the atomic levels in energy order. """
 
-    def get_trans(trans):
-        lower = atom["transitions"][trans]["lower"]
-        upper = atom["transitions"][trans]["upper"]
-        dE = atom["transitions"][trans]["f0"]*consts.h
-        return lower, upper, dE
+def Lande_g(level):
+    """ Returns the Lande g factor for a level. """
+    gL = 1
+    gS = -consts.physical_constants["electron g factor"][0]
 
-    transitions = list(atom["transitions"].keys())
-    sorted_levels = {}
+    S = level.S
+    J = level.J
+    L = level.L
 
-    # use any transition as our starting point, to define an ordering for two
-    # states
-    lower, upper, dE = get_trans(transitions[0])
-    transitions.remove(transitions[0])
-    sorted_levels[lower] = {"above": upper, "above_dE": dE}
-    sorted_levels[upper] = {"below": lower, "below_dE": dE}
+    gJ = gL*(J*(J+1) - S*(S+1) + L*(L+1)) / (2*J*(J+1)) \
+        + gS*(J*(J+1) + S*(S+1) - L*(L+1)) / (2*J*(J+1))
+    return gJ
 
-    # order the remaining states. Each time, we add a transition that connects
-    # to a state that we already have an energy order. This avoids growing
-    # separate trees of states, which would have to be joined up later on
-    while transitions:
-        for trans in transitions:
-            lower, upper, dE = get_trans(trans)
-            if lower in sorted_levels.keys() and upper in sorted_levels.keys():
-                raise ValueError(
-                    "Transition '{}' would lead to multiply connected states, "
-                    "which is not currently supported.".format(trans))
-            if lower in sorted_levels.keys() or upper in sorted_levels.keys():
-                break
-        else:
-            raise ValueError(
-                "Transition '{}' would lead to a disconnected level structure,"
-                " which is not currently supported.".format(trans))
-        transitions.remove(trans)
 
-        # we already have a position for the lower level in the transition, so
-        # now we need to figure out where the upper level fits in
-        if lower in sorted_levels.keys():
-            _next = lower
-            while sorted_levels[_next].get("above") is not None:
-                _next_dE = sorted_levels[_next].get("above_dE")
-                if _next_dE > dE:
-                    break
-                dE -= _next_dE
-                _next = sorted_levels[_next]["above"]
+def df_dB(ion, lower, upper, eps=1e-6):
+    """ Returns the field-sensitivity of a transition between two
+    states in the same level at a given magnetic field.
 
-            if dE < 0:
-                raise ValueError("Transition '{}' gives a negative energy gap."
-                                 " Did you get the upper and lower states "
-                                 " the wrong way around for one transition?"
-                                 .format(trans))
+    :param ion: the ion
+    :param lower: index of the lower energy state
+    :param upper: index of the higher-energy state
+    :param eps: field difference (T) to use when calculating derivatives
+      numerically
+    :return: the transition's field sensitivity (rad/s/T)
 
-            sorted_levels[upper] = {"below": _next, "below_dE": dE}
+    To do: add a special case when we can use the BR formula
+    """
+    f = ion.delta(lower, upper)
+    ion = deepcopy(ion)
+    ion.setB(ion.B+eps)
+    fpr = ion.delta(lower, upper)
+    return (fpr - f)/eps
 
-            if _next is None:
-                continue
 
-            top = sorted_levels[_next].get("above")
-            sorted_levels[_next]["above"] = upper
-            sorted_levels[_next]["above_dE"] = dE
-            if top is not None:
-                sorted_levels[top]["below"] = upper
-                sorted_levels[top]["below_dE"] = (
-                    sorted_levels[top]["below_dE"] - dE)
-                sorted_levels[upper]["above"] = top
-                sorted_levels[upper]["above_dE"] = (
-                    sorted_levels[top]["below_dE"])
+def d2f_dB2(ion, lower, upper, eps=1e-4):
+    """ Returns the second-order field-sensitivity of a transition
+    between two states in thise same level at a given magnetic field.
 
-        # otherwise, we need to fit lower in
-        else:
-            _prev = upper
-            while sorted_levels[_prev].get("below") is not None:
-                _prev_dE = sorted_levels[_prev].get("below_dE")
-                if _prev_dE > dE:
-                    break
-                dE -= _prev_dE
-                _prev = sorted_levels[_prev]["below"]
+    :param ion: the ion to work with
+    :param lower: index of the lower energy state
+    :param upper: index of the higher-energy state
+    :param eps: field difference (T) to use when calculating derivatives
+      numerically
+    :return: the transition's second-order field sensitivity (Hz/s/T^2)
 
-            if dE < 0:
-                raise ValueError("Transition '{}' gives a negative energy gap."
-                                 " Did you get the upper and lower states "
-                                 " the wrong way around for one transition?"
-                                 .format(trans))
+    To do: add a special case when we can use the BR formula
+    """
+    df = df_dB(ion, lower, upper)
+    ion = deepcopy(ion)
+    ion.setB(ion.B+eps)
+    dfpr = df_dB(ion, lower, upper)
 
-            sorted_levels[lower] = {"above": _prev, "above_dE": dE}
+    return (dfpr - df)/eps
 
-            if _prev is None:
-                continue
 
-            bot = sorted_levels[_prev].get("below")
-            sorted_levels[_prev]["below"] = lower
-            sorted_levels[_prev]["below_dE"] = dE
-            if bot is not None:
-                sorted_levels[bot]["above"] = lower
-                sorted_levels[bot]["above_dE"] = (
-                    sorted_levels[bot]["above_dE"] - dE)
-                assert sorted_levels[bot]["above_dE"] > 0
-                sorted_levels[lower]["below"] = bot
-                sorted_levels[lower]["below_dE"] = (
-                    sorted_levels[bot]["above_dE"])
+def field_insensitive_point(ion, lower, upper, B_min=1e-3, B_max=1e-1):
+    """ Returns the magnetic field at which the frequency of a transition
+    between two states in the same level becomes first-order field independent.
 
-    # find the ground level
-    ground_level = list(sorted_levels.keys())[0]
-    while sorted_levels[ground_level].get("below") is not None:
-        ground_level = sorted_levels[ground_level]["below"]
+    :param ion: the ion to work with
+    :param lower: index of the lower energy state
+    :param upper: index of the higher-energy state
+    :param B_min: minimum magnetic field used in numerical minimization (T)
+    :param B_max: maximum magnetic field used in numerical maximization (T)
+    :return: the field-independent point (T) or None if none found
 
-    # now sort levels by energy
-    level = ground_level
-    atom["sorted_levels"] = [{"level": level, "energy": 0}]
-    E_total = 0
+    To do: add special case where we can use the BR formula
 
-    while sorted_levels[level].get("above"):
-        E_total += sorted_levels[level]["above_dE"]
-        level = sorted_levels[level].get("above")
-        atom["sorted_levels"].append({"level": level,
-                                      "energy": E_total})
+    NB this does not change the ion's state (e.g. it does not set the B-field
+    to the field insensitive point)
+    """
+    ion = deepcopy(ion)
+
+    def fun(B):
+        ion.setB(B)
+        return df_dB(ion, lower, upper)
+
+    res = opt.root(fun, x0=1e-8, options={'xtol': 1e-4, 'eps': 1e-7})
+    return res.x[0] if res.success else None
+
+
+def ac_zeeman_shift(ion, state, f_RF):
+    """ Returns the AC Zeeman shifts for a state normalized to a field of 1T.
+
+    :param ion: the ion
+    :param state: index of the state
+    :param freq: frequency of the driving field (rad/s)
+    :return: Array of AC Zeeman shifts (rad/s) caused by a field of 1T with
+      sigma_minus, pi or sigma_plus polarisation [sigma_m, pi, sigma_p]
+    """
+    level = ion.level(state)
+    states = ion.slice(level)
+    state -= states.start
+
+    E = ion.E[states]
+    M = ion.M[states]
+    R = ion.M1[states]
+    rabi = R/consts.hbar
+
+    acz = np.zeros(3)
+    for q in [-1, 0, +1]:
+        Mpr = M + q
+        for _state in np.argwhere(Mpr == Mpr):
+            freq = E[_state] - E[state]
+            w = rabi[state, _state][0]
+            acz[q + 1] += 0.5*w**2*(freq/(freq**2 - (f_RF)**2))
+    return acz

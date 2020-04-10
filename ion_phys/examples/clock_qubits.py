@@ -1,22 +1,31 @@
-import ion_phys.common as ip
-from ion_phys.atoms.ca_43_p import atom
-from ion_phys.ground_level import (field_insensitive_point, transition_freq,
-                                   d2f_dB2)
+import numpy as np
+from ion_phys import Level
+from ion_phys.ions.ca_43_p import Ca43
+from ion_phys.utils import (field_insensitive_point, d2f_dB2)
 
 
 if __name__ == '__main__':
     # all seems about correct (e.g. agrees with TPH thesis) but expect some
     # numerical inaccuracy, particularly around the second-order field
-    # sensitivities
-    level = atom["levels"][ip.Level(n=4, L=0, S=1/2, J=1/2)]
-    print("Filed-independent points:")
+    # sensitivities. To improve we should add a special case to the derivative
+    # calculation that uses the BR formula!
+    ion = Ca43()
+    lev = Level(n=4, L=0, S=1/2, J=1/2)
+
+    print("Field-independent points:")
     for M3 in range(-3, +3 + 1):
         for q in [-1, 0, 1]:
-            B0 = field_insensitive_point(atom, level, (4, M3-q), (3, M3))
+            ion.setB(1e-4)
+            F4 = ion.index(lev, M3-q, F=4)
+            F3 = ion.index(lev, M3, F=3)
+            B0 = field_insensitive_point(ion, F4, F3)
             if B0 is not None:
-                f0 = transition_freq(B0, atom, level, (4, M3-q), (3, M3))
-                d2fdB2 = d2f_dB2(B0, atom, level, (4, M3-q), (3, M3))
-                print("4, {} --> 3, {}: {:.1f} Hz @ {:.5f} mT ({:.3e} Hz/mT^2)"
-                      .format(M3-q, M3, f0, B0*1e3, d2fdB2*1e-11))
+                ion.setB(B0)
+                f0 = ion.delta(F4, F3)
+                d2fdB2 = d2f_dB2(ion, F4, F3)
+                print(
+                    "4, {} --> 3, {}: {:.6f} GHz @ {:.5f} G ({:.3e} Hz/G^2)"
+                    .format(M3-q, M3, f0/(2*np.pi*1e6), B0*1e4,
+                            d2fdB2/(2*np.pi)*1e-8))
             else:
                 print("4, {} --> 3, {}: none found".format(M3-q, M3))

@@ -1,34 +1,27 @@
+""" Produces Breit-Rabi plots for Calcium 43"""
 import numpy as np
-import scipy.constants as consts
 import matplotlib.pyplot as plt
 
-import ion_phys.common as ip
-from ion_phys.common import Level
-from ion_phys.atoms.ca_43_p import atom
+from ion_phys import Level
+from ion_phys.ions.ca_43_p import Ca43
 
-bField = np.arange(0.01, 300, 2)
-energy_g = []
+ion = Ca43()
+level = ion.slice(Level(n=4, S=1/2, L=0, J=1/2))
+idim = int(np.rint(2*ion.I+1))
+jdim = int(np.rint(2*1/2+1))
 
-for B in bField:
-    ip.init(atom, B*1e-4)
+B_ax = np.arange(0.01, 300, 20)  # B fields (Gauss)
+energies = np.zeros((len(B_ax), idim*jdim))
 
-    levels = atom["levels"]
-    ground_level = levels[Level(n=3, S=1/2, L=2, J=3/2)]
-    J = ground_level["MJ"][-1]
-    M_g = ground_level["M"]
-    F_g = ground_level["F"]
-    E_g = ground_level["E"]
-
-    F_list = np.arange(atom["I"] - J, atom["I"] + J + 1)
-    for F in F_list:
-        for M in np.arange(-F, F + 1):
-            energy_g.append(E_g[np.logical_and(F_g == F, M_g == M)]/consts.h)
+for idx, B in enumerate(B_ax):
+    ion.setB(B*1e-4)
+    energies[idx, :] = ion.E[level]
 
 plt.figure()
-idx = np.int(np.sum(2*F_list) + len(F_list))
-for i in range(idx):
-    plt.plot(bField, np.array(energy_g[i::idx])/1e6, color='k')
+for idx in range(idim*jdim):
+    plt.plot(B_ax, np.array(energies[:, idx])/(2*np.pi*1e6), color='k')
 
 plt.ylabel('Frequency (MHz)')
 plt.xlabel('B field (G)')
+plt.grid()
 plt.show()
