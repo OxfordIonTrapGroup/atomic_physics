@@ -1,6 +1,6 @@
 import numpy as np
 from ion_phys import Level
-from ion_phys.ions.ca_43_p import Ca43
+from ion_phys.ions.ca43 import Ca43
 from ion_phys.utils import (field_insensitive_point, d2f_dB2)
 
 
