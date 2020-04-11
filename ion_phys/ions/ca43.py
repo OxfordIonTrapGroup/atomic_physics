@@ -14,17 +14,16 @@ from ion_phys import Level, LevelData, Transition, Ion
 
 
 class Ca43(Ion):
-    def __init__(self, B=None, levels=None, transitions=None):
+    def __init__(self, B=None, *, level_filter=None, transition_filter=None):
         """ 43Ca+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
-        :param levels: list of Levels to include in the simulation, if None
-          we include all levels.
-        :param transitions: list of Transitions to include in the simulation,
-          if None we include all transitions.
+        :param level_filter: list of Levels to include in the simulation, if
+            None we include all levels.
+        :param transition_filter: list of Transitions to include in the
+          simulation, if None we include all relevant transitions.
         """
-
-        _levels = {
+        levels = {
             Level(n=4, L=0, S=1/2, J=1/2): LevelData(
                 g_J=2.00225664,  # [2]
                 g_I=(2 / 7) * -1.315348,  # [3]
@@ -51,7 +50,7 @@ class Ca43(Ion):
             )
         }
 
-        _transitions = {
+        transitions = {
             "397": Transition(
                 lower=Level(n=4, L=0, S=1/2, J=1/2),
                 upper=Level(n=4, L=1, S=1/2, J=1/2),
@@ -78,10 +77,6 @@ class Ca43(Ion):
             ),
         }
 
-        if levels is not None:
-            _levels = dict(filter(lambda lev: lev[0] in levels,
-                                  _levels.items()))
-        if transitions is not None:
-            _transitions = dict(filter(lambda trans: trans[0] in transitions,
-                                       _transitions.items()))
-        super().__init__(B, I=7/2, levels=_levels, transitions=_transitions)
+        super().__init__(B, I=7/2, levels=levels, transitions=transitions,
+                         level_filter=level_filter,
+                         transition_filter=transition_filter)

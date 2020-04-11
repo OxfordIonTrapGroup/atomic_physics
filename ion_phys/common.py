@@ -53,7 +53,8 @@ class LevelData:
 class Ion:
     """ Base class for storing atomic structure data. """
 
-    def __init__(self, B=None, I=0, levels={}, transitions={}):
+    def __init__(self, B=None, *, I=0, levels={}, transitions={},
+                 level_filter=None, transition_filter=None):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
@@ -61,14 +62,35 @@ class Ion:
         :param levels: dictionary mapping Level:LevelData
         :param transitions: dictionary mapping transition name strings to
           Transition objects.
+        :param level_filter: list of Levels to include in the simulation, if
+            None we include all levels.
+        :param transition_filter: list of Transitions to include in the
+          simulation, if None we include all relevant transitions.
 
         Internally, we store all information as vectors/matrices with states
         ordered in terms of increasing energies.
         """
         self.B = None
         self.I = I
-        self.levels = dict(levels)
-        self.transitions = dict(transitions)
+
+        levels = dict(levels)
+        transitions = dict(transitions)
+
+        if level_filter is not None:
+            levels = dict(filter(lambda lev: lev[0] in level_filter,
+                                 levels.items()))
+        if transition_filter is None:
+            transition_filter = transitions.keys()
+
+        transition_filter = [transition for transition in transition_filter if
+                             transition.lower in levels.keys()
+                             and transition.upper in levels.keys()]
+
+        transitions = dict(filter(lambda trans: trans[0] in transition_filter,
+                                  transitions.items()))
+
+        self.levels = levels
+        self.transitions = transitions
 
         # ordered in terms of increasing state energies
         self.num_states = None  # Total number of electronic states

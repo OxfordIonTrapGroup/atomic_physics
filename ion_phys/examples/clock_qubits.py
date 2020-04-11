@@ -10,7 +10,7 @@ if __name__ == '__main__':
     # sensitivities. To improve we should add a special case to the derivative
     # calculation that uses the BR formula!
     lev = Level(n=4, S=1/2, L=0, J=1/2)
-    ion = Ca43(levels=[lev], transitions=[])
+    ion = Ca43(level_filter=[lev])
 
     print("Field-independent points:")
     for M3 in range(-3, +3 + 1):

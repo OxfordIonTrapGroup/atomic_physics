@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from ion_phys import Level
 from ion_phys.ions.ca43 import Ca43
 
-ion = Ca43(levels=[Level(n=4, S=1/2, L=0, J=1/2)], transitions=[])
+ion = Ca43(level_filter=[Level(n=4, S=1/2, L=0, J=1/2)])
 idim = int(np.rint(2*ion.I+1))
 jdim = int(np.rint(2*1/2+1))
 
