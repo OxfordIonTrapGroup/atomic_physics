@@ -9,8 +9,8 @@ if __name__ == '__main__':
     # numerical inaccuracy, particularly around the second-order field
     # sensitivities. To improve we should add a special case to the derivative
     # calculation that uses the BR formula!
-    ion = Ca43()
-    lev = Level(n=4, L=0, S=1/2, J=1/2)
+    lev = Level(n=4, S=1/2, L=0, J=1/2)
+    ion = Ca43(levels=[lev], transitions=[])
 
     print("Field-independent points:")
     for M3 in range(-3, +3 + 1):
