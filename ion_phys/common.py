@@ -70,9 +70,12 @@ class Ion:
         self.levels = dict(levels)
         self.transitions = dict(transitions)
 
+        # ordered in terms of increasing state energies
         self.num_states = None  # Total number of electronic states
         self.M = None  # Magnetic quantum number of each state
-        self.F = None  # Hack: guess at the F quantum number for each state
+        self.F = None  # F for each state (valid at low field)
+        self.MI = None  # MI for each state (only valid at low field)
+        self.MJ = None  # MJ for each state (only valid at low field)
         self.E = None  # State energies in angular frequency units
 
         self.E1 = None  # Electric dipole matrix elements
@@ -85,9 +88,11 @@ class Ion:
         #  MI, MJ - high-field energy eigenstate basis vectors
         # V[:, i] are the expansion coefficients for the state E[i] in the
         # basis of high-field (MI, MJ) energy eigenstates.
+        # NB the MI, MJ axes here are the most convenient to represent our
+        # operators in; they are not energy ordered (like self.MI, self.MJ)
         self.V = None
-        self.MI = None
-        self.MJ = None
+        self.MIax = None
+        self.MJax = None
 
         for level, data in self.levels.items():
             if data.g_J is None:
@@ -108,14 +113,14 @@ class Ion:
         """
         return self.levels[level].slice()
 
-    def index(self, level, M, *, F=None):
+    def index(self, level, M, *, F=None, MI=None, MJ=None):
         """ Returns the index of a state.
 
         If no kwargs are given, we return an array of indices of all states
         with a given M. The kwargs can be used to filter the results, for
         example, only returning the state with a given F.
 
-        Valid kwargs: F
+        Valid kwargs: F, MI, MJ
 
         Internally, we store states in order of increasing energy. This
         provides a more convenient means of accessing a state.
@@ -127,6 +132,12 @@ class Ion:
         if F is not None:
             Fvec = self.F[lev]
             inds = np.logical_and(inds, Fvec == F)
+        if MI is not None:
+            MIvec = self.MI[lev]
+            inds = np.logical_and(inds, MIvec == MI)
+        if MJ is not None:
+            MJvec = self.MJ[lev]
+            inds = np.logical_and(inds, MJvec == MJ)
 
         inds = np.argwhere(inds)
         if len(inds) == 1:
@@ -200,6 +211,8 @@ class Ion:
         self.E = np.zeros(self.num_states)
         self.MI = np.zeros(self.num_states)
         self.MJ = np.zeros(self.num_states)
+        self.MIax = np.zeros(self.num_states)
+        self.MJax = np.zeros(self.num_states)
         self.V = np.zeros((self.num_states, self.num_states))
 
         I = self.I
@@ -239,19 +252,19 @@ class Ion:
 
             self.E[lev] = E[inds]
             self.V[lev, lev] = V = V[:, inds]
-            self.MI[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
-            self.MJ[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
+            self.MIax[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
+            self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
+            self.MI[lev] = np.rint(2*np.diag(V.conj().T@(Iz)@V))/2
+            self.MJ[lev] = np.rint(2*np.diag(V.conj().T@(Jz)@V))/2
             self.M[lev] = M = np.rint(2*np.diag(V.conj().T@(Iz+Jz)@V))/2
 
             F_list = np.arange(I-J, I+J+1)
             if data.Ahfs < 0:
                 F_list = F_list[::-1]
 
-            F = np.zeros(J_dim*I_dim, dtype=float)
             for _M in set(M):
                 for Fidx, idx in np.ndenumerate(np.where(M == _M)):
-                    F[idx] = F_list[abs(_M) <= F_list][Fidx[1]]
-            self.F[lev] = F
+                    self.F[lev][idx] = F_list[_M <= F_list][Fidx[1]]
 
         if self.E1 is not None:
             self.calc_E1()
