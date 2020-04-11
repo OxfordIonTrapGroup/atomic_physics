@@ -169,9 +169,16 @@ class Ion:
         """ Use the transition data to sort the atomic levels in order of
         increasing energy.
         """
-        unsorted = list(self.transitions.keys())
-        lower, upper, dE, _ = self.transitions[unsorted.pop()]
-        sorted_levels = {lower: 0, upper: dE}
+        if not(self.transitions):
+            levels = list(self.levels.keys())
+            if len(levels) != 1:
+                raise ValueError("Disconnected level structure.")
+            sorted_levels = {levels[0]: 0}
+            unsorted = []
+        else:
+            unsorted = list(self.transitions.keys())
+            lower, upper, dE, _ = self.transitions[unsorted.pop()]
+            sorted_levels = {lower: 0, upper: dE}
 
         while unsorted:
             for trans in unsorted:

@@ -2,7 +2,7 @@
 import numpy as np
 from scipy.linalg import expm
 import matplotlib.pyplot as plt
-from ion_phys.ions.ca_43_p import Ca43
+from ion_phys.ions.ca43 import Ca43
 from ion_phys import Laser, Level
 from ion_phys.rate_equations import Rates
 
