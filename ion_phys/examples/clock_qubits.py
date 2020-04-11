@@ -1,6 +1,6 @@
 import numpy as np
-from ion_phys import Level
-from ion_phys.ions.ca43 import Ca43
+
+from ion_phys.ions.ca43 import Ca43, ground_level
 from ion_phys.utils import (field_insensitive_point, d2f_dB2)
 
 
@@ -9,15 +9,14 @@ if __name__ == '__main__':
     # numerical inaccuracy, particularly around the second-order field
     # sensitivities. To improve we should add a special case to the derivative
     # calculation that uses the BR formula!
-    lev = Level(n=4, S=1/2, L=0, J=1/2)
-    ion = Ca43(level_filter=[lev])
+    ion = Ca43(level_filter=[ground_level])
 
     print("Field-independent points:")
     for M3 in range(-3, +3 + 1):
         for q in [-1, 0, 1]:
             ion.setB(1e-4)
-            F4 = ion.index(lev, M3-q, F=4)
-            F3 = ion.index(lev, M3, F=3)
+            F4 = ion.index(ground_level, M3-q, F=4)
+            F3 = ion.index(ground_level, M3, F=3)
             B0 = field_insensitive_point(ion, F4, F3)
             if B0 is not None:
                 ion.setB(B0)

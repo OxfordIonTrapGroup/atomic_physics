@@ -82,9 +82,9 @@ class Ion:
         if transition_filter is None:
             transition_filter = transitions.keys()
 
-        transition_filter = [transition for transition in transition_filter if
-                             transition.lower in levels.keys()
-                             and transition.upper in levels.keys()]
+        transition_filter = [trans for trans in transition_filter if
+                             transitions[trans].lower in levels.keys()
+                             and transitions[trans].upper in levels.keys()]
 
         transitions = dict(filter(lambda trans: trans[0] in transition_filter,
                                   transitions.items()))

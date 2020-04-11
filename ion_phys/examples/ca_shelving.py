@@ -2,8 +2,8 @@
 import numpy as np
 from scipy.linalg import expm
 import matplotlib.pyplot as plt
-from ion_phys.ions.ca43 import Ca43
-from ion_phys import Laser, Level
+from ion_phys.ions.ca43 import Ca43, ground_level, P32, shelf
+from ion_phys import Laser
 from ion_phys.rate_equations import Rates
 
 
@@ -12,12 +12,10 @@ def main():
     shelved = np.zeros(len(t_ax))
 
     ion = Ca43(B=146e-4)
-    gl = Level(n=4, S=1/2, L=0, J=1/2)
-    shelf = ion.slice(Level(n=3, S=1/2, L=2, J=3/2))
-    stretch = ion.index(gl, 4)
+    stretch = ion.index(ground_level, 4)
 
     rates = Rates(ion)
-    delta = ion.delta(stretch, ion.index(Level(n=4, S=1/2, L=1, J=3/2), +5))
+    delta = ion.delta(stretch, ion.index(P32, +5))
     Lasers = [Laser("393", q=+1, I=0.01, delta=delta)]  # resonant 393 sigma+
     trans = rates.get_tranitions(Lasers)
 
@@ -25,7 +23,7 @@ def main():
         Vi = np.zeros((ion.num_states, 1))  # initial state
         Vi[stretch] = 1  # start in F=4, M=+4
         Vf = expm(trans*t)@Vi
-        shelved[idx] = sum(Vf[shelf])
+        shelved[idx] = sum(Vf[ion.slice(shelf)])
 
     plt.plot(t_ax*1e6, shelved)
     plt.ylabel('Shelved Population')

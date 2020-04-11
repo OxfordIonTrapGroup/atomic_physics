@@ -2,10 +2,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ion_phys import Level
-from ion_phys.ions.ca43 import Ca43
+from ion_phys.ions.ca43 import Ca43, ground_level
 
-ion = Ca43(level_filter=[Level(n=4, S=1/2, L=0, J=1/2)])
+ion = Ca43(level_filter=[ground_level])
 idim = int(np.rint(2*ion.I+1))
 jdim = int(np.rint(2*1/2+1))
 
