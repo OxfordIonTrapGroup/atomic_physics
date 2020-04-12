@@ -1,6 +1,7 @@
 import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
+from scipy.constants import hbar
 
 from ion_phys import operators
 from ion_phys.utils import Lande_g
@@ -187,6 +188,33 @@ class Ion:
         """
         return self.E[upper] - self.E[lower]
 
+    def I0(self, transition):
+        """ Returns the saturation intensity for a transition.
+
+        We adopt a convention whereby, for a resonantly-driven cycling
+        transition, one saturation intensity gives equal stimulated and
+        spontaneous transition rates.
+
+        :param transition: the transition name
+        :return: saturation intensity (W/m^2)
+        """
+        omega = self.transitions[transition].f0
+        # Gamma = self.Gamma ...  # To do
+        Gamma = 0
+        return hbar*(omega**3)*Gamma/(6*np.pi*(consts.c**2))
+
+    def P0(self, transition, w0):
+        """ Returns the power needed at the focus of a Guassian beam with waist
+        w0 to give an on-axis intensity of I0.
+
+        :param transition: the transition name
+        :param w0: Gaussian beam waist (1/e^2 in m)
+        :return: beam power (W)
+        """
+        omega = self.transitions[transition].f0
+        I0 = self.I0(transition)
+        return 0.5*np.pi*(omega**2)*I0
+
     def _sort_levels(self):
         """ Use the transition data to sort the atomic levels in order of
         increasing energy.
@@ -274,7 +302,7 @@ class Ion:
                     H += data.Bhfs/(2*I*J*(2*I-1)*(2*J-1))*(
                         3*IdotJ2 + (3/2)*IdotJ - ident*I*(I+1)*J*(J+1))
 
-            H /= consts.hbar  # work in angular frequency units
+            H /= hbar  # work in angular frequency units
             lev = data.slice()
             E, V = np.linalg.eig(H)
             inds = np.argsort(E)
