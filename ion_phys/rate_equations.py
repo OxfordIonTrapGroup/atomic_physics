@@ -1,13 +1,7 @@
 import numpy as np
-from collections import namedtuple
-# import py3nj
-
-
-Laser = namedtuple("Laser", "transition,q,I,delta")
 
 
 class Rates:
-
     def __init__(self, ion):
         self.ion = ion
 
