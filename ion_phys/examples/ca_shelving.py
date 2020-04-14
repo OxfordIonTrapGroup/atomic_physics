@@ -8,7 +8,7 @@ from ion_phys.rate_equations import Rates
 
 
 def main():
-    t_ax = np.linspace(0, 100e-6, 10)
+    t_ax = np.linspace(0, 300e-9, 100)
     shelved = np.zeros(len(t_ax))
 
     ion = Ca43(B=146e-4)
@@ -16,14 +16,17 @@ def main():
 
     rates = Rates(ion)
     delta = ion.delta(stretch, ion.index(P32, +5))
-    Lasers = [Laser("393", q=+1, I=0.01, delta=delta)]  # resonant 393 sigma+
-    trans = rates.get_tranitions(Lasers)
+    Lasers = [Laser("393", q=-1, I=0.01, delta=delta)]  # resonant 393 sigma+
+    trans = rates.get_spont()
+    trans[np.abs(trans) < 1e-6] = 0
 
     for idx, t in np.ndenumerate(t_ax):
         Vi = np.zeros((ion.num_states, 1))  # initial state
-        Vi[stretch] = 1  # start in F=4, M=+4
+        Vi[ion.index(P32, +5)] = 1  # start in F=4, M=+4
         Vf = expm(trans*t)@Vi
-        shelved[idx] = sum(Vf[ion.slice(shelf)])
+        # shelved[idx] = sum(Vf[ion.slice(shelf)])
+        # print(trans[:, ion.index(P32, +5)])
+        shelved[idx] = Vf[stretch]
 
     plt.plot(t_ax*1e6, shelved)
     plt.ylabel('Shelved Population')

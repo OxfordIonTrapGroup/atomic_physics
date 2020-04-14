@@ -165,7 +165,7 @@ class Ion:
         inds = np.argwhere(inds)
         if len(inds) == 1:
             inds = int(inds)
-        return inds
+        return inds + self.levels[level]._start_ind
 
     def level(self, state):
         """ Returns the level a state lies in. """
