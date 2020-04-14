@@ -1,10 +1,10 @@
 """ Wigner 3J symbols using the Racah formula. """
 import numpy as np
-import warnings
+# import warnings
 from functools import lru_cache
 
-np.seterr(all='warn')  # catch overflows
-warnings.filterwarnings('error')
+# np.seterr(all='warn')  # catch overflows
+# warnings.filterwarnings('error')
 
 _max_fact = 12  # 12 for int32, 20 for int64
 _fact_store = np.ones(_max_fact+1, dtype=np.int32)

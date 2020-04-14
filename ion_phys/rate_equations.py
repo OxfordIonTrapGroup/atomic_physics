@@ -1,6 +1,9 @@
 import numpy as np
 from .wigner import wigner3j
 
+# to check: convention on q (should be q=+1 is sigma plus)
+# check convention on delta (should be positive is blue-detuned)
+
 
 class Rates:
     def __init__(self, ion):
@@ -57,15 +60,14 @@ class Rates:
             V = ion.V[subspace]
             self.Gamma[subspace] = np.power(np.abs((V.T)@Gamma_hf@(V)), 2)
 
-        GammaJ = sum(self.Gamma, 0)
+        self.GammaJ = sum(self.Gamma, 0)
         spont = np.copy(self.Gamma)
         for ii in range(self.Gamma.shape[0]):
-            spont[ii, ii] = -GammaJ[ii]
+            spont[ii, ii] = -self.GammaJ[ii]
         return spont
 
     def get_stim(self, lasers):
         """ Returns the stimulated emission matrix for a list of lasers. """
-        ## WIP ##
         ion = self.ion
         stim = np.zeros((self.ion.num_states, self.ion.num_states))
         for transition in self.ion.transitions.keys():
@@ -76,20 +78,46 @@ class Rates:
 
             lower = ion.transitions[transition].lower
             upper = ion.transitions[transition].upper
-            subspace = np.r_[ion.slice(lower), ion.slice(upper)]
-            subspace = np.ix_(subspace, subspace)
-            # Gamma = self.Gamma[subspace]
-            # GammaJ2 = np.power(np.sum(Gamma, axis=0), 2)  # total decay rate
-            for q in [-1, 0, 1]:
-                q_lasers = [laser for laser in _lasers if laser.q == q]
-                if q_lasers == []:
-                    continue
+            lower_states = ion.slice(lower)
+            upper_states = ion.slice(upper)
+            n_lower = ion.levels[lower]._num_states
+            n_upper = ion.levels[upper]._num_states
 
-                # print(transition, q, Gamma)
-                # to do: depletion!
+            Mu = ion.M[upper_states]
+            Ml = ion.M[lower_states]
+            Mu = np.repeat(Mu, n_lower).reshape(n_upper, n_lower).T
+            Ml = np.repeat(Ml, n_upper).reshape(n_lower, n_upper)
+
+            # Transition detunings
+            El = ion.E[lower_states]
+            Eu = ion.E[upper_states]
+            El = np.repeat(El, n_upper).reshape(n_lower, n_upper)
+            Eu = np.repeat(Eu, n_lower).reshape(n_upper, n_lower).T
+            delta_lu = Eu - El
+
+            # Total scattering rate out of each state
+            GammaJ = self.GammaJ[upper_states]
+            GammaJ = np.repeat(GammaJ, n_lower).reshape(n_upper, n_lower).T
+            GammaJ2 = np.power(GammaJ, 2)
+
+            Gamma = self.Gamma[lower_states, upper_states]
+            R = np.zeros((n_lower, n_upper))
+            for q in [-1, 0, 1]:
+                for laser in [laser for laser in _lasers if laser.q == q]:
+                    delta = delta_lu - laser.delta
+                    Q = np.zeros((n_lower, n_upper))
+                    I = laser.I
+                    Q[Ml == (Mu+q)] = 1
+                    R += GammaJ2/(4*np.power(delta, 2) + GammaJ2)*I*(Q*Gamma)
+            stim[lower_states, upper_states] = R
+            stim[upper_states, lower_states] = R.T
+
+        stim_j = np.sum(stim, 0)
+        for ii in range(ion.num_states):
+            stim[ii] = -stim_j
         return stim
 
-    def get_tranitions(self, lasers):
+    def get_transitions(self, lasers):
         """
         Returns the complete transitions matrix for a given set of lasers.
         """
