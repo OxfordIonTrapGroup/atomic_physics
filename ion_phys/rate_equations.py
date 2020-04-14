@@ -3,6 +3,10 @@ from .wigner import wigner3j
 
 # to check: convention on q (should be q=+1 is sigma plus)
 # check convention on delta (should be positive is blue-detuned)
+# document delta convention somewhere!
+# TODO: express the spontaneous rates in terms of the multipole matrix
+# elements and move that calculation into Ion
+# to do: add up to date atomic physics data
 
 
 class Rates:
@@ -15,8 +19,6 @@ class Rates:
 
     def get_spont(self):
         """ Returns the spontaneous emission matrix. """
-        # TODO: express the spontaneous rates in terms of the multipole matrix
-        # elements and move that calculation into Ion
         ion = self.ion
         self.Gamma = np.zeros((self.ion.num_states, self.ion.num_states))
         Idim = np.rint(2.0*ion.I+1).astype(int)
