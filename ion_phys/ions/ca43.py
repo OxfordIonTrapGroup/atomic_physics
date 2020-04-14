@@ -86,7 +86,7 @@ class Ca43(Ion):
             "854": Transition(
                 lower=D52,
                 upper=P32,
-                A=0,  # [?]
+                A=8.48e6,  # [?]
                 freq=2*np.pi*consts.c/854e-9  # [?]
             ),
         }

@@ -8,7 +8,7 @@ from ion_phys.rate_equations import Rates
 
 
 def main():
-    t_ax = np.linspace(0, 3e-6, 100)
+    t_ax = np.linspace(0, 100e-6, 100)
     shelved = np.zeros(len(t_ax))
     ion = Ca43(B=146e-4)
     stretch = ion.index(ground_level, 4)
