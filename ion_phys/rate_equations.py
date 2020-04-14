@@ -103,18 +103,20 @@ class Rates:
             Gamma = self.Gamma[lower_states, upper_states]
             R = np.zeros((n_lower, n_upper))
             for q in [-1, 0, 1]:
+                Q = np.zeros((n_lower, n_upper))
+                Q[Ml == (Mu+q)] = 1
                 for laser in [laser for laser in _lasers if laser.q == q]:
                     delta = delta_lu - laser.delta
-                    Q = np.zeros((n_lower, n_upper))
                     I = laser.I
-                    Q[Ml == (Mu+q)] = 1
                     R += GammaJ2/(4*np.power(delta, 2) + GammaJ2)*I*(Q*Gamma)
+                assert (R >= 0).all()
+
             stim[lower_states, upper_states] = R
             stim[upper_states, lower_states] = R.T
 
         stim_j = np.sum(stim, 0)
         for ii in range(ion.num_states):
-            stim[ii] = -stim_j
+            stim[ii, ii] = -stim_j[ii]
         return stim
 
     def get_transitions(self, lasers):
