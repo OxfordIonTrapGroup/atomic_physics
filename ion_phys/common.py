@@ -330,10 +330,10 @@ class Ion:
         if self.M1 is not None:
             self.calc_M1()
         if self.Gamma is not None:
-            self.calc_Scattering()
+            self.calc_Epole()
 
-    def calc_E1(self):
-        """ Calculate the electric dipole matrix elements """
+    def calc_Epole(self):
+        """ Calculate the electric multi-pole matrix elements """
         pass
     #     self.Gamma = np.zeros((self.num_states, self.num_states))
     #     for _, trans in self.transitions:
@@ -348,15 +348,6 @@ class Ion:
     #                 if M-q not in Ml:
     #                     continue
     #             Gamma[Mu==M, Ml==(M+q)] = A*(2*J+1)*3J(...)**2
-
-    def calc_E2(self):
-        """ Calculate electric quadrupole matrix elements. """
-        pass
-
-    def calc_Scattering(self):
-        """ Calculate scattering rates from each state. """
-        if self.E1 is None:
-            self.calc_E1()
 
     def calc_M1(self):
         """ Calculates the matrix elements for M1 transitions within each

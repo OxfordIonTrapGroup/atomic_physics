@@ -89,6 +89,18 @@ class Ca43(Ion):
                 A=8.48e6,  # [?]
                 freq=2*np.pi*consts.c/854e-9  # [?]
             ),
+            "729": Transition(
+                lower=S12,
+                upper=D52,
+                A=0.856,  # [?]
+                freq=411.0421297763932e12*2*np.pi  # [?]
+            ),
+            "733": Transition(
+                lower=S12,
+                upper=D32,
+                A=0.850,  # [?]
+                freq=409.222e12*2*np.pi  # [?]
+            ),
         }
 
         super().__init__(B, I=7/2, levels=levels, transitions=transitions,

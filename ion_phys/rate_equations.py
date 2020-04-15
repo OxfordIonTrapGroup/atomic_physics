@@ -7,6 +7,7 @@ from .wigner import wigner3j
 # TODO: express the spontaneous rates in terms of the multipole matrix
 # elements and move that calculation into Ion
 # to do: add up to date atomic physics data
+# to do: add quadrupoles to test!
 
 
 class Rates:
@@ -15,7 +16,7 @@ class Rates:
 
         self.Gamma = None  # Gamma[i, j] rate of decay to state i from state j
         if ion.Gamma is None:
-            ion.calc_Scattering()
+            ion.calc_Epole()
 
     def get_spont(self):
         """ Returns the spontaneous emission matrix. """
@@ -34,23 +35,31 @@ class Rates:
             Jdim_l = int(np.rint(2*Jl+1))
             Jdim = Jdim_u + Jdim_l
 
-            order = Ju-Jl
-            if order > 1:
-                print("skipping {}".format(order))
-                continue
+            dJ = Ju-Jl
+            dL = upper.L - lower.L
+            if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
+                order = 1
+            elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
+                order = 2
+            else:
+                raise ValueError("Unsupported transition order {}"
+                                 .format(order))
 
             # calculate scattering rates in the high-field basis so we can
             # forget about nuclear spin
             Gamma_hf = np.zeros((Jdim, Jdim))
             for ind_u in range(Jdim_u):
                 # q = Ml - Mu
-                for q in [-1, 0, 1]:
+                for q in range(-order, order+1):
                     if abs(Mu[ind_u] + q) > Jl:
                         continue
+
                     ind_l = np.argwhere(Ml == Mu[ind_u]+q)
-                    sign = (-1)**(-Mu[ind_u]+Jl+1)
+                    # sign = (-1)**(-Mu[ind_u]+Jl+order)  # TO DO: check!
+                    sign = (-1)**(2*Ju+Jl-Mu[ind_u]+order)
                     Gamma_hf[ind_l, ind_u+Jdim_l] = wigner3j(
-                        Jl, 1, Ju, -(Mu[ind_u]+q), q, Mu[ind_u])*sign
+                        Jl, order, Ju, -(Mu[ind_u]+q), q, Mu[ind_u])*sign
+
             Gamma_hf *= np.sqrt(A*(2*Ju+1))
 
             # introduce the (still decoupled) nuclear spin
@@ -85,6 +94,16 @@ class Rates:
             n_lower = ion.levels[lower]._num_states
             n_upper = ion.levels[upper]._num_states
 
+            dJ = upper.J-lower.J
+            dL = upper.L - lower.L
+            if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
+                order = 1
+            elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
+                order = 2
+            else:
+                raise ValueError("Unsupported transition order {}"
+                                 .format(order))
+
             Mu = ion.M[upper_states]
             Ml = ion.M[lower_states]
             Mu = np.repeat(Mu, n_lower).reshape(n_upper, n_lower).T
@@ -104,7 +123,7 @@ class Rates:
 
             Gamma = self.Gamma[lower_states, upper_states]
             R = np.zeros((n_lower, n_upper))
-            for q in [-1, 0, 1]:
+            for q in range(-order, order+1):
                 Q = np.zeros((n_lower, n_upper))
                 Q[Ml == (Mu+q)] = 1
                 for laser in [laser for laser in _lasers if laser.q == q]:
