@@ -1,15 +1,7 @@
-""" 43Ca+
-
-To do: check numbers and add references. NB the transition frequencies aren't
-correct as they don't include isotope shifts!
+""" 40Ca+
 
 References:
-[1] - F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
-  Clusters, 31, 27 (1994)
-[2] - G. Tommaseo, et al., The European Physical Journal D, 25 (2003)
-[3] - T. P. Harty, et al. Phys. Rev. Lett 113, 220501 (2014)
-[4] - W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
-[5] - J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
+...
 """
 import numpy as np
 import scipy.constants as consts
@@ -24,7 +16,7 @@ D32 = Level(n=4, S=1/2, L=2, J=3/2)
 shelf = D52 = Level(n=4, S=1/2, L=2, J=5/2)
 
 
-class Ca43(Ion):
+class Ca40(Ion):
     def __init__(self, B=None, *, level_filter=None, transition_filter=None):
         """ 43Ca+ atomic structure.
 
@@ -35,30 +27,11 @@ class Ca43(Ion):
           simulation, if None we include all relevant transitions.
         """
         levels = {
-            ground_level: LevelData(
-                g_J=2.00225664,  # [2]
-                g_I=(2 / 7) * -1.315348,  # [3]
-                Ahfs=-3225.60828640e6 * consts.h / 4  # [1]
-            ),
-            P12: LevelData(
-                Ahfs=-145.4e6 * consts.h,  # [4]
-                g_I=(2 / 7) * -1.315348  # [3]
-            ),
-            P32: LevelData(
-                Ahfs=-31.4e6 * consts.h,  # [4]
-                Bhfs=-6.9 * consts.h,  # [4]
-                g_I=(2 / 7) * -1.315348  # [3]
-            ),
-            D32: LevelData(
-                Ahfs=-47.3e6 * consts.h,  # [4]
-                Bhfs=-3.7 * consts.h,  # [4]
-                g_I=(2 / 7) * -1.315348  # [3]
-            ),
-            D52: LevelData(
-                Ahfs=-3.8931e6 * consts.h,  # [5]
-                Bhfs=4.241 * consts.h,  # [5]
-                g_I=(2 / 7) * -1.315348  # [3]
-            )
+            ground_level: LevelData(g_J=2.00225664),
+            P12: LevelData(),
+            P32: LevelData(),
+            D32: LevelData(),
+            D52: LevelData()
         }
 
         transitions = {
@@ -106,6 +79,6 @@ class Ca43(Ion):
             ),
         }
 
-        super().__init__(B, I=7/2, levels=levels, transitions=transitions,
+        super().__init__(B, I=0, levels=levels, transitions=transitions,
                          level_filter=level_filter,
                          transition_filter=transition_filter)

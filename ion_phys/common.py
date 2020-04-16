@@ -12,7 +12,15 @@ _uN = consts.physical_constants["nuclear magneton"][0]
 
 # frequencies in angular units
 Level = namedtuple("Level", "n,L,J,S")
+
 Transition = namedtuple("Transition", "lower,upper,freq,A")
+Transition.__doc__ = """ Represents a transition.
+:param lower: the lower Level in the transition.
+:param upper: the upper Level in the transition.
+:param freq: the transition frequency (rad/s)
+:param A: the transition's Einstein A coefficient.
+"""
+
 Laser = namedtuple("Laser", "transition,q,I,delta")
 Laser.__doc__ = """Represents a laser.
    :param transition: string with the name of the transition the laser couples
@@ -26,7 +34,7 @@ Laser.__doc__ = """Represents a laser.
 
 class LevelData:
     """ Stored atomic structure information about a single level. """
-    def __init__(self, g_J=None, g_I=None, Ahfs=None, Bhfs=None):
+    def __init__(self, g_J=None, g_I=None, Ahfs=0, Bhfs=0):
         """
         :param g_J: G factor. If None, we use the Lande g factor.
         :param g_I: Nuclear g factor.
@@ -112,6 +120,7 @@ class Ion:
 
         self.ePole = None  # Scattering amplitudes
         self.ePole_hf = None  # Scattering amplitudes in the high-field basis
+        self.GammaK = None  # Total scattering rate out of each state
         self.M1 = None  # Magnetic dipole matrix elements
 
         # V - V[:, i] is the state with energy E[i], represented in the basis
@@ -203,12 +212,17 @@ class Ion:
         transition, one saturation intensity gives equal stimulated and
         spontaneous transition rates.
 
+        To do: this should be double checked against our old MatLab code...
+
         :param transition: the transition name
         :return: saturation intensity (W/m^2)
         """
-        omega = self.transitions[transition].f0
-        # Gamma = self.Gamma ...  # To do
-        Gamma = 0
+        if self.GammaJ is None:
+            self.calc_Epole()
+
+        trans = self.transitions[transition]
+        omega = trans.freq
+        Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
         return hbar*(omega**3)*Gamma/(6*np.pi*(consts.c**2))
 
     def P0(self, transition, w0):
@@ -405,6 +419,8 @@ class Ion:
         # now couple...
         V = self.V
         self.ePole = V.T@self.ePole_hf@V
+        self.Gamma = np.power(np.abs(self.ePole), 2)
+        self.GammaJ = np.sum(self.Gamma, 0)
 
     def calc_M1(self):
         """ Calculates the matrix elements for M1 transitions within each

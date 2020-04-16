@@ -11,15 +11,14 @@ class Rates:
     def get_spont(self):
         """ Returns the spontaneous emission matrix. """
         Gamma = np.power(np.abs(self.ion.ePole), 2)
-        GammaJ = np.sum(Gamma, 0)
         for ii in range(Gamma.shape[0]):
-            Gamma[ii, ii] = -GammaJ[ii]
+            Gamma[ii, ii] = -self.ion.GammaJ[ii]
         return Gamma
 
     def get_stim(self, lasers):
         """ Returns the stimulated emission matrix for a list of lasers. """
         Gamma = np.power(np.abs(self.ion.ePole), 2)
-        GammaJ = np.sum(Gamma, 0)
+        GammaJ = self.ion.GammaJ
         stim = np.zeros(Gamma.shape)
 
         for transition in self.ion.transitions.keys():
