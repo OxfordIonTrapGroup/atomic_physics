@@ -3,8 +3,9 @@ from collections import namedtuple
 import scipy.constants as consts
 from scipy.constants import hbar
 
-from ion_phys import operators
-from ion_phys.utils import Lande_g
+from . import operators
+from .utils import Lande_g
+from .wigner import wigner3j
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
@@ -13,6 +14,14 @@ _uN = consts.physical_constants["nuclear magneton"][0]
 Level = namedtuple("Level", "n,L,J,S")
 Transition = namedtuple("Transition", "lower,upper,freq,A")
 Laser = namedtuple("Laser", "transition,q,I,delta")
+Laser.__doc__ = """Represents a laser.
+   :param transition: string with the name of the transition the laser couples
+     to.
+   :param q: laser polarization, +1/-1 for sigma plus/minus, 0 for pi.
+   :param I: laser intensity (saturation intensities).
+   :param delta: laser detuning from transition centre of gravity (c.f.
+     ion.delta)
+"""
 
 
 class LevelData:
@@ -101,10 +110,9 @@ class Ion:
         self.MJ = None  # MJ for each state (only valid at low field)
         self.E = None  # State energies in angular frequency units
 
-        self.E1 = None  # Electric dipole matrix elements
-        self.E2 = None  # Electric quadrupole matrix elements
+        self.ePole = None  # Scattering amplitudes
+        self.ePole_hf = None  # Scattering amplitudes in the high-field basis
         self.M1 = None  # Magnetic dipole matrix elements
-        self.Gamma = None  # scattering rates
 
         # V - V[:, i] is the state with energy E[i], represented in the basis
         #    high-field (MI, MJ) energy eigenstates.
@@ -323,31 +331,80 @@ class Ion:
                 for Fidx, idx in np.ndenumerate(np.where(M == _M)):
                     self.F[lev][idx] = F_list[_M <= F_list][Fidx[1]]
 
-        if self.E1 is not None:
-            self.calc_E1()
-        if self.E2 is not None:
-            self.calc_E2()
         if self.M1 is not None:
             self.calc_M1()
-        if self.Gamma is not None:
+        if self.ePole is not None:
             self.calc_Epole()
 
     def calc_Epole(self):
-        """ Calculate the electric multi-pole matrix elements """
-        pass
-    #     self.Gamma = np.zeros((self.num_states, self.num_states))
-    #     for _, trans in self.transitions:
-    #         A = trans.A
-    #         J = trans.upper.J  # check upper/lower!
-    #         Mu = self.M[trans.upper.slice()]
-    #         Ml = self.M[trans.lower.slice()]
-    #         Gamma = self.Gamma(trans.upper.slice(), trans.lower.slice())
-    #         # store GammaJ?
-    #         for M in Mu:
-    #             for q in [-1., 0., 1.]:
-    #                 if M-q not in Ml:
-    #                     continue
-    #             Gamma[Mu==M, Ml==(M+q)] = A*(2*J+1)*3J(...)**2
+        """ Calculate the electric multi-pole matrix elements for each
+        transition. Currently we only calculate dipole (E1) and Quadrupole
+        (E2) matrix elements.
+
+        Strictly speaking, we actually store scattering amplitudes (square
+        root of the spontaneous scattering rates), rather than matrix elements,
+        since they are somewhat more convenient to work with. The two are
+        related by constants and power of the transition frequencies.
+
+        To do: define what we mean by a matrix element, and how the amplitudes
+        stored in ePole are related to the matrix elements and to the Rabi
+        frequencies.
+
+        To do: double check the signs of the amplitudes.
+         """
+        # We calculate the scattering amplitudes in the high-field basis where
+        # we can forget about nuclear spin. It's then straightforward to
+        # transform to arbitrary fields using the expansion coefficients we've
+        # already calculated.
+        if self.ePole_hf is None:
+            self.ePole_hf = np.zeros((self.num_states, self.num_states))
+            Idim = np.rint(2.0*self.I+1).astype(int)
+
+            for _, transition in self.transitions.items():
+                A = transition.A
+                upper = transition.upper
+                lower = transition.lower
+                Ju = upper.J
+                Jl = lower.J
+                Mu = np.arange(-Ju, Ju+1)
+                Ml = np.arange(-Jl, Jl+1)
+                Jdim_u = int(np.rint(2*Ju+1))
+                Jdim_l = int(np.rint(2*Jl+1))
+                Jdim = Jdim_u + Jdim_l
+
+                subspace = np.r_[self.slice(lower), self.slice(upper)]
+                subspace = np.ix_(subspace, subspace)
+
+                dJ = Ju-Jl
+                dL = upper.L - lower.L
+                if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
+                    order = 1
+                elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
+                    order = 2
+                else:
+                    raise ValueError("Unsupported transition order {}"
+                                     .format(order))
+
+                # High-field scattering rates for this transition (ignoring I)
+                ePole_hf = np.zeros((Jdim, Jdim))
+                for ind_u in range(Jdim_u):
+                    # q := Mu - Ml
+                    for q in range(-order, order+1):
+                        if abs(Mu[ind_u] - q) > Jl:
+                            continue
+
+                        ind_l = np.argwhere(Ml == Mu[ind_u]-q)
+                        sign = (-1)**(2*Ju+Jl-Mu[ind_u]+order)
+                        ePole_hf[ind_l, ind_u+Jdim_l] = wigner3j(
+                            Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u]-q))*sign
+                ePole_hf *= np.sqrt(A*(2*Ju+1))
+
+                # introduce the (still decoupled) nuclear spin
+                self.ePole_hf[subspace] = np.kron(ePole_hf, np.identity(Idim))
+
+        # now couple...
+        V = self.V
+        self.ePole = V.T@self.ePole_hf@V
 
     def calc_M1(self):
         """ Calculates the matrix elements for M1 transitions within each
