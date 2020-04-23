@@ -1,2 +1,7 @@
 __pycache__/
 *.egg-info/
+
+physics_manual/*
+!physics_manual/*.tex
+!physics_manual/*.bib
+
