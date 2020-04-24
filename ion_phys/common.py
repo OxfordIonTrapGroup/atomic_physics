@@ -140,8 +140,7 @@ class Ion:
 
         self._sort_levels()  # arrange levels in energy order
 
-        if B is not None:
-            self.setB(B)
+        self.setB(B)
 
     def slice(self, level):
         """ Returns a slice object that selects the states within a given

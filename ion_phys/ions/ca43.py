@@ -25,7 +25,7 @@ shelf = D52 = Level(n=4, S=1/2, L=2, J=5/2)
 
 
 class Ca43(Ion):
-    def __init__(self, B=None, *, level_filter=None, transition_filter=None):
+    def __init__(self, B=1e-10, *, level_filter=None, transition_filter=None):
         """ 43Ca+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
