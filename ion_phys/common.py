@@ -71,8 +71,7 @@ class LevelData:
 class Ion:
     """ Base class for storing atomic structure data. """
 
-    def __init__(self, B=None, *, I=0, levels={}, transitions={},
-                 level_filter=None):
+    def __init__(self, B=None, *, I=0, levels={}, transitions={}, level_filter=None):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
@@ -96,9 +95,7 @@ class Ion:
             levels = dict(filter(lambda lev: lev[0] in level_filter,
                                  levels.items()))
 
-        transition_filter = transitions.keys()
-
-        transition_filter = [trans for trans in transition_filter if
+        transition_filter = [trans for trans in transitions.keys() if
                              transitions[trans].lower in levels.keys()
                              and transitions[trans].upper in levels.keys()]
 
