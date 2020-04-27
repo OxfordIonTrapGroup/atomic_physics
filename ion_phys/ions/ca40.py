@@ -17,14 +17,12 @@ shelf = D52 = Level(n=4, S=1/2, L=2, J=5/2)
 
 
 class Ca40(Ion):
-    def __init__(self, B=None, *, level_filter=None, transition_filter=None):
+    def __init__(self, B=None, *, level_filter=None):
         """ 43Ca+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
-        :param transition_filter: list of Transitions to include in the
-          simulation, if None we include all relevant transitions.
         """
         levels = {
             ground_level: LevelData(g_J=2.00225664),
@@ -80,5 +78,4 @@ class Ca40(Ion):
         }
 
         super().__init__(B, I=0, levels=levels, transitions=transitions,
-                         level_filter=level_filter,
-                         transition_filter=transition_filter)
+                         level_filter=level_filter)

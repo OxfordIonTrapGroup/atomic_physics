@@ -72,7 +72,7 @@ class Ion:
     """ Base class for storing atomic structure data. """
 
     def __init__(self, B=None, *, I=0, levels={}, transitions={},
-                 level_filter=None, transition_filter=None):
+                 level_filter=None):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
@@ -82,8 +82,6 @@ class Ion:
           Transition objects.
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
-        :param transition_filter: list of Transitions to include in the
-          simulation, if None we include all relevant transitions.
 
         Internally, we store all information as vectors/matrices with states
         ordered in terms of increasing energies.
@@ -97,8 +95,8 @@ class Ion:
         if level_filter is not None:
             levels = dict(filter(lambda lev: lev[0] in level_filter,
                                  levels.items()))
-        if transition_filter is None:
-            transition_filter = transitions.keys()
+
+        transition_filter = transitions.keys()
 
         transition_filter = [trans for trans in transition_filter if
                              transitions[trans].lower in levels.keys()
