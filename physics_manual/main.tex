@@ -75,7 +75,7 @@ The Wigner-Eckart theorem states that the matrix element of an irreducible tenso
 \end{equation}
 where $\left\langle J'||T^{\kappa}||J\right\rangle$ is the reduced matrix element, and an irreducible tensor is defined as an operator which obeys angular momentum commutation relations. The last term of this equation is the Clebsch-Gordon coefficient. This can be more conveniently written in terms of Wigner-$3j$ symbols as
 \begin{equation}
-\left\langle J', m_J'|T^{\kappa}_q|J, m_J\right\rangle= (-1)^{J'-m'}\left\langle J'||T^{\kappa}||J\right\rangle
+\left\langle J', m_J'|T^{\kappa}_q|J, m_J\right\rangle= (-1)^{J'-m_J'}\left\langle J'||T^{\kappa}||J\right\rangle
 \begin{pmatrix}
 J' & \kappa & J\\
 -m_J' & q & m_J
@@ -257,7 +257,7 @@ As all of the matrix elements involve the same values of $J$ and $J'$, we can si
 \end{equation}
 where we have defined a shorthand notation for the Wigner-$3j$ symbol
 \begin{equation}
-W^{\kappa}(i, j) = (-1)^{J'- m_J^{j}} \begin{pmatrix}
+W^{\kappa}(i, j) = (-1)^{J- m_J^{i}} \begin{pmatrix}
         J & \kappa & J'\\
         -m_J^i & q & m_J^{j}
         \end{pmatrix}~,
