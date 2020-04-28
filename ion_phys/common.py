@@ -2,6 +2,7 @@ import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
 from scipy.constants import hbar
+import warnings
 
 from . import operators
 from .utils import Lande_g
@@ -136,6 +137,10 @@ class Ion:
         self._sort_levels()  # arrange levels in energy order
 
         if B is not None:
+            if B == 0:
+                warnings.warn("B set to 1e-10 T to remove state degeneracies",
+                              stacklevel=3)
+                B = 1e-10
             self.setB(B)
 
     def slice(self, level):
