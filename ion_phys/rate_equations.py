@@ -41,8 +41,8 @@ class Rates:
             elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
                 order = 2
             else:
-                raise ValueError("Unsupported transition order {}"
-                                 .format(order))
+                raise ValueError("Unsupported transition order. " +
+                                 "Got dJ={} and dL={}".format(dJ, dL))
 
             Mu = self.ion.M[upper_states]
             Ml = self.ion.M[lower_states]

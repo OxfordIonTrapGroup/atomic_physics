@@ -391,8 +391,8 @@ class Ion:
                 elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
                     order = 2
                 else:
-                    raise ValueError("Unsupported transition order {}"
-                                     .format(order))
+                    raise ValueError("Unsupported transition order. " +
+                                     "Got dJ={} and dL={}".format(dJ, dL))
 
                 # High-field scattering rates for this transition (ignoring I)
                 ePole_hf = np.zeros((Jdim, Jdim))
