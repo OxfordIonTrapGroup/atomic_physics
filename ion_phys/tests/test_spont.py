@@ -8,7 +8,7 @@ class TestGamma(unittest.TestCase):
     def test_LF(self):
         """ Check that, in the low-field, our scattering rates match a more
         direct calculation. """
-        ion = Ca43(1e-8)
+        ion = Ca43(B=1e-8)
         ion.calc_Epole()
         Gamma_ion = ion.Gamma
         I = ion.I
@@ -61,7 +61,7 @@ class TestGamma(unittest.TestCase):
     def test_HF(self):
         """ Check that, in the high-field, our scattering rates match a more
         direct calculation. """
-        ion = Ca43(1000)
+        ion = Ca43(B=1000)
         ion.calc_Epole()
         Gamma_ion = ion.Gamma
         Idim = int(np.rint(2*ion.I+1))
