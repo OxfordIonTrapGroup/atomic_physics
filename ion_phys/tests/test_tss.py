@@ -1,4 +1,4 @@
-""" Simple rate equations example of a 2 level system"""
+"""Test steady state of a 2 state system"""
 
 import unittest
 
@@ -7,15 +7,15 @@ from ion_phys import Laser
 from ion_phys.rate_equations import Rates
 
 
-def steady_state(intensity):
+def _steady_state_population(intensity):
     "Steady state poulation in the P-state for resonant intensity /I0"
     return intensity / (2 * intensity + 1)
 
 
-class TestTLS(unittest.TestCase):
-    """two-level system tests"""
+class TestTSS(unittest.TestCase):
+    """two-state system tests"""
     def test_steady_state_intensity(self):
-        """Check that the steady state intensity scaling"""
+        """Test the steady state intensity scaling"""
 
         # use both integers and floats
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10., 1.2e4]
@@ -31,7 +31,7 @@ class TestTLS(unittest.TestCase):
             Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
             trans = rates.get_transitions(Lasers)
 
-            Np_ss = steady_state(I)
+            Np_ss = _steady_state_population(I)
             # trqansition rates normalised by A coeficient
             dNp_dt = (trans[p_idx, p_idx] * Np_ss
                       + trans[p_idx, s_idx] * (1 - Np_ss))
@@ -61,7 +61,7 @@ class TestTLS(unittest.TestCase):
         norm_detuning = [-1e4, 2.3e1, 2, -4, 0.5, 0]
         for det in norm_detuning:
             I_eff = 1/(4 * det**2 + 1)
-            Np_ss = steady_state(I_eff)
+            Np_ss = _steady_state_population(I_eff)
 
             Lasers = [Laser("393", q=+1, I=1., delta=delta + line_width*det)]
             trans = rates.get_transitions(Lasers)
