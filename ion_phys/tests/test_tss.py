@@ -14,6 +14,27 @@ def _steady_state_population(intensity):
 
 class TestTSS(unittest.TestCase):
     """two-state system tests"""
+    def test_spont_rates(self):
+        """Test the spontaneous rates satisfy relations in net rates"""
+        intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10., 1.2e4]
+
+        ion = Ca43(B=5e-4, level_filter=[ground_level, P32])
+        s_idx = ion.index(ground_level, 4)
+        p_idx = ion.index(P32, +5)
+
+        rates = Rates(ion)
+        delta = ion.delta(s_idx, p_idx)
+        for I in intensity_list:
+            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
+            trans = rates.get_transitions(Lasers)
+
+            spont = rates.get_spont()
+            self.assertAlmostEqual(1.,
+                spont[p_idx, p_idx]
+                / (trans[p_idx, p_idx] + trans[p_idx, s_idx]),
+                places=7)
+
+
     def test_steady_state_intensity(self):
         """Test the steady state intensity scaling"""
 
