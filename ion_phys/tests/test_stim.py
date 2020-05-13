@@ -3,7 +3,7 @@ from ion_phys import Laser
 from ion_phys.rate_equations import Rates
 import unittest
 
-class TestGamma(unittest.TestCase):
+class TestStim(unittest.TestCase):
     def test_multi_transition(self):
         """Test with lasers on multiple transitions (see #15)"""
         ion = Ca43(B=146e-4)
