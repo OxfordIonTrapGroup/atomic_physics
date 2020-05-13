@@ -5,7 +5,7 @@ import unittest
 
 class TestGamma(unittest.TestCase):
     def test_multi_transition(self):
-        """Test for no errors with lasers on multiple transitions"""
+        """Test with lasers on multiple transitions (see #15)"""
         ion = Ca43(B=146e-4)
         rates = Rates(ion)
         Lasers = [
@@ -15,7 +15,7 @@ class TestGamma(unittest.TestCase):
         trans = rates.get_transitions(Lasers)
 
     def test_multi_laser(self):
-        """Test for no errors with multiple lasers on one transition"""
+        """Test with multiple lasers on one transition"""
         ion = Ca43(B=146e-4)
         rates = Rates(ion)
         Lasers = [
