@@ -1,4 +1,4 @@
-"""Test steady state of a 2 state system"""
+"""Test Rates Calculations"""
 
 import unittest
 
@@ -8,14 +8,18 @@ from ion_phys.rate_equations import Rates
 
 
 def _steady_state_population(intensity):
-    "Steady state poulation in the P-state for resonant intensity /I0"
+    "Steady state population in the P-state for resonant intensity /I0"
     return intensity / (2 * intensity + 1)
 
 
 class TestTSS(unittest.TestCase):
-    """two-state system tests"""
-    def test_spont_rates(self):
-        """Test the spontaneous rates satisfy relations in net rates"""
+    """Two-state system tests
+
+    The closed stretch cycling transition is used to make a two state system"""
+    def test_rates_relations(self):
+        """Test the spontaneous rates satisfy relations in net rates
+
+        This relation is used in the steady states tests."""
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10., 1.2e4]
 
         ion = Ca43(B=5e-4, level_filter=[ground_level, P32])
@@ -53,7 +57,7 @@ class TestTSS(unittest.TestCase):
             trans = rates.get_transitions(Lasers)
 
             Np_ss = _steady_state_population(I)
-            # trqansition rates normalised by A coeficient
+            # transition rates normalised by A coefficient
             dNp_dt = (trans[p_idx, p_idx] * Np_ss
                       + trans[p_idx, s_idx] * (1 - Np_ss))
             dNp_dt = dNp_dt / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
@@ -64,7 +68,7 @@ class TestTSS(unittest.TestCase):
             self.assertAlmostEqual(0., dNs_dt, places=7)
 
     def test_steady_state_detuning(self):
-        """Test steady state detuning dependance"""
+        """Test steady state detuning dependence"""
 
         # assume 1 saturation intensity
         ion = Ca43(B=5e-4, level_filter=[ground_level, P32])
@@ -87,7 +91,7 @@ class TestTSS(unittest.TestCase):
             Lasers = [Laser("393", q=+1, I=1., delta=delta + line_width*det)]
             trans = rates.get_transitions(Lasers)
 
-            # trqansition rates normalised by A coeficient
+            # transition rates normalised by A coefficient
             dNp_dt = (trans[p_idx, p_idx] * Np_ss
                       + trans[p_idx, s_idx] * (1 - Np_ss))
             dNp_dt = dNp_dt / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
