@@ -59,11 +59,12 @@ class Rates:
             delta_lu = Eu - El
 
             # Total scattering rate out of each state
-            GammaJ = GammaJ[upper_states]
-            GammaJ = np.repeat(GammaJ, n_lower).reshape(n_upper, n_lower).T
-            GammaJ2 = np.power(GammaJ, 2)
+            GammaJ_subs = GammaJ[upper_states]
+            GammaJ_subs = np.repeat(GammaJ_subs, n_lower).reshape(
+                n_upper, n_lower).T
+            GammaJ2 = np.power(GammaJ_subs, 2)
 
-            Gamma = Gamma[lower_states, upper_states]
+            Gamma_subs = Gamma[lower_states, upper_states]
             R = np.zeros((n_lower, n_upper))
             for q in range(-order, order+1):
                 Q = np.zeros((n_lower, n_upper))
@@ -72,7 +73,8 @@ class Rates:
                 for laser in [laser for laser in _lasers if laser.q == q]:
                     delta = delta_lu - laser.delta
                     I = laser.I
-                    R += GammaJ2/(4*np.power(delta, 2) + GammaJ2)*I*(Q*Gamma)
+                    R += (GammaJ2/(4*np.power(delta, 2) + GammaJ2)
+                          * I*(Q*Gamma_subs))
                 assert (R >= 0).all()
 
             stim[lower_states, upper_states] = R
