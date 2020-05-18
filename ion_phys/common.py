@@ -2,6 +2,7 @@ import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
 from scipy.constants import hbar
+import warnings
 
 from . import operators
 from .utils import Lande_g
@@ -136,6 +137,10 @@ class Ion:
         self._sort_levels()  # arrange levels in energy order
 
         if B is not None:
+            if B == 0:
+                warnings.warn("B set to 1e-10 T to remove state degeneracies",
+                              stacklevel=3)
+                B = 1e-10
             self.setB(B)
 
     def slice(self, level):
@@ -330,13 +335,7 @@ class Ion:
             self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
             self.MI[lev] = np.rint(2*np.diag(V.conj().T@(Iz)@V))/2
             self.MJ[lev] = np.rint(2*np.diag(V.conj().T@(Jz)@V))/2
-
-            M = np.diag(V.conj().T@(Iz+Jz)@V)
-            if max(abs(M-np.rint(2*M)/2)) > 1e-5:
-                raise ValueError('Error finding angular momentum'
-                                 ' eigenstates at {}T. Is the field too small'
-                                 ' to lift the state degeneracy?'.format(B))
-            self.M[lev] = np.rint(2*M)/2
+            self.M[lev] = M = np.rint(2*np.diag(V.conj().T@(Iz+Jz)@V))/2
 
             F_list = np.arange(I-J, I+J+1)
             if data.Ahfs < 0:
