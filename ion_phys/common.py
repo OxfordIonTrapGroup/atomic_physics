@@ -2,7 +2,6 @@ import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
 from scipy.constants import hbar
-import warnings
 
 from . import operators
 from .utils import Lande_g
@@ -72,7 +71,8 @@ class LevelData:
 class Ion:
     """ Base class for storing atomic structure data. """
 
-    def __init__(self, B=None, *, I=0, levels={}, transitions={}, level_filter=None):
+    def __init__(self, *, B=None, I=0, levels={}, transitions={},
+                 level_filter=None):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
@@ -137,10 +137,6 @@ class Ion:
         self._sort_levels()  # arrange levels in energy order
 
         if B is not None:
-            if B == 0:
-                warnings.warn("B set to 1e-10 T to remove state degeneracies",
-                              stacklevel=3)
-                B = 1e-10
             self.setB(B)
 
     def slice(self, level):
@@ -335,15 +331,15 @@ class Ion:
             self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
             self.MI[lev] = np.rint(2*np.diag(V.conj().T@(Iz)@V))/2
             self.MJ[lev] = np.rint(2*np.diag(V.conj().T@(Jz)@V))/2
-            self.M[lev] = M = np.rint(2*np.diag(V.conj().T@(Iz+Jz)@V))/2
+            self.M[lev] = np.rint(2*np.diag(V.conj().T@(Iz+Jz)@V))/2
 
             F_list = np.arange(I-J, I+J+1)
             if data.Ahfs < 0:
                 F_list = F_list[::-1]
 
-            for _M in set(M):
-                for Fidx, idx in np.ndenumerate(np.where(M == _M)):
-                    self.F[lev][idx] = F_list[_M <= F_list][Fidx[1]]
+            for M in set(self.M[lev]):
+                for Fidx, idx in np.ndenumerate(np.where(M == self.M[lev])):
+                    self.F[lev][idx] = F_list[M <= F_list][Fidx[1]]
 
         if self.M1 is not None:
             self.calc_M1()

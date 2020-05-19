@@ -33,11 +33,8 @@ class TestTSS(unittest.TestCase):
             trans = rates.get_transitions(Lasers)
 
             spont = rates.get_spont()
-            self.assertAlmostEqual(1.,
-                spont[p_idx, p_idx]
-                / (trans[p_idx, p_idx] + trans[p_idx, s_idx]),
-                places=7)
-
+            r = spont[p_idx, p_idx] / (trans[p_idx, p_idx]+trans[p_idx, s_idx])
+            self.assertAlmostEqual(r, 1., places=7)
 
     def test_steady_state_intensity(self):
         """Test the steady state intensity scaling"""
