@@ -324,14 +324,23 @@ class Ion:
             lev = data.slice()
             E, V = np.linalg.eig(H)
             inds = np.argsort(E)
+            V = V[:, inds]
+            E = E[inds]
 
-            self.E[lev] = E[inds]
-            self.V[lev, lev] = V = V[:, inds]
+            # check that the eigensolver found the angular momentum eigenstates
+            M = np.diag(V.conj().T@(Iz+Jz)@V)
+            if max(abs(M-np.rint(2*M)/2)) > 1e-5:
+                raise ValueError('Error finding angular momentum'
+                                 ' eigenstates at {}T. Is the field too small'
+                                 ' to lift the state degeneracy?'.format(B))
+
+            self.E[lev] = E
+            self.V[lev, lev] = V
+            self.M[lev] = np.rint(2*M)/2
             self.MIax[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
             self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
             self.MI[lev] = np.rint(2*np.diag(V.conj().T@(Iz)@V))/2
             self.MJ[lev] = np.rint(2*np.diag(V.conj().T@(Jz)@V))/2
-            self.M[lev] = np.rint(2*np.diag(V.conj().T@(Iz+Jz)@V))/2
 
             F_list = np.arange(I-J, I+J+1)
             if data.Ahfs < 0:
