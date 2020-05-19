@@ -104,5 +104,5 @@ class Ca43(Ion):
             ),
         }
 
-        super().__init__(B, I=7/2, levels=levels, transitions=transitions,
+        super().__init__(B=B, I=7/2, levels=levels, transitions=transitions,
                          level_filter=level_filter)
