@@ -116,7 +116,7 @@ class Ion:
 
         self.ePole = None  # Scattering amplitudes
         self.ePole_hf = None  # Scattering amplitudes in the high-field basis
-        self.GammaK = None  # Total scattering rate out of each state
+        self.GammaJ = None  # Total scattering rate out of each state
         self.M1 = None  # Magnetic dipole matrix elements
 
         # V - V[:, i] is the state with energy E[i], represented in the basis
