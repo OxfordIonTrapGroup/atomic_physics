@@ -451,7 +451,7 @@ class Ion:
         eyeI = np.identity(I_dim)
 
         for level, data in self.levels.items():
-            lev = level.slice()
+            lev = data.slice()
             J_dim = np.rint(2.0*level.J+1).astype(int)
             dim = J_dim*I_dim
             eyeJ = np.identity(J_dim)
@@ -471,7 +471,7 @@ class Ion:
 
             u = [um, uz, up]
 
-            Mj = np.tile(data.M[lev], (dim, 1))
+            Mj = np.tile(self.M[lev], (dim, 1))
             Mi = Mj.T
             Q = (Mi - Mj)
 
