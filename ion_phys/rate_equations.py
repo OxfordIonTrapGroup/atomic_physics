@@ -90,3 +90,25 @@ class Rates:
         Returns the complete transitions matrix for a given set of lasers.
         """
         return self.get_spont() + self.get_stim(lasers)
+
+    def steady_state(self, *, trans=None, lasers=None):
+        """ Returns the steady-state vector for *either* a transitions matrix
+        or a list of lasers.
+        :param trans: transitions matrix to solve for
+        :param lasers: laser list to solve for
+        :returns: state vector
+        """
+        if sum([x is not None for x in (trans, lasers)]) != 1:
+            raise ValueError(
+                "Exactly one of trans and lasers must not be None")
+
+        if lasers is not None:
+            trans = self.get_transitions(lasers)
+        else:
+            trans = np.copy(trans)  # don't overwrite their matrix!
+
+        trans[0, :] = 1
+        Vi = np.zeros((trans.shape[0], 1))
+        Vi[0] = 1
+        Vf, _, _, _ = np.linalg.lstsq(trans, Vi, rcond=None)
+        return Vf
