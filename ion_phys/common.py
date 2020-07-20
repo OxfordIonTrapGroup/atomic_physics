@@ -201,6 +201,19 @@ class Ion:
         """
         return self.E[upper] - self.E[lower]
 
+    def population(self, state, inds):
+        """ Returns the total population in a set of states.
+
+        :param state: state vector
+        :param states: set of states to sum over. This can be any of: a Level;
+          a state index; or, a slice.
+        """
+        if isinstance(inds, Level):
+            return np.sum(state[self.slice(inds)])
+        elif not isinstance(inds, int) and not isinstance(inds, slice):
+            raise TypeError("inds must be a level, slice or index")
+        return np.sum(state[inds])
+
     def I0(self, transition):
         """ Returns the saturation intensity for a transition.
 
