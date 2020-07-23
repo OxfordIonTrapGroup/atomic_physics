@@ -250,7 +250,7 @@ class Ion:
         """ Use the transition data to sort the atomic levels in order of
         increasing energy.
         """
-        if not(self.transitions):
+        if not self.transitions:
             levels = list(self.levels.keys())
             if len(levels) != 1:
                 raise ValueError("Disconnected level structure.")
@@ -322,7 +322,7 @@ class Ion:
             H = data.g_J*_uB*B*Jz
             if self.I != 0:
                 gI = data.g_I
-                IdotJ = (Iz@Jz + (1/2)*(Ip@Jm + Im@Jp))
+                IdotJ = Iz@Jz + (1/2)*(Ip@Jm + Im@Jp)
 
                 H += - gI*_uN*B*Iz
                 H += data.Ahfs*IdotJ
