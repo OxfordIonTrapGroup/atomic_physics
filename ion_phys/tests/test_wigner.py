@@ -13,9 +13,9 @@ class TestWigner(unittest.TestCase):
         for j1 in j:
             for j2 in j:
                 for j3 in j:
-                    for m1 in np.arange(-j1, j1+1):
-                        for m2 in np.arange(-j2, j2+1):
-                            for m3 in np.arange(-j3, j3+1):
+                    for m1 in np.arange(-j1, j1 + 1):
+                        for m2 in np.arange(-j2, j2 + 1):
+                            for m3 in np.arange(-j3, j3 + 1):
                                 ip = wigner3j(j1, j2, j3, m1, m2, m3)
                                 sp = wigner.wigner_3j(j1, j2, j3, m1, m2, m3)
                                 self.assertTrue(np.abs(ip - sp) < 1e-15)

@@ -14,7 +14,7 @@ def Jp(j):
       J+1 = -1/(sqrt(2)) J+
     """
     Mj = np.arange(-j, j)
-    return np.diag(np.sqrt((j-Mj)*(j+Mj+1)), -1)
+    return np.diag(np.sqrt((j - Mj) * (j + Mj + 1)), -1)
 
 
 def Jm(j):
@@ -37,5 +37,5 @@ def Jz(j):
     The returned operator is defined so that:
       Jp[Mi,Mj] := <Mi|Jz|Mj> = Mi*delta(Mi,Mj+1)
     """
-    Mj = np.arange(-j, j+1)
+    Mj = np.arange(-j, j + 1)
     return np.diag(Mj)

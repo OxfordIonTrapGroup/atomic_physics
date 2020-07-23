@@ -23,10 +23,10 @@ def main():
     Vi[stretch] = 1  # start in F=4, M=+4
     shelved = np.zeros(len(t_ax))
     for idx, t in np.ndenumerate(t_ax):
-        Vf = expm(trans*t)@Vi
+        Vf = expm(trans * t) @ Vi
         shelved[idx] = sum(Vf[ion.slice(shelf)])
 
-    plt.plot(t_ax*1e6, shelved)
+    plt.plot(t_ax * 1e6, shelved)
     plt.ylabel('Shelved Population')
     plt.xlabel('Shelving time (us)')
     plt.grid()

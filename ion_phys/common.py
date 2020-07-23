@@ -64,14 +64,18 @@ class LevelData:
     def __repr__(self):
         return ("LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
                 " stop_ind={})".format(self.g_J, self.g_I, self.E,
-                                         self._num_states, self._start_ind,
-                                         self._stop_ind))
+                                       self._num_states, self._start_ind,
+                                       self._stop_ind))
 
 
 class Ion:
     """ Base class for storing atomic structure data. """
-
-    def __init__(self, *, B=None, I=0, levels={}, transitions={},
+    def __init__(self,
+                 *,
+                 B=None,
+                 I=0,
+                 levels={},
+                 transitions={},
                  level_filter=None):
         """
         :param B: Magnetic field (T). To change the B-field later, call
@@ -93,15 +97,18 @@ class Ion:
         transitions = dict(transitions)
 
         if level_filter is not None:
-            levels = dict(filter(lambda lev: lev[0] in level_filter,
-                                 levels.items()))
+            levels = dict(
+                filter(lambda lev: lev[0] in level_filter, levels.items()))
 
-        transition_filter = [trans for trans in transitions.keys() if
-                             transitions[trans].lower in levels.keys()
-                             and transitions[trans].upper in levels.keys()]
+        transition_filter = [
+            trans for trans in transitions.keys()
+            if transitions[trans].lower in levels.keys()
+            and transitions[trans].upper in levels.keys()
+        ]
 
-        transitions = dict(filter(lambda trans: trans[0] in transition_filter,
-                                  transitions.items()))
+        transitions = dict(
+            filter(lambda trans: trans[0] in transition_filter,
+                   transitions.items()))
 
         self.levels = levels
         self.transitions = transitions
@@ -232,7 +239,7 @@ class Ion:
         trans = self.transitions[transition]
         omega = trans.freq
         Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
-        return hbar*(omega**3)*Gamma/(6*np.pi*(consts.c**2))
+        return hbar * (omega**3) * Gamma / (6 * np.pi * (consts.c**2))
 
     def P0(self, transition, w0):
         """ Returns the power needed at the focus of a Guassian beam with waist
@@ -244,7 +251,7 @@ class Ion:
         """
         omega = self.transitions[transition].f0
         I0 = self.I0(transition)
-        return 0.5*np.pi*(omega**2)*I0
+        return 0.5 * np.pi * (omega**2) * I0
 
     def _sort_levels(self):
         """ Use the transition data to sort the atomic levels in order of
@@ -265,10 +272,10 @@ class Ion:
             for trans in unsorted:
                 lower, upper, dE, _ = self.transitions[trans]
                 if lower in sorted_levels:
-                    sorted_levels[upper] = sorted_levels[lower]+dE
+                    sorted_levels[upper] = sorted_levels[lower] + dE
                     break
                 elif upper in sorted_levels:
-                    sorted_levels[lower] = sorted_levels[upper]-dE
+                    sorted_levels[lower] = sorted_levels[upper] - dE
                     break
             else:
                 raise ValueError(
@@ -285,7 +292,8 @@ class Ion:
         for level, energy in sorted_levels:
             data = self.levels[level]
             data.E = energy - E0
-            data._num_states = int(np.rint((2*self.I + 1)*(2*level.J + 1)))
+            data._num_states = int(
+                np.rint((2 * self.I + 1) * (2 * level.J + 1)))
             data._start_ind = start_ind
             start_ind = data._stop_ind = start_ind + data._num_states
 
@@ -304,12 +312,12 @@ class Ion:
         self.V = np.zeros((self.num_states, self.num_states))
 
         I = self.I
-        I_dim = np.rint(2.0*I+1).astype(int)
+        I_dim = np.rint(2.0 * I + 1).astype(int)
 
         for level, data in self.levels.items():
 
             J = level.J
-            J_dim = np.rint(2.0*J+1).astype(int)
+            J_dim = np.rint(2.0 * J + 1).astype(int)
 
             Jp = np.kron(operators.Jp(J), np.identity(I_dim))
             Jm = np.kron(operators.Jm(J), np.identity(I_dim))
@@ -319,19 +327,20 @@ class Ion:
             Im = np.kron(np.identity(J_dim), operators.Jm(I))
             Iz = np.kron(np.identity(J_dim), operators.Jz(I))
 
-            H = data.g_J*_uB*B*Jz
+            H = data.g_J * _uB * B * Jz
             if self.I != 0:
                 gI = data.g_I
-                IdotJ = Iz@Jz + (1/2)*(Ip@Jm + Im@Jp)
+                IdotJ = Iz @ Jz + (1 / 2) * (Ip @ Jm + Im @ Jp)
 
-                H += - gI*_uN*B*Iz
-                H += data.Ahfs*IdotJ
+                H += -gI * _uN * B * Iz
+                H += data.Ahfs * IdotJ
 
-                if J > 1/2:
+                if J > 1 / 2:
                     IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
-                    ident = np.identity(I_dim*J_dim)
-                    H += data.Bhfs/(2*I*J*(2*I-1)*(2*J-1))*(
-                        3*IdotJ2 + (3/2)*IdotJ - ident*I*(I+1)*J*(J+1))
+                    ident = np.identity(I_dim * J_dim)
+                    H += (data.Bhfs / (2 * I * J * (2 * I - 1) * (2 * J - 1)) *
+                          (3 * IdotJ2 + (3 / 2) * IdotJ - ident * I *
+                           (I + 1) * J * (J + 1)))
 
             H /= hbar  # work in angular frequency units
             lev = data.slice()
@@ -341,21 +350,21 @@ class Ion:
             E = E[inds]
 
             # check that the eigensolver found the angular momentum eigenstates
-            M = np.diag(V.conj().T@(Iz+Jz)@V)
-            if max(abs(M-np.rint(2*M)/2)) > 1e-5:
+            M = np.diag(V.conj().T @ (Iz + Jz) @ V)
+            if max(abs(M - np.rint(2 * M) / 2)) > 1e-5:
                 raise ValueError('Error finding angular momentum'
                                  ' eigenstates at {}T. Is the field too small'
                                  ' to lift the state degeneracy?'.format(B))
 
             self.E[lev] = E
             self.V[lev, lev] = V
-            self.M[lev] = np.rint(2*M)/2
+            self.M[lev] = np.rint(2 * M) / 2
             self.MIax[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
             self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
-            self.MI[lev] = np.rint(2*np.diag(V.conj().T@(Iz)@V))/2
-            self.MJ[lev] = np.rint(2*np.diag(V.conj().T@(Jz)@V))/2
+            self.MI[lev] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
+            self.MJ[lev] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
 
-            F_list = np.arange(I-J, I+J+1)
+            F_list = np.arange(I - J, I + J + 1)
             if data.Ahfs < 0:
                 F_list = F_list[::-1]
 
@@ -390,7 +399,7 @@ class Ion:
         # already calculated.
         if self.ePole_hf is None:
             self.ePole_hf = np.zeros((self.num_states, self.num_states))
-            Idim = np.rint(2.0*self.I+1).astype(int)
+            Idim = np.rint(2.0 * self.I + 1).astype(int)
 
             for _, transition in self.transitions.items():
                 A = transition.A
@@ -398,16 +407,16 @@ class Ion:
                 lower = transition.lower
                 Ju = upper.J
                 Jl = lower.J
-                Mu = np.arange(-Ju, Ju+1)
-                Ml = np.arange(-Jl, Jl+1)
-                Jdim_u = int(np.rint(2*Ju+1))
-                Jdim_l = int(np.rint(2*Jl+1))
+                Mu = np.arange(-Ju, Ju + 1)
+                Ml = np.arange(-Jl, Jl + 1)
+                Jdim_u = int(np.rint(2 * Ju + 1))
+                Jdim_l = int(np.rint(2 * Jl + 1))
                 Jdim = Jdim_u + Jdim_l
 
                 subspace = np.r_[self.slice(lower), self.slice(upper)]
                 subspace = np.ix_(subspace, subspace)
 
-                dJ = Ju-Jl
+                dJ = Ju - Jl
                 dL = upper.L - lower.L
                 if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
                     order = 1
@@ -423,22 +432,23 @@ class Ion:
                 ePole_hf = np.zeros((Jdim, Jdim))
                 for ind_u in range(Jdim_u):
                     # q := Mu - Ml
-                    for q in range(-order, order+1):
+                    for q in range(-order, order + 1):
                         if abs(Mu[ind_u] - q) > Jl:
                             continue
 
-                        ind_l = np.argwhere(Ml == Mu[ind_u]-q)
-                        sign = (-1)**(2*Ju+Jl-Mu[ind_u]+order)
-                        ePole_hf[ind_l, ind_u+Jdim_l] = wigner3j(
-                            Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u]-q))*sign
-                ePole_hf *= np.sqrt(A*(2*Ju+1))
+                        ind_l = np.argwhere(Ml == Mu[ind_u] - q)
+                        sign = (-1)**(2 * Ju + Jl - Mu[ind_u] + order)
+                        ePole_hf[ind_l, ind_u + Jdim_l] = wigner3j(
+                            Ju, order, Jl, -Mu[ind_u], q,
+                            (Mu[ind_u] - q)) * sign
+                ePole_hf *= np.sqrt(A * (2 * Ju + 1))
 
                 # introduce the (still decoupled) nuclear spin
                 self.ePole_hf[subspace] = np.kron(ePole_hf, np.identity(Idim))
 
         # now couple...
         V = self.V
-        self.ePole = V.T@self.ePole_hf@V
+        self.ePole = V.T @ self.ePole_hf @ V
         self.Gamma = np.power(np.abs(self.ePole), 2)
         self.GammaJ = np.sum(self.Gamma, 0)
 
@@ -460,27 +470,27 @@ class Ion:
         """
         self.M1 = np.zeros((self.num_states, self.num_states))
         I = self.I
-        I_dim = np.rint(2.0*I+1).astype(int)
+        I_dim = np.rint(2.0 * I + 1).astype(int)
         eyeI = np.identity(I_dim)
 
         for level, data in self.levels.items():
             lev = data.slice()
-            J_dim = np.rint(2.0*level.J+1).astype(int)
-            dim = J_dim*I_dim
+            J_dim = np.rint(2.0 * level.J + 1).astype(int)
+            dim = J_dim * I_dim
             eyeJ = np.identity(J_dim)
 
             # magnetic dipole operator in spherical coordinates
-            Jp = np.kron((-1/np.sqrt(2))*operators.Jp(level.J), eyeI)
-            Jm = np.kron((+1/np.sqrt(2))*operators.Jm(level.J), eyeI)
+            Jp = np.kron((-1 / np.sqrt(2)) * operators.Jp(level.J), eyeI)
+            Jm = np.kron((+1 / np.sqrt(2)) * operators.Jm(level.J), eyeI)
             Jz = np.kron(operators.Jz(level.J), eyeI)
 
-            Ip = np.kron(eyeJ, (-1/np.sqrt(2))*operators.Jp(I))
-            Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
+            Ip = np.kron(eyeJ, (-1 / np.sqrt(2)) * operators.Jp(I))
+            Im = np.kron(eyeJ, (+1 / np.sqrt(2)) * operators.Jm(I))
             Iz = np.kron(eyeJ, operators.Jz(I))
 
-            up = (-data.g_J*_uB*Jp + data.g_I*_uN*Ip)
-            um = (-data.g_J*_uB*Jm + data.g_I*_uN*Im)
-            uz = (-data.g_J*_uB*Jz + data.g_I*_uN*Iz)
+            up = (-data.g_J * _uB * Jp + data.g_I * _uN * Ip)
+            um = (-data.g_J * _uB * Jm + data.g_I * _uN * Im)
+            uz = (-data.g_J * _uB * Jz + data.g_I * _uN * Iz)
 
             u = [um, uz, up]
 
@@ -501,5 +511,5 @@ class Ion:
                 psi_i = V[:, i]
                 psi_j = V[:, j]
 
-                M1[i, j] = ((-1)**(q+1)) * psi_i.conj().T@u[q+1]@psi_j
+                M1[i, j] = ((-1)**(q + 1)) * psi_i.conj().T @ u[q + 1] @ psi_j
             self.M1[lev, lev] = M1

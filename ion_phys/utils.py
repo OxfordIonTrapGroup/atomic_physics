@@ -36,9 +36,9 @@ def df_dB(ion, lower, upper, eps=1e-6):
     """
     f = ion.delta(lower, upper)
     ion = deepcopy(ion)
-    ion.setB(ion.B+eps)
+    ion.setB(ion.B + eps)
     fpr = ion.delta(lower, upper)
-    return (fpr - f)/eps
+    return (fpr - f) / eps
 
 
 def d2f_dB2(ion, lower, upper, eps=1e-4):
@@ -56,10 +56,10 @@ def d2f_dB2(ion, lower, upper, eps=1e-4):
     """
     df = df_dB(ion, lower, upper)
     ion = deepcopy(ion)
-    ion.setB(ion.B+eps)
+    ion.setB(ion.B + eps)
     dfpr = df_dB(ion, lower, upper)
 
-    return (dfpr - df)/eps
+    return (dfpr - df) / eps
 
 
 def field_insensitive_point(ion, lower, upper, B_min=1e-3, B_max=1e-1):
@@ -104,7 +104,7 @@ def ac_zeeman_shift(ion, state, f_RF):
     E = ion.E[states]
     M = ion.M[states]
     R = ion.M1[states]
-    rabi = R/consts.hbar
+    rabi = R / consts.hbar
 
     acz = np.zeros(3)
     for q in [-1, 0, +1]:
@@ -112,5 +112,5 @@ def ac_zeeman_shift(ion, state, f_RF):
         for _state in np.argwhere(Mpr == Mpr):
             freq = E[_state] - E[state]
             w = rabi[state, _state][0]
-            acz[q + 1] += 0.5*w**2*(freq/(freq**2 - (f_RF)**2))
+            acz[q + 1] += 0.5 * w**2 * (freq / (freq**2 - (f_RF)**2))
     return acz

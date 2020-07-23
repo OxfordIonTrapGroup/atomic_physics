@@ -22,8 +22,9 @@ class Rates:
         stim = np.zeros(Gamma.shape)
 
         for transition in self.ion.transitions.keys():
-            _lasers = [laser for laser in lasers
-                       if laser.transition == transition]
+            _lasers = [
+                laser for laser in lasers if laser.transition == transition
+            ]
             if _lasers == []:
                 continue
 
@@ -34,7 +35,7 @@ class Rates:
             n_lower = self.ion.levels[lower]._num_states
             n_upper = self.ion.levels[upper]._num_states
 
-            dJ = upper.J-lower.J
+            dJ = upper.J - lower.J
             dL = upper.L - lower.L
             if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
                 order = 1
@@ -60,21 +61,21 @@ class Rates:
 
             # Total scattering rate out of each state
             GammaJ_subs = GammaJ[upper_states]
-            GammaJ_subs = np.repeat(GammaJ_subs, n_lower).reshape(
-                n_upper, n_lower).T
+            GammaJ_subs = np.repeat(GammaJ_subs,
+                                    n_lower).reshape(n_upper, n_lower).T
             GammaJ2 = np.power(GammaJ_subs, 2)
 
             Gamma_subs = Gamma[lower_states, upper_states]
             R = np.zeros((n_lower, n_upper))
-            for q in range(-order, order+1):
+            for q in range(-order, order + 1):
                 Q = np.zeros((n_lower, n_upper))
                 # q := Mu - Ml
-                Q[Ml == (Mu-q)] = 1
+                Q[Ml == (Mu - q)] = 1
                 for laser in [laser for laser in _lasers if laser.q == q]:
                     delta = delta_lu - laser.delta
                     I = laser.I
-                    R += (GammaJ2/(4*np.power(delta, 2) + GammaJ2)
-                          * I*(Q*Gamma_subs))
+                    R += (GammaJ2 / (4 * np.power(delta, 2) + GammaJ2) * I *
+                          (Q * Gamma_subs))
                 assert (R >= 0).all()
 
             stim[lower_states, upper_states] = R

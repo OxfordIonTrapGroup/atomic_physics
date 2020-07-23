@@ -33,7 +33,8 @@ class TestTSS(unittest.TestCase):
             trans = rates.get_transitions(Lasers)
 
             spont = rates.get_spont()
-            r = spont[p_idx, p_idx] / (trans[p_idx, p_idx]+trans[p_idx, s_idx])
+            r = spont[p_idx,
+                      p_idx] / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
             self.assertAlmostEqual(r, 1., places=7)
 
     def test_steady_state_intensity(self):
@@ -55,12 +56,12 @@ class TestTSS(unittest.TestCase):
 
             Np_ss = _steady_state_population(I)
             # transition rates normalised by A coefficient
-            dNp_dt = (trans[p_idx, p_idx] * Np_ss
-                      + trans[p_idx, s_idx] * (1 - Np_ss))
+            dNp_dt = (trans[p_idx, p_idx] * Np_ss + trans[p_idx, s_idx] *
+                      (1 - Np_ss))
             dNp_dt = dNp_dt / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
             self.assertAlmostEqual(0., dNp_dt, places=7)
-            dNs_dt = (trans[s_idx, p_idx] * Np_ss
-                      + trans[s_idx, s_idx] * (1 - Np_ss))
+            dNs_dt = (trans[s_idx, p_idx] * Np_ss + trans[s_idx, s_idx] *
+                      (1 - Np_ss))
             dNs_dt = dNs_dt / (trans[s_idx, p_idx] + trans[s_idx, s_idx])
             self.assertAlmostEqual(0., dNs_dt, places=7)
 
@@ -82,19 +83,19 @@ class TestTSS(unittest.TestCase):
         # detuning scan relative to linewidth
         norm_detuning = [-1e4, 2.3e1, 2, -4, 0.5, 0]
         for det in norm_detuning:
-            I_eff = 1/(4 * det**2 + 1)
+            I_eff = 1 / (4 * det**2 + 1)
             Np_ss = _steady_state_population(I_eff)
 
-            Lasers = [Laser("393", q=+1, I=1., delta=delta + line_width*det)]
+            Lasers = [Laser("393", q=+1, I=1., delta=delta + line_width * det)]
             trans = rates.get_transitions(Lasers)
 
             # transition rates normalised by A coefficient
-            dNp_dt = (trans[p_idx, p_idx] * Np_ss
-                      + trans[p_idx, s_idx] * (1 - Np_ss))
+            dNp_dt = (trans[p_idx, p_idx] * Np_ss + trans[p_idx, s_idx] *
+                      (1 - Np_ss))
             dNp_dt = dNp_dt / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
             self.assertAlmostEqual(0., dNp_dt, places=7)
-            dNs_dt = (trans[s_idx, p_idx] * Np_ss
-                      + trans[s_idx, s_idx] * (1 - Np_ss))
+            dNs_dt = (trans[s_idx, p_idx] * Np_ss + trans[s_idx, s_idx] *
+                      (1 - Np_ss))
             dNs_dt = dNs_dt / (trans[s_idx, p_idx] + trans[s_idx, s_idx])
             self.assertAlmostEqual(0., dNs_dt, places=7)
 
