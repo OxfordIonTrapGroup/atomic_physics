@@ -63,7 +63,7 @@ class LevelData:
 
     def __repr__(self):
         return ("LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
-                " stop_ind={})""".format(self.g_J, self.g_I, self.E,
+                " stop_ind={})".format(self.g_J, self.g_I, self.E,
                                          self._num_states, self._start_ind,
                                          self._stop_ind))
 
