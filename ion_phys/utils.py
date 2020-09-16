@@ -109,7 +109,7 @@ def ac_zeeman_shift(ion, state, f_RF):
     acz = np.zeros(3)
     for q in [-1, 0, +1]:
         Mpr = M + q
-        for _state in np.argwhere(Mpr == Mpr):
+        for _state in np.argwhere(M[state] == Mpr):
             freq = E[_state] - E[state]
             w = rabi[state, _state][0]
             acz[q + 1] += 0.5*w**2*(freq/(freq**2 - (f_RF)**2))
