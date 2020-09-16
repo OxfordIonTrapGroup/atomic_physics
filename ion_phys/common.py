@@ -183,7 +183,8 @@ class Ion:
     def level(self, state):
         """ Returns the level a state lies in. """
         for level, data in self.levels.items():
-            if state in data.slice():
+            sl = data.slice()
+            if state in range(sl.start, sl.stop):
                 return level
         raise ValueError("No state with index {}".format(state))
 
