@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 console_scripts = []
@@ -11,5 +11,6 @@ setup(
     description="Ion Physics tool kit",
     entry_points={
         "console_scripts": console_scripts,
-    }
+    },
+    packages=find_packages(),
 )
