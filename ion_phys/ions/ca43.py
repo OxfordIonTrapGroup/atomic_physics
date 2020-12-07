@@ -1,7 +1,10 @@
 """ 43Ca+
 
-To do: check numbers and add references. NB the transition frequencies aren't
-correct as they don't include isotope shifts!
+ToDo: We need a reference for the Einstein A values
+A cursory look turned up:
+    Kramida, A., et al., NIST Atomic Spectra Database (ver. 5.8), [Online].
+However, this data is based of calculations done in the late 60s. These are
+only ~10% accurate.
 
 References:
 [1] - F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
@@ -10,6 +13,7 @@ References:
 [3] - T. P. Harty, et al. Phys. Rev. Lett 113, 220501 (2014)
 [4] - W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
 [5] - J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
+[6] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
 """
 import numpy as np
 import scipy.constants as consts
@@ -64,43 +68,43 @@ class Ca43(Ion):
                 lower=S12,
                 upper=P12,
                 A=132e6,  # [?]
-                freq=2*np.pi*755.2227662e12  # [?]
+                freq=2*np.pi*755223443.81e6   # [6]
             ),
             "393": Transition(
                 lower=S12,
                 upper=P32,
                 A=135e6,  # [?]
-                freq=2*np.pi*761.9050127e12  # [?]
+                freq=2*np.pi*761905691.40e6  # [6]
             ),
             "866": Transition(
                 lower=D32,
                 upper=P12,
                 A=8.4e6,  # [?]
-                freq=2*np.pi*consts.c/866e-9  # [?]
+                freq=2*np.pi*345996772.78e6  # [6]
             ),
             "850": Transition(
                 lower=D32,
                 upper=P32,
                 A=0.955e6,  # [?]
-                freq=2*np.pi*consts.c/850e-9  # [?]
+                freq=2*np.pi*352679020.37e6  # [6]
             ),
             "854": Transition(
                 lower=D52,
                 upper=P32,
                 A=8.48e6,  # [?]
-                freq=2*np.pi*consts.c/854e-9  # [?]
+                freq=2*np.pi*350859426.91e6  # [6]
             ),
             "729": Transition(
                 lower=S12,
                 upper=D52,
                 A=0.856,  # [?]
-                freq=411.0421297763932e12*2*np.pi  # [?]
+                freq=411046264.4881*2*np.pi  # [6]
             ),
             "733": Transition(
                 lower=S12,
                 upper=D32,
                 A=0.850,  # [?]
-                freq=409.222e12*2*np.pi  # [?]
+                freq=409226671.03*2*np.pi  # [6]
             ),
         }
 
