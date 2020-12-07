@@ -2,6 +2,7 @@
 
 References:
 [1] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
+[2] - T. P. Harty, DPhil Thesis (2013)
 """
 import numpy as np
 import scipy.constants as consts
@@ -25,11 +26,11 @@ class Ca40(Ion):
             None we include all levels.
         """
         levels = {
-            ground_level: LevelData(g_J=2.00225664),  # [?]
-            P12: LevelData(),  # [?]
-            P32: LevelData(),  # [?]
-            D32: LevelData(),  # [?]
-            D52: LevelData()  # [?]
+            ground_level: LevelData(g_J=2.00225664),  # [2]
+            P12: LevelData(),
+            P32: LevelData(),
+            D32: LevelData(),
+            D52: LevelData()
         }
 
         transitions = {
