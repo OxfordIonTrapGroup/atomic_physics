@@ -486,8 +486,8 @@ class Ion:
                 Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
                 Iz = np.kron(eyeJ, operators.Jz(I))
 
-                up += -data.g_J*_uB*Jp + data.g_I*_uN*Ip
-                um += -data.g_J*_uB*Jm + data.g_I*_uN*Im
+                up += data.g_I*_uN*Ip
+                um += data.g_I*_uN*Im
                 uz += data.g_I*_uN*Iz
 
             u = [um, uz, up]
