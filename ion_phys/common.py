@@ -477,13 +477,18 @@ class Ion:
             Jm = np.kron((+1/np.sqrt(2))*operators.Jm(level.J), eyeI)
             Jz = np.kron(operators.Jz(level.J), eyeI)
 
-            Ip = np.kron(eyeJ, (-1/np.sqrt(2))*operators.Jp(I))
-            Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
-            Iz = np.kron(eyeJ, operators.Jz(I))
+            up = -data.g_J*_uB*Jp
+            um = -data.g_J*_uB*Jm
+            uz = -data.g_J*_uB*Jz
 
-            up = (-data.g_J*_uB*Jp + data.g_I*_uN*Ip)
-            um = (-data.g_J*_uB*Jm + data.g_I*_uN*Im)
-            uz = (-data.g_J*_uB*Jz + data.g_I*_uN*Iz)
+            if self.I > 0:
+                Ip = np.kron(eyeJ, (-1/np.sqrt(2))*operators.Jp(I))
+                Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
+                Iz = np.kron(eyeJ, operators.Jz(I))
+
+                up += -data.g_J*_uB*Jp + data.g_I*_uN*Ip
+                um += -data.g_J*_uB*Jm + data.g_I*_uN*Im
+                uz += data.g_I*_uN*Iz
 
             u = [um, uz, up]
 
