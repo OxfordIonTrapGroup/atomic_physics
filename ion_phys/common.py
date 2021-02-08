@@ -431,7 +431,7 @@ class Ion:
                             continue
 
                         ind_l = np.argwhere(Ml == Mu[ind_u]-q)
-                        sign = (-1)**(2*Ju+Jl-Mu[ind_u]+order)
+                        sign = (-1)**(Ju-Mu[ind_u])
                         ePole_hf[ind_l, ind_u+Jdim_l] = wigner3j(
                             Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u]-q))*sign
                 ePole_hf *= np.sqrt(A*(2*Ju+1))
@@ -441,7 +441,7 @@ class Ion:
 
         # now couple...
         V = self.V
-        self.ePole = V.T@self.ePole_hf@V
+        self.ePole = V.T.conj()@self.ePole_hf@V
         self.Gamma = np.power(np.abs(self.ePole), 2)
         self.GammaJ = np.sum(self.Gamma, 0)
 
