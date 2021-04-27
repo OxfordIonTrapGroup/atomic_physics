@@ -242,12 +242,11 @@ class Ion:
         w0 to give an on-axis intensity of I0.
 
         :param transition: the transition name
-        :param w0: Gaussian beam waist (1/e^2 in m)
+        :param w0: Gaussian beam waist (1/e^2 intensity radius in m)
         :return: beam power (W)
         """
-        omega = self.transitions[transition].f0
         I0 = self.I0(transition)
-        return 0.5*np.pi*(omega**2)*I0
+        return 0.5*np.pi*(w0**2)*I0
 
     def _sort_levels(self):
         """ Use the transition data to sort the atomic levels in order of
