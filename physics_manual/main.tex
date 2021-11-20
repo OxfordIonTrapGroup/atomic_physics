@@ -1,0 +1,299 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+
+\title{Ion Phys Notes}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+The definitions, conventions, and equations here are derived from many sources \cite{Loudon2000, Bransden2003, Auzinsh2010, Foot2005, Bernadotte2012}. I have tried to provide a self-consistent notation to maintain clarity between these notes and the functions/definitions in the code-base.  
+
+\section{Transition Matrix Elements}
+We begin with the Hamiltonian for an atom interacting with an oscillating electromagnetic field. This is given by 
+
+\begin{equation}
+    H = \frac{1}{2m_e}\left(\mathbf{p} + e\mathbf{A}\right)^2 - e\phi + \Phi(r)~,
+\end{equation}
+where $\Phi(r)$ is the atomic potential energy, and $\mathbf{A}$ and $\phi$ are the vector and scalar potential of the electromagnetic field. If we adopt the Coulomb gauge, $\nabla \cdot \mathbf{A}$, and consider only the first order perturbation of $\mathbf{A}$, then this can be simplified to 
+\begin{align}
+    H &= H_0 + H_I ~,\\
+    H &= \frac{p^2}{2m_e} + \Phi(r) +  \frac{e\mathbf{A}\cdot\mathbf{p}}{m_e}-e\phi~,
+\end{align}
+where $H_0$ is the atomic Hamiltonian and $H_I$ is the Hamiltonian of the perturbation. A plane wave has scalar and vector potentials  
+\begin{align}
+    \phi &= 0~, \\
+    \mathbf{A} &= 2A_0 \boldsymbol{\hat{\epsilon}} \cos{(\mathbf{k}\cdot\mathbf{r} -\omega t)}~,
+\end{align}
+where $\mathbf{k} = \mathbf{\hat{n}}\omega/c$ is the wavevector and $\boldsymbol{\hat{\epsilon}}$ is the polarisation unit vector. The perturbing part of the Hamiltonian can thus be written as 
+\begin{equation}
+    H_I = \frac{eA_0}{m_e}\left[ {\rm{e}}^{(i\mathbf{k}\cdot\mathbf{r} - i\omega t)} +  {\rm{e}}^{(-i\mathbf{k}\cdot\mathbf{r} - i\omega t)}\right] \boldsymbol{\hat{\epsilon}} \cdot \mathbf{p}~.
+\end{equation}
+The two terms of this equation can be thought of as absorption and emission of photons with energy $\hbar \omega$. It is convenient (reasons which we will see later) to define the matrix element $\mathbf{D}_{ij}$ as 
+\begin{align}
+    \mathbf{D}_{ij} &= \frac{-i}{m_e\omega_{ij}}\left\langle i \left|{\rm{e}}^{i\mathbf{k}\cdot\mathbf{r}} \mathbf{p} \right| j\right\rangle \\
+    &= \frac{-i}{m_e\omega_{ij}}\left\langle i \left|\mathbf{D} \right| j\right\rangle~,
+\end{align}
+where $m_e$ is the electron mass and $\hbar\omega_{ij} = \hbar\omega_j - \hbar\omega_i$. 
+By making use of Fermi's golden rule for a periodic perturbation, it follows that the rate of stimulated emission $\Gamma^{\rm{stm}}_{ji}$ and absorption $\Gamma^{\rm{abs}}_{ij}$ are given by 
+\begin{align}
+    \Gamma^{\rm{stm}}_{ji} &= \frac{\pi e^2 E_0^2}{2\hbar^2}\left|\boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ji}\right|^2\delta(\omega-\omega_{ji})~, \\
+    \Gamma^{\rm{abs}}_{ij} &= \frac{\pi e^2 E_0^2}{2\hbar^2}\left|\boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ij}\right|^2\delta(\omega-\omega_{ij})~,
+\end{align}
+where we have used the definition $\mathbf{E} = -\partial _t \mathbf{A}$ and the identity $\delta(ax) = \delta(x)/a$. By considering a black-body thermodynamic argument (see \cite{Loudon2000, Foot2005}), it can be shown that the rate of spontaneous emission $\Gamma^{\rm{sp}}_{ji}$ can also be linked to the matrix element by
+\begin{equation} \label{eq:spont_emiss}
+    A_{ji} = \frac{4\alpha \omega_{ji}^3}{3c^2}\left|\mathbf{D}_{ij}\right|^2~,
+\end{equation}
+where $\alpha$ is the fine structure constant. 
+
+Thus far, we have derived expressions which describe the rate of absorption and stimulated emission when an atom is irradiated with an electromagnetic field, as well as the rate of spontaneous emission. However, it is not immediately obvious how to deal with the matrix element.   
+
+In general, the wavelength of the the radiation which can induce state changing transitions is much larger than the 
+spatial extent of the atoms. Hence, we can use the Taylor series to write \begin{equation}\label{eq:multipole}
+    {\rm{e}}^{i\mathbf{k}\cdot\mathbf{r}} = 1 + i \mathbf{k} \cdot \mathbf{r} + \cdots~.
+\end{equation}
+Different orders of this expansion give rise to a range of multipole transitions, such as dipole, quadrupole, octupole etc. Before going any further, we will take a short detour to look at the Wigner Eckart theorem, which will help us later on. 
+
+\subsection{Wigner Eckart Theorem}
+It is typically useful to work in the spherical-basis representation, especially when dealing with angular momenta. The spherical basis unit vectors $\boldsymbol{\hat{e}_{q}}$ are related to the Cartesian basis vectors by 
+\begin{align}
+    \boldsymbol{\hat{e}_{\pm{1}}} &= \mp \frac{1}{\sqrt{2}} \left(\boldsymbol{\hat{e}_x} \pm i\boldsymbol{\hat{e}_y}\right)~, \\
+    \boldsymbol{\hat{e}_{0}} &= \boldsymbol{\hat{e}_z}~,
+\end{align}
+The inner product in this basis is defined by 
+\begin{equation}
+    \mathbf{A}\cdot\mathbf{B} = \sum_q A_qB^*_q =  \sum_q (-1)^qA_qB_{-q}~.
+\end{equation}
+The Wigner-Eckart theorem states that the matrix element of an irreducible tensor $T^{\kappa}_q$ in the spherical basis can be decomposed into 
+\begin{equation}
+    \left\langle J', m_J'|T^{\kappa}_q|J, m_J\right\rangle=\frac{\left\langle J'||T^{\kappa}||J\right\rangle}{\sqrt{2J'+1}}\left\langle J, m_J\kappa q|J'm_J'\right\rangle~,
+\end{equation}
+where $\left\langle J'||T^{\kappa}||J\right\rangle$ is the reduced matrix element, and an irreducible tensor is defined as an operator which obeys angular momentum commutation relations. The last term of this equation is the Clebsch-Gordon coefficient. This can be more conveniently written in terms of Wigner-$3j$ symbols as
+\begin{equation}
+\left\langle J', m_J'|T^{\kappa}_q|J, m_J\right\rangle= (-1)^{J'-m_J'}\left\langle J'||T^{\kappa}||J\right\rangle
+\begin{pmatrix}
+J' & \kappa & J\\
+-m_J' & q & m_J
+\end{pmatrix}~,
+\end{equation}
+where we have used the Wigner-3$j$ odd permutation relation and $(-1)^{2\kappa} = 1$, as $\kappa$ is always integer for the cases we will consider.
+The significance of this theorem is that the matrix element can be split into two factors. The first is the reduced matrix element which is a property of the physical observable, and an angular coefficient which depends only on the geometry of the problem (i.e. quantisation axis direction).
+
+\subsection{Electric Dipole Approximation}\label{sec:ED}
+To first order, we can approximate ${\rm{e}}^{i\mathbf{k}\cdot\mathbf{r}} = 1$, leading to 
+\begin{equation}
+     \mathbf{D}_{ij} \approx \frac{-i}{m_e\omega_{ij}}\left\langle j \left| \mathbf{p} \right| i\right\rangle~.
+\end{equation}  
+From the commutation relations between the position and momentum operators $\left[\mathbf{r}_i, \mathbf{p}_j\right] = i\hbar \delta_{ij}$, it follows that 
+\begin{equation}
+    \left[\mathbf{r}, H_0\right] = \frac{i\hbar}{m_e}\mathbf{p}~,
+\end{equation}
+and therefore 
+\begin{equation}
+    \mathbf{D}_{ij} = \left\langle j \left|\mathbf{r}\right| i\right\rangle~.
+\end{equation}
+As the operator $\mathbf{r}$ is anti-symmetric, electric dipole transitions only occur between states with opposite parity.
+
+\subsubsection{Spontaneous Decay}
+To determine the dipole matrix element, one can use experimentally measured decay rates. However, in general the measured decay rate is a sum of all possible paths to degenerate sub-levels. We denote this total rate as $\Gamma^{\rm{sp}}_j$. We therefore write 
+\begin{equation} \label{eq:dec_rate}
+    \Gamma^{\rm{sp}}_j = \sum_{i} A_{ji}
+    = \frac{4 \alpha \omega_{ji}^3}{3 c^2} \sum_{q, m_J} 
+    \begin{pmatrix}
+    J' & 1 & J\\
+    -m_J' & q & m_J
+    \end{pmatrix}^2 \left|\left\langle J'||\mathbf{r}||J\right\rangle\right|^2~,
+\end{equation}
+where we have used the Wigner-Eckart theorem to re-write the matrix element, and the prime notation denotes the upper state $j$. From the summation properties of Wigner-$3j$ symbols, this can be simplified to  
+\begin{equation} \label{eq:dec_rate_tot}
+    \Gamma^{\rm{sp}}_j = \frac{4\alpha\omega_{ji}^3}{3c^2} \frac{1}{2J'+1} \left|\left\langle J'||\mathbf{r}||J\right\rangle\right|^2.
+\end{equation}
+From this equation, the reduced dipole matrix element can be determined. By inserting the definition of the reduced matrix element from equation \ref{eq:dec_rate_tot} into equation \ref{eq:dec_rate}, it is trivial to show that the transition decay rate is given by
+\begin{equation}
+   A_{ji} = \Gamma^{\rm{sp}}_j \left(2J'+1\right)  \begin{pmatrix}
+    J' & 1 & J\\
+    -m_J' & q & m_J
+    \end{pmatrix}^2~.
+\end{equation}
+
+\subsubsection{Absorption}
+The rate of absorption and stimulated emission are more usefully expressed in terms of the Rabi frequency $\Omega_{ij} = e E_0\left|\boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ij}\right|/\hbar$, as this is easily linked to the radiation intensity which is typically the available parameter from the laboratory. This leads to a re-definition the absorption rate to  
+\begin{equation}
+     \Gamma^{\rm{abs}}_{ij} = \frac{\pi}{2}\Omega^2 {\mathcal{L}\left(\omega-\omega_0\right)}~,
+\end{equation}
+where we have included a normalised Lorentzian lineshape function 
+\begin{equation}
+     {\mathcal{L}\left(\omega-\omega_0\right)} = \frac{1}{2\pi}\frac{\Gamma_{\rm{tot}}}{\Delta^2 + \Gamma_{\rm{tot}}^2/4}~,
+\end{equation}
+where $\Delta = \omega - \omega_{ij}$ and $\Gamma_{\rm{tot}} = \sum_{j} \Gamma^{\rm{sp}}_{j}$ is the total decay rate of the state $j$ via all possible decay paths. With the definition of electric field strength as ${E=\sqrt{2I/\epsilon_0 c}}$ and the use of equation \ref{eq:spont_emiss}, we can rewrite the Rabi frequency as 
+\begin{align}
+    \Omega_{ij}^2 &= \frac{3 e^2c^2}{4\alpha \hbar^2\omega_{ij}^3}E_0^2A_{ji}~, \\ &= \frac{6\pi c^2}{\hbar\omega_{ij}^3} \frac{I}{c} A_{ji}~.
+\end{align}
+We define a reference intensity $I_0$ such that on resonance ($\Delta = 0$), the excitation rate is equal to the spontaneous emission rate. This is given by
+\begin{equation}
+    I_0 = \frac{\hbar \omega_{ij}^3 \Gamma_{\rm{tot}}}{6\pi c^2}~.
+\end{equation}
+Substituting this into the definition of Rabi frequency, We arrive at 
+\begin{equation}
+    \Omega_{ij}^2 = \Gamma_{\rm{tot}} A_{ji}\frac{I}{I_0}~,
+\end{equation}
+and hence an absorption and stimulated emission transition rate of
+\begin{equation}
+    \Gamma^{\rm{stm}}_{ji} = \Gamma^{\rm{abs}}_{ij} = \frac{\Gamma_{\rm{tot}} A_{ij}}{4} \frac{I}{I_0} \frac{\Gamma_{\rm{tot}}}{\Delta^2 + \Gamma_{\rm{tot}}^2/4}~.
+\end{equation}
+
+\subsection{Higher Orders} \label{sec:HO}
+If we take equation \ref{eq:multipole} to next order, then 
+\begin{equation}
+    \boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ij} = \left\langle f \left| \boldsymbol{\hat{\epsilon}}\cdot\mathbf{r} \right| i \right\rangle + \frac{1}{m_e c} \left\langle f \left| (\boldsymbol{\hat{n}}\cdot\mathbf{r}) ( \boldsymbol{\hat{\epsilon}}\cdot\mathbf{p}) \right| i \right\rangle~,
+\end{equation}
+where the first term is the dipole term. From now on, we only consider the second term. It is useful to rewrite the operator as a summation of symmetric and and anti-symmetric terms as
+\begin{equation}\label{eq:quad_exp}
+    (\boldsymbol{\hat{n}}\cdot\mathbf{r}) ( \boldsymbol{\hat{\epsilon}}\cdot\mathbf{p}) = \frac{1}{2}\left[(\boldsymbol{\hat{n}}\cdot\mathbf{r})(\boldsymbol{\hat{\epsilon}}\cdot\mathbf{p}) - (\boldsymbol{\hat{\epsilon}}\cdot\mathbf{r})(\boldsymbol{\hat{n}}\cdot\mathbf{p})\right] +  \frac{1}{2}\left[(\boldsymbol{\hat{n}}\cdot\mathbf{r})(\boldsymbol{\hat{\epsilon}}\cdot\mathbf{p}) + (\boldsymbol{\hat{\epsilon}}\cdot\mathbf{r})(\boldsymbol{\hat{n}}\cdot\mathbf{p})\right]~.
+\end{equation}
+Using a standard vector identity, we can rewrite the first term as 
+\begin{align}
+    (\boldsymbol{\hat{n}}\cdot\mathbf{r})(\boldsymbol{\hat{\epsilon}}\cdot\mathbf{p}) - (\boldsymbol{\hat{\epsilon}}\cdot\mathbf{r})(\boldsymbol{\hat{n}}\cdot\mathbf{p}) &= (\boldsymbol{\hat{n}} \times \boldsymbol{\hat{\epsilon}}) \cdot (\mathbf{r} \times \mathbf{p})~, \\
+    &= \boldsymbol{\hat{m}}\cdot \mathbf{L}~,
+\end{align}
+where we have identified $\boldsymbol{\hat{m}}$ as the direction of the magnetic component of the applied electromagnetic field and $\mathbf{L}$ as the angular momentum operator. Using standard vector algebra (see \cite{Bernadotte2012}), the second term of equation \ref{eq:quad_exp} can be re-written as
+\begin{align}
+    (\boldsymbol{\hat{n}}\cdot\mathbf{r})(\boldsymbol{\hat{\epsilon}}\cdot\mathbf{p}) + (\boldsymbol{\hat{\epsilon}}\cdot\mathbf{r})(\boldsymbol{\hat{n}}\cdot\mathbf{p}) &= \boldsymbol{\hat{n}}\cdot \left[\mathbf{r}\mathbf{p} + \mathbf{p}\mathbf{r}\right]\cdot \boldsymbol{\hat{\epsilon}}~, \\
+    &= \boldsymbol{\hat{n}}\cdot \frac{im}{\hbar}\left[H_0, \mathbf{rr}\right]\cdot \boldsymbol{\hat{\epsilon}}~, \\
+    &= im\omega_{ij}\boldsymbol{\hat{n}}\cdot\mathbf{rr}\cdot \boldsymbol{\hat{\epsilon}}~,
+\end{align}
+which can be seen as the quadrupole operator. By combing the previous equations, we arrive at 
+\begin{equation}
+    \boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ij} = \frac{1}{2m_e c} \boldsymbol{\hat{m}}\cdot \left\langle f \left|\mathbf{L} \right| i \right\rangle + \frac{i\omega_{ij}}{2c}\boldsymbol{\hat{n}}\cdot\mathbf{Q}_{ij}\cdot \boldsymbol{\hat{\epsilon}}~,    
+\end{equation}
+where $\left(\mathbf{Q}_{ij}\right)_{\alpha\beta} =  \left\langle f \left|r_{\alpha} r_{\beta} \right| i \right\rangle$ is the quadrupole matrix element. We have now shown that taking the next order in the expansion leads to two extra terms. These can be identified as the magnetic dipole and electric quadrupole terms.
+
+\subsubsection{Magnetic Dipole}
+The derivation thus far is based upon a non-relativistic treatment. However, we know that an electron also has intrinsic spin $\mathbf{S}$. We therefore introduce a phenomenological Stern-Gerlach term which describes the interaction between the electron spin and the magnetic field. This interaction is described by the Hamiltonian
+\begin{equation}
+     H_S = -\boldsymbol{\mu}\cdot\mathbf{B} = \frac{g_s \mu_{\rm{B}}}{\hbar}\mathbf{S}\cdot\mathbf{B}~,
+\end{equation}
+where $g_s$ is the electron g-factor, and $\mathbf{B}$ is the applied magnetic field. Following a similar treatment to above, the total magnetic dipole matrix element is described by  
+\begin{equation}
+    \boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ji} = \frac{1}{2m_ec}\boldsymbol{\hat{m}}\cdot \left\langle j \left|\mathbf{L} + 2\mathbf{S} \right| i \right\rangle~.
+\end{equation}
+By combing this expression into the definition of Rabi frequency, we arrive at 
+\begin{align}
+    \hbar \Omega &= e E_0 \left|\boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ji}\right| \\
+    &= \frac{eE_0}{2mc}\left|\boldsymbol{\hat{m}}\cdot \left\langle j \left|\mathbf{L} + 2\mathbf{S} \right| i \right\rangle\right| \\
+    &=\frac{\mu_{\rm{B}}B_0}{\hbar}\left|\boldsymbol{\hat{m}}\cdot \left\langle j \left|\mathbf{L} + 2\mathbf{S} \right| i \right\rangle\right| \\
+    &= \left|\mathbf{M}_{ij} \cdot \boldsymbol{\hat{m}} \right|B_0~~,
+\end{align}
+where $\mathbf{M}_{ij} = -\left\langle j \left| \boldsymbol{\mu} \right| i \right\rangle$. One often works with multi-electron atoms in a basis where the orbital and spin angular momenta are combined to form a total angular momentum $\mathbf{J}$, in which case one can define $\hbar\boldsymbol{\mu_J} = -g_J\mu_{\rm{B}}\mathbf{J}$ where $g_J$ is the Land\'{e} g-factor. If one is dealing with an atom which also has nuclear spin $\mathbf{I}$, an extra term is also added such that
+\begin{align}
+    \hbar\boldsymbol{\mu} &= \hbar\left(\boldsymbol{\mu_J} + \boldsymbol{\mu_I}\right)~, \\
+    &= -g_J\mu_{\rm{B}}\mathbf{J} + g_I\mu_{\rm{N}}\mathbf{I}~, 
+\end{align}
+where $g_I$ is the nuclear g-factor and $\mu_{\rm{N}}$ is the nuclear magneton. Note the lack of minus sign on the nuclear spin part. Due to how nucleons arrange, the value of $g_I$ can be both positive or negative. This second term facilitates $\Delta M_I = 0, \pm 1$ transitions. However, these are significantly weaker as $\mu_{\rm{N}}/\mu_{\rm{B}} \approx 10^{-3}$.   
+
+As discussed earlier, it is typically useful to work in the spherical basis. We can similarly define the angular momentum operators $\mathbf{J}$ and $\mathbf{I}$ in the spherical basis, using the ladder operators $\boldsymbol{J_{\pm}}$ as $\boldsymbol{J_{\pm1}} = \mp \frac{1}{\sqrt{2}} \boldsymbol{J_{\pm}}$. Their associated eigen-equations are
+\begin{align} \label{eq:eigen}
+    \boldsymbol{J_{\pm1}}\left|J, M_J\right\rangle &=  \mp \frac{\hbar}{\sqrt{2}} \sqrt{\left(J\mp M_J\right)\left(J \pm M_J +1\right)}\left|J, M_J \pm 1\right\rangle~, \\
+    \boldsymbol{J_{0}}\left|J, M_J\right\rangle &= \hbar M_J\left|J, M_J\right\rangle~.
+\end{align}
+There are a similar set of equations for $\mathbf{I}$. We can therefore re-write the matrix element as 
+\begin{align}
+    \hbar\mathbf{M}_{ij} \cdot \boldsymbol{\hat{m}} &= -\left\langle j \left| \boldsymbol{\mu_q} \right| i \right\rangle\boldsymbol \cdot \boldsymbol{\hat{m}_q}~, \\
+    &= \sum_q (-1)^{q+1}\left\langle j \left|\mu_q \right| i \right\rangle\hat{m}_{-q}~, \\
+    &= \sum_q \left[ g_J \mu_{\rm{B}}(-1)^{q+1}\hat{m}_{-q}\left\langle j \left|\boldsymbol{J_q}\right| i \right\rangle + g_I \mu_{\rm{N}}(-1)^{q}\hat{m}_{-q}\left\langle j \left|\boldsymbol{I_q}\right| i \right\rangle\right] ~.
+\end{align}
+     
+
+\subsubsection{Electric Quadrupole}
+In section \ref{sec:HO}, we derived an additional term which describes quadrupole transitions. If we consider an electric quadrupole transition, for example a $\Delta J = 2$ transition, then the only reaming term in the matrix element is
+\begin{equation}
+    \boldsymbol{\hat{\epsilon}}\cdot\mathbf{D}_{ij} = \frac{i\omega_{ij}}{2c}\boldsymbol{\hat{n}}\cdot\mathbf{Q}_{ij}\cdot \boldsymbol{\hat{\epsilon}}~.
+\end{equation}
+We are able to utilise the same tools used in section \ref{sec:ED}, thanks to the Wigner Eckart theorem. In a similar fashion to equation \ref{eq:dec_rate}, the quadrupole spontaneous decay rate is given by 
+\begin{equation} 
+    A_{ji} = \Gamma^{\rm{sp}}_j \left(2J'+1\right)  \begin{pmatrix}
+    J' & 2 & J\\
+    -m_J' & q & m_J
+    \end{pmatrix}^2~.
+\end{equation}
+Note here the change of $\kappa = 1 \rightarrow 2$ in the Wigner-3j symbol. 
+
+\subsection{Application to high field states}
+When the ion is placed in a magnetic field, state mixing occurs and the hyperfine $\left|F, m_F\right\rangle$ basis states are no longer a suitable choice of basis. We typically therefore work in the uncoupled $\left|I, J, m_I m_J\right\rangle$ basis as this is accurate for field strengths where the Zeeman shift is small compared to the $L-S$ coupling. A hyperfine state can be expressed as a superposition of $\left|I, J, m_I m_J\right\rangle$ states. Here we consider the case of a $J=1/2$ manifold where there are at most two states. The mathematics below can be easily extended to more states. We define the hyperfine state $\left|F, m_F\right\rangle$ as
+\begin{equation}
+    \left|F, m_F\right\rangle = \alpha \left|I, J, m_I^\alpha m_J^\alpha\right\rangle + \beta |I, J, m_I^\beta m_J^\beta\rangle~,
+\end{equation}
+where $\alpha$ and $\beta$ are complex coefficients. 
+
+As detailed in equation \ref{eq:dec_rate}, in order to calculate the transition scattering rate, one must calculate the appropriate matrix element.  
+\begin{equation}
+    \left\langle F', m_F'\right|\mathbf{D}\left|F, m_F\right\rangle = \left\langle \alpha \langle I, J', m_I^{\alpha'} m_J^{\alpha'}| + \beta \langle I J', m_I^{\beta'} m_J^{\beta'}| \right|\mathbf{D}\left|\alpha |I, J, m_I^{\alpha} m_J^{\alpha}\rangle + \beta|I, J, m_I^{\beta} m_J^{\beta}\rangle\right\rangle~. 
+\end{equation}
+Note that the nuclear spin quantum number $I$ is the same for both states. 
+
+\subsubsection{Electric Multipole}
+As the electric multipole operators do not couple to the nuclear spin, the nuclear spin part of the state can be factored out into a kronecker delta 
+\begin{equation}
+\begin{split}
+       \left\langle F', m_F'\right|\mathbf{D}\left|F, m_F\right\rangle = \alpha' \alpha \langle J',m_J'^{\alpha'}|\mathbf{D}|J, m_J^{\alpha}\rangle \delta_{m_I^{\alpha'} m_I^{\alpha}} &+ \alpha' \beta \langle J',m_J^{\alpha'}|\mathbf{D}|J, m_J^{\beta}\rangle \delta_{m_I^{\alpha'} m_I^{\beta}} + \\ 
+       \beta' \alpha \langle J',m_J^{\beta'}|\mathbf{D}|J, m_J^{\alpha}\rangle \delta_{m_I^{\beta'} m_I^{\alpha}} &+ \beta' \beta \langle J',m_J^{\beta'}|\mathbf{D}|J, m_J^{\beta}\rangle \delta_{m_I^{\beta'} m_I^{\beta}}~.
+\end{split}
+\end{equation}
+As all of the matrix elements involve the same values of $J$ and $J'$, we can simplify the expression using the Wigner-Eckart theorem to
+\begin{equation}
+\begin{split}
+       \left\langle F', m_F'\right|\mathbf{D}\left|F, m_F\right\rangle =  
+       [ \alpha' \alpha \delta_{m_I^{\alpha'}  m_I^{\alpha}}  W^{\kappa}\left(\alpha' \alpha\right)  &+ \alpha' \beta \delta_{m_I^{\alpha'} m_I^{\beta}} 
+       W^{\kappa}\left(\alpha' \beta\right) + \\
+        \beta' \alpha \delta_{m_I^{\beta'} m_I^{\alpha}}
+       W^{\kappa}\left(\beta' \alpha\right) &+ 
+        \beta' \beta \delta_{m_I^{\beta'} m_I^{\beta}}
+        W^{\kappa}\left(\beta' \beta\right) ] \langle J'||\mathbf{D}||J\rangle~.
+\end{split}
+\end{equation}
+where we have defined a shorthand notation for the Wigner-$3j$ symbol
+\begin{equation}
+W^{\kappa}(i, j) = (-1)^{J'- m_J^{j}} \begin{pmatrix}
+        J' & \kappa & J\\
+        -m_J^j & q & m_J^{i}
+        \end{pmatrix}~,
+\end{equation}
+where $W^{\kappa} \in 1,2$ for dipole or quadrupole transitions respectively. We simplify this notation further writing
+\begin{equation}
+    \left\langle F, m_F\right|\mathbf{D}\left|F', m_F'\right\rangle = \zeta \langle J||\mathbf{D}||J'\rangle~.  
+\end{equation}
+The reduced matrix element can be determined once again from measured state lifetimes. By inserting the matrix element derived above into equation \ref{eq:dec_rate}, the transition decay rate is given by 
+\begin{equation}
+    A_{ji} = \Gamma^{\rm{sp}}_j \left(2J'+1\right) \left|\zeta\right|^2~.
+\end{equation}
+\subsubsection{Magnetic Dipole}
+The magnetic dipole term of the interaction can be written as a summation of $\mathbf{J}$ and $\mathbf{I}$ as 
+\begin{equation}
+\begin{split}
+       &\hbar\left\langle F, m_F\right|-\boldsymbol{\mu_q}\cdot\boldsymbol{\hat{m}_q}\left|F', m_F'\right\rangle =   \\
+       &\alpha \alpha' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q}   \langle J,m_J^\alpha|\boldsymbol{J_q}|J', m_J^{\alpha'}\rangle \delta_{m_I^\alpha m_I^{\alpha'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\langle I,m_I^\alpha|\boldsymbol{I_q}|m_I^{\alpha'}\rangle \left. \delta_{m_J^\alpha m_J^{\alpha'}} \right] \\
+        &\alpha \beta' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q}   \langle J,m_J^\alpha|\boldsymbol{J_q}|J', m_J^{\beta'}\rangle \delta_{m_I^\alpha m_I^{\beta'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\langle I,m_I^\alpha|\boldsymbol{I_q}|m_I^{\beta'}\rangle \left. \delta_{m_J^\alpha m_J^{\beta'}} \right] \\ 
+        &\beta \alpha' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q}   \langle J,m_J^\beta|\boldsymbol{J_q}|J', m_J^{\alpha'}\rangle \delta_{m_I^\beta m_I^{\alpha'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\langle I,m_I^\beta|\boldsymbol{I_q}|m_I^{\alpha'}\rangle \left. \delta_{m_J^\beta m_J^{\alpha'}} \right] \\ 
+        &\beta \beta' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q}   \langle J,m_J^\beta|\boldsymbol{J_q}|J', m_J^{\beta'}\rangle \delta_{m_I^\beta m_I^{\beta'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\langle I,m_I^\beta|\boldsymbol{I_q}|m_I^{\beta'}\rangle \left. \delta_{m_J^\beta m_J^{\beta'}} \right]~.
+\end{split}
+\end{equation}
+If we define the eigenvalues of the angular momentum operators from equation \ref{eq:eigen} as $\xi^J_q$ and $\xi^I_q$ for the set of $\mathbf{J}$ and $\mathbf{I}$ respectively, then we can simplify the previous expression to 
+\begin{equation}
+\begin{split}
+       &\hbar\left\langle F, m_F\right|-\boldsymbol{\mu_q}\cdot\boldsymbol{\hat{m}_q}\left|F', m_F'\right\rangle =   \\
+       &\alpha \alpha' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q} \xi^J_q \delta_{m_J^\alpha m_J^{\alpha'}-q} \delta_{m_I^\alpha m_I^{\alpha'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q} \xi^I_q \delta_{m_I^\alpha m_I^{\alpha'}-q} \left. \delta_{m_J^\alpha m_J^{\alpha'}} \right] \\
+        &\alpha \beta' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q} \xi^J_q \delta_{m_J^\alpha m_J^{\beta'}-q} \delta_{m_I^\alpha m_I^{\beta'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\xi^I_q\delta_{m_I^\alpha m_I^{\beta'}-q} \left. \delta_{m_J^\alpha m_J^{\beta'}} \right] \\ 
+        &\beta \alpha' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q} \xi^J_q \delta_{m_J^\beta m_J^{\alpha'}-q} \delta_{m_I^\beta m_I^{\alpha'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\xi^I_q\delta_{m_I^\beta m_I^{\alpha'}-q} \left. \delta_{m_J^\beta m_J^{\alpha'}} \right] \\
+       &\beta \beta' \left[g_J \mu_{\rm{B}}\sum_q  (-1)^q \right. \hat{m}_{-q} \xi^J_q \delta_{m_J^\beta m_J^{\beta'}-q} \delta_{m_I^\beta m_I^{\beta'}} + g_I \mu_{\rm{N}}\sum_q (-1)^{q+1}\hat{m}_{-q}\xi^I_q\delta_{m_I^\beta m_I^{\beta'}-q} \left. \delta_{m_J^\beta m_J^{\beta'}} \right] ~.
+\end{split}
+\end{equation}
+as the angular momentum eigenstates form an orthogonal basis. These Kronecker delta functions can be calculated efficiently using matrix/vector manipulations of eigenvectors.  
+
+\bibliographystyle{unsrt}
+\bibliography{bibliography}
+\end{document}
