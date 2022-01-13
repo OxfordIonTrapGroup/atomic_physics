@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "ion_phys"
+version = "0.1.0"
+description = "Nascent toolkit for calculating state energies, transition matrix elements, rate equations, obe solver, etc"
+authors = ["hartytp <thomas.peter.harty@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8, <3.11"
+numpy = "^1.22.0"
+scipy = "^1.7.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+poethepoet = "^0.12.1"
+sympy = "^1.9"
+black = "^21.12b0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+format-jinja = "{{ base }}.{{ distance }}+g{{ commit }}"
+pattern = "^(?P<base>\\d+(\\.\\d+)*)"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+test = "pytest"
+fmt-test = "black --check ."
+fmt = "black ."
