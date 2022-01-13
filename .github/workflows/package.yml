@@ -1,0 +1,32 @@
+name: Package
+
+on:
+  push:
+    branches:
+      - packaging
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build_and_upload_wheel:
+    name: Build and upload wheel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install poetry
+        run: |
+          python -m pip install poetry==1.1.12
+          python -m pip install poetry-dynamic-versioning==0.13.1
+      - name: Build wheel
+        run: poetry build -f wheel
+
+      - name: Configure poetry
+        if: github.event_name == 'push'
+        run: |
+          poetry config repositories.pypi-test https://test.pypi.org/legacy/
+          poetry config poetry config pypi-token.pypi-test ${{ secrets.TESTPYPI }}
+      - name: Upload wheel
+        if: github.event_name == 'push'
+        run: poetry publish -r pypi-test
