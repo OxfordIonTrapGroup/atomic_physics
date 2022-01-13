@@ -26,7 +26,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
           poetry config repositories.pypi-test https://test.pypi.org/legacy/
-          poetry config poetry config pypi-token.pypi-test ${{ secrets.TESTPYPI }}
+          poetry config pypi-token.pypi-test ${{ secrets.TESTPYPI }}
       - name: Upload wheel
         if: github.event_name == 'push'
         run: poetry publish -r pypi-test
