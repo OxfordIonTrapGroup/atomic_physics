@@ -9,21 +9,20 @@ class Rates:
             ion.calc_Epole()
 
     def get_spont(self):
-        """ Returns the spontaneous emission matrix. """
+        """Returns the spontaneous emission matrix."""
         Gamma = np.power(np.abs(self.ion.ePole), 2)
         for ii in range(Gamma.shape[0]):
             Gamma[ii, ii] = -self.ion.GammaJ[ii]
         return Gamma
 
     def get_stim(self, lasers):
-        """ Returns the stimulated emission matrix for a list of lasers. """
+        """Returns the stimulated emission matrix for a list of lasers."""
         Gamma = np.power(np.abs(self.ion.ePole), 2)
         GammaJ = self.ion.GammaJ
         stim = np.zeros(Gamma.shape)
 
         for transition in self.ion.transitions.keys():
-            _lasers = [laser for laser in lasers
-                       if laser.transition == transition]
+            _lasers = [laser for laser in lasers if laser.transition == transition]
             if _lasers == []:
                 continue
 
@@ -34,17 +33,19 @@ class Rates:
             n_lower = self.ion.levels[lower]._num_states
             n_upper = self.ion.levels[upper]._num_states
 
-            dJ = upper.J-lower.J
+            dJ = upper.J - lower.J
             dL = upper.L - lower.L
             if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
                 order = 1
             elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
                 order = 2
             else:
-                raise ValueError("Unsupported transition order. \n"
-                                 "Only 1st and 2nd order transitions are "
-                                 "supported. [abs(dL) & abs(dJ) <2]\n"
-                                 "Got dJ={} and dL={}".format(dJ, dL))
+                raise ValueError(
+                    "Unsupported transition order. \n"
+                    "Only 1st and 2nd order transitions are "
+                    "supported. [abs(dL) & abs(dJ) <2]\n"
+                    "Got dJ={} and dL={}".format(dJ, dL)
+                )
 
             Mu = self.ion.M[upper_states]
             Ml = self.ion.M[lower_states]
@@ -60,21 +61,24 @@ class Rates:
 
             # Total scattering rate out of each state
             GammaJ_subs = GammaJ[upper_states]
-            GammaJ_subs = np.repeat(GammaJ_subs, n_lower).reshape(
-                n_upper, n_lower).T
+            GammaJ_subs = np.repeat(GammaJ_subs, n_lower).reshape(n_upper, n_lower).T
             GammaJ2 = np.power(GammaJ_subs, 2)
 
             Gamma_subs = Gamma[lower_states, upper_states]
             R = np.zeros((n_lower, n_upper))
-            for q in range(-order, order+1):
+            for q in range(-order, order + 1):
                 Q = np.zeros((n_lower, n_upper))
                 # q := Mu - Ml
-                Q[Ml == (Mu-q)] = 1
+                Q[Ml == (Mu - q)] = 1
                 for laser in [laser for laser in _lasers if laser.q == q]:
                     delta = delta_lu - laser.delta
                     I = laser.I
-                    R += (GammaJ2/(4*np.power(delta, 2) + GammaJ2)
-                          * I*(Q*Gamma_subs))
+                    R += (
+                        GammaJ2
+                        / (4 * np.power(delta, 2) + GammaJ2)
+                        * I
+                        * (Q * Gamma_subs)
+                    )
                 assert (R >= 0).all()
 
             stim[lower_states, upper_states] = R
@@ -92,15 +96,14 @@ class Rates:
         return self.get_spont() + self.get_stim(lasers)
 
     def steady_state(self, *, trans=None, lasers=None):
-        """ Returns the steady-state vector for *either* a transitions matrix
+        """Returns the steady-state vector for *either* a transitions matrix
         or a list of lasers.
         :param trans: transitions matrix to solve for
         :param lasers: laser list to solve for
         :returns: state vector
         """
         if sum([x is not None for x in (trans, lasers)]) != 1:
-            raise ValueError(
-                "Exactly one of trans and lasers must not be None")
+            raise ValueError("Exactly one of trans and lasers must not be None")
 
         if lasers is not None:
             trans = self.get_transitions(lasers)

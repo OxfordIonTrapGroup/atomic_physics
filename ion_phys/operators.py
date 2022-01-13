@@ -2,7 +2,7 @@ import numpy as np
 
 
 def Jp(j):
-    """ Angular momentum raising operator (J+) represented in the basis of
+    """Angular momentum raising operator (J+) represented in the basis of
     angular momentum eigenstates.
 
     Basis states are labelled in order of increasing Mj.
@@ -14,11 +14,11 @@ def Jp(j):
       J+1 = -1/(sqrt(2)) J+
     """
     Mj = np.arange(-j, j)
-    return np.diag(np.sqrt((j-Mj)*(j+Mj+1)), -1)
+    return np.diag(np.sqrt((j - Mj) * (j + Mj + 1)), -1)
 
 
 def Jm(j):
-    """ Angular momentum lowering operation (J-).
+    """Angular momentum lowering operation (J-).
 
     See Jp.
 
@@ -29,7 +29,7 @@ def Jm(j):
 
 
 def Jz(j):
-    """ Angular momentum projection operation represented in the basis of
+    """Angular momentum projection operation represented in the basis of
     angular momentum eigenstates.
 
     Basis states are labelled in order of increasing Mj.
@@ -37,5 +37,5 @@ def Jz(j):
     The returned operator is defined so that:
       Jp[Mi,Mj] := <Mi|Jz|Mj> = Mi*delta(Mi,Mj+1)
     """
-    Mj = np.arange(-j, j+1)
+    Mj = np.arange(-j, j + 1)
     return np.diag(Mj)

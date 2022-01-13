@@ -8,7 +8,7 @@ _uN = consts.physical_constants["nuclear magneton"][0]
 
 
 def Lande_g(level):
-    """ Returns the Lande g factor for a level. """
+    """Returns the Lande g factor for a level."""
     gL = 1
     gS = -consts.physical_constants["electron g factor"][0]
 
@@ -16,13 +16,14 @@ def Lande_g(level):
     J = level.J
     L = level.L
 
-    gJ = gL*(J*(J+1) - S*(S+1) + L*(L+1)) / (2*J*(J+1)) \
-        + gS*(J*(J+1) + S*(S+1) - L*(L+1)) / (2*J*(J+1))
+    gJ = gL * (J * (J + 1) - S * (S + 1) + L * (L + 1)) / (2 * J * (J + 1)) + gS * (
+        J * (J + 1) + S * (S + 1) - L * (L + 1)
+    ) / (2 * J * (J + 1))
     return gJ
 
 
 def df_dB(ion, lower, upper, eps=1e-6):
-    """ Returns the field-sensitivity of a transition between two
+    """Returns the field-sensitivity of a transition between two
     states in the same level at a given magnetic field.
 
     :param ion: the ion
@@ -36,13 +37,13 @@ def df_dB(ion, lower, upper, eps=1e-6):
     """
     f = ion.delta(lower, upper)
     ion = deepcopy(ion)
-    ion.setB(ion.B+eps)
+    ion.setB(ion.B + eps)
     fpr = ion.delta(lower, upper)
-    return (fpr - f)/eps
+    return (fpr - f) / eps
 
 
 def d2f_dB2(ion, lower, upper, eps=1e-4):
-    """ Returns the second-order field-sensitivity of a transition
+    """Returns the second-order field-sensitivity of a transition
     between two states in thise same level at a given magnetic field.
 
     :param ion: the ion to work with
@@ -56,14 +57,14 @@ def d2f_dB2(ion, lower, upper, eps=1e-4):
     """
     df = df_dB(ion, lower, upper)
     ion = deepcopy(ion)
-    ion.setB(ion.B+eps)
+    ion.setB(ion.B + eps)
     dfpr = df_dB(ion, lower, upper)
 
-    return (dfpr - df)/eps
+    return (dfpr - df) / eps
 
 
 def field_insensitive_point(ion, lower, upper, B_min=1e-3, B_max=1e-1):
-    """ Returns the magnetic field at which the frequency of a transition
+    """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
 
     :param ion: the ion to work with
@@ -84,12 +85,12 @@ def field_insensitive_point(ion, lower, upper, B_min=1e-3, B_max=1e-1):
         ion.setB(B)
         return df_dB(ion, lower, upper)
 
-    res = opt.root(fun, x0=1e-8, options={'xtol': 1e-4, 'eps': 1e-7})
+    res = opt.root(fun, x0=1e-8, options={"xtol": 1e-4, "eps": 1e-7})
     return res.x[0] if res.success else None
 
 
 def ac_zeeman_shift(ion, state, f_RF):
-    """ Returns the AC Zeeman shifts for a state normalized to a field of 1T.
+    """Returns the AC Zeeman shifts for a state normalized to a field of 1T.
 
     :param ion: the ion
     :param state: index of the state
@@ -104,7 +105,7 @@ def ac_zeeman_shift(ion, state, f_RF):
     E = ion.E[states]
     M = ion.M[states]
     R = ion.M1[states]
-    rabi = R/consts.hbar
+    rabi = R / consts.hbar
 
     acz = np.zeros(3)
     for q in [-1, 0, +1]:
@@ -112,5 +113,5 @@ def ac_zeeman_shift(ion, state, f_RF):
         for _state in np.argwhere(M[state] == Mpr):
             freq = E[_state] - E[state]
             w = rabi[state, _state][0]
-            acz[q + 1] += 0.5*w**2*(freq/(freq**2 - (f_RF)**2))
+            acz[q + 1] += 0.5 * w ** 2 * (freq / (freq ** 2 - (f_RF) ** 2))
     return acz
