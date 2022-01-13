@@ -33,7 +33,8 @@ Laser.__doc__ = """Represents a laser.
 
 
 class LevelData:
-    """ Stored atomic structure information about a single level. """
+    """Stored atomic structure information about a single level."""
+
     def __init__(self, g_J=None, g_I=None, Ahfs=0, Bhfs=0):
         """
         :param g_J: G factor. If None, we use the Lande g factor.
@@ -52,7 +53,7 @@ class LevelData:
         self._stop_ind = None
 
     def slice(self):
-        """ Returns a slice object that selects the states within a given
+        """Returns a slice object that selects the states within a given
         level.
 
         Internally, we store states in order of increasing energy. This
@@ -62,17 +63,24 @@ class LevelData:
         return slice(self._start_ind, self._stop_ind)
 
     def __repr__(self):
-        return ("LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
-                " stop_ind={})""".format(self.g_J, self.g_I, self.E,
-                                         self._num_states, self._start_ind,
-                                         self._stop_ind))
+        return (
+            "LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
+            " stop_ind={})"
+            "".format(
+                self.g_J,
+                self.g_I,
+                self.E,
+                self._num_states,
+                self._start_ind,
+                self._stop_ind,
+            )
+        )
 
 
 class Ion:
-    """ Base class for storing atomic structure data. """
+    """Base class for storing atomic structure data."""
 
-    def __init__(self, *, B=None, I=0, levels={}, transitions={},
-                 level_filter=None):
+    def __init__(self, *, B=None, I=0, levels={}, transitions={}, level_filter=None):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
@@ -93,15 +101,18 @@ class Ion:
         transitions = dict(transitions)
 
         if level_filter is not None:
-            levels = dict(filter(lambda lev: lev[0] in level_filter,
-                                 levels.items()))
+            levels = dict(filter(lambda lev: lev[0] in level_filter, levels.items()))
 
-        transition_filter = [trans for trans in transitions.keys() if
-                             transitions[trans].lower in levels.keys()
-                             and transitions[trans].upper in levels.keys()]
+        transition_filter = [
+            trans
+            for trans in transitions.keys()
+            if transitions[trans].lower in levels.keys()
+            and transitions[trans].upper in levels.keys()
+        ]
 
-        transitions = dict(filter(lambda trans: trans[0] in transition_filter,
-                                  transitions.items()))
+        transitions = dict(
+            filter(lambda trans: trans[0] in transition_filter, transitions.items())
+        )
 
         self.levels = levels
         self.transitions = transitions
@@ -140,7 +151,7 @@ class Ion:
             self.setB(B)
 
     def slice(self, level):
-        """ Returns a slice object that selects the states within a given
+        """Returns a slice object that selects the states within a given
         level.
 
         Internally, we store states in order of increasing energy. This
@@ -150,7 +161,7 @@ class Ion:
         return self.levels[level].slice()
 
     def index(self, level, M, *, F=None, MI=None, MJ=None):
-        """ Returns the index of a state.
+        """Returns the index of a state.
 
         If no kwargs are given, we return an array of indices of all states
         with a given M. The kwargs can be used to filter the results, for
@@ -181,17 +192,16 @@ class Ion:
         return inds + self.levels[level]._start_ind
 
     def level(self, state):
-        """ Returns the level a state lies in. """
+        """Returns the level a state lies in."""
         for level, data in self.levels.items():
             sl = data.slice()
             # kludge: pending redesign of LevelData (see #38)
-            if state > min(sl.start, sl.stop) \
-                    and state < max(sl.start, sl.stop):
+            if state > min(sl.start, sl.stop) and state < max(sl.start, sl.stop):
                 return level
         raise ValueError("No state with index {}".format(state))
 
     def delta(self, lower, upper):
-        """ Returns the detuning of the transition between a pair of states
+        """Returns the detuning of the transition between a pair of states
         from the overall centre of gravity of the set of transitions between
         the levels containing those states.
 
@@ -205,7 +215,7 @@ class Ion:
         return self.E[upper] - self.E[lower]
 
     def population(self, state, inds):
-        """ Returns the total population in a set of states.
+        """Returns the total population in a set of states.
 
         :param state: state vector
         :param states: set of states to sum over. This can be any of: a Level;
@@ -218,7 +228,7 @@ class Ion:
         return np.sum(state[inds])
 
     def I0(self, transition):
-        """ Returns the saturation intensity for a transition.
+        """Returns the saturation intensity for a transition.
 
         We adopt a convention whereby, for a resonantly-driven cycling
         transition, one saturation intensity gives equal stimulated and
@@ -235,10 +245,10 @@ class Ion:
         trans = self.transitions[transition]
         omega = trans.freq
         Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
-        return hbar*(omega**3)*Gamma/(6*np.pi*(consts.c**2))
+        return hbar * (omega ** 3) * Gamma / (6 * np.pi * (consts.c ** 2))
 
     def P0(self, transition, w0):
-        """ Returns the power needed at the focus of a Guassian beam with waist
+        """Returns the power needed at the focus of a Guassian beam with waist
         w0 to give an on-axis intensity of I0.
 
         :param transition: the transition name
@@ -246,13 +256,13 @@ class Ion:
         :return: beam power (W)
         """
         I0 = self.I0(transition)
-        return 0.5*np.pi*(w0**2)*I0
+        return 0.5 * np.pi * (w0 ** 2) * I0
 
     def _sort_levels(self):
-        """ Use the transition data to sort the atomic levels in order of
+        """Use the transition data to sort the atomic levels in order of
         increasing energy.
         """
-        if not(self.transitions):
+        if not (self.transitions):
             levels = list(self.levels.keys())
             if len(levels) != 1:
                 raise ValueError("Disconnected level structure.")
@@ -267,15 +277,16 @@ class Ion:
             for trans in unsorted:
                 lower, upper, dE, _ = self.transitions[trans]
                 if lower in sorted_levels:
-                    sorted_levels[upper] = sorted_levels[lower]+dE
+                    sorted_levels[upper] = sorted_levels[lower] + dE
                     break
                 elif upper in sorted_levels:
-                    sorted_levels[lower] = sorted_levels[upper]-dE
+                    sorted_levels[lower] = sorted_levels[upper] - dE
                     break
             else:
                 raise ValueError(
                     "Transition '{}' would lead to a disconnected level"
-                    " structure.".format(trans))
+                    " structure.".format(trans)
+                )
             unsorted.remove(trans)
 
         if sorted_levels.keys() != self.levels.keys():
@@ -287,14 +298,14 @@ class Ion:
         for level, energy in sorted_levels:
             data = self.levels[level]
             data.E = energy - E0
-            data._num_states = int(np.rint((2*self.I + 1)*(2*level.J + 1)))
+            data._num_states = int(np.rint((2 * self.I + 1) * (2 * level.J + 1)))
             data._start_ind = start_ind
             start_ind = data._stop_ind = start_ind + data._num_states
 
         self.num_states = start_ind
 
     def setB(self, B):
-        """ Calculate atomic data at a given B-field (Tesla). """
+        """Calculate atomic data at a given B-field (Tesla)."""
         self.B = B
         self.M = np.zeros(self.num_states)
         self.F = np.zeros(self.num_states)
@@ -306,12 +317,12 @@ class Ion:
         self.V = np.zeros((self.num_states, self.num_states))
 
         I = self.I
-        I_dim = np.rint(2.0*I+1).astype(int)
+        I_dim = np.rint(2.0 * I + 1).astype(int)
 
         for level, data in self.levels.items():
 
             J = level.J
-            J_dim = np.rint(2.0*J+1).astype(int)
+            J_dim = np.rint(2.0 * J + 1).astype(int)
 
             Jp = np.kron(operators.Jp(J), np.identity(I_dim))
             Jm = np.kron(operators.Jm(J), np.identity(I_dim))
@@ -321,19 +332,26 @@ class Ion:
             Im = np.kron(np.identity(J_dim), operators.Jm(I))
             Iz = np.kron(np.identity(J_dim), operators.Jz(I))
 
-            H = data.g_J*_uB*B*Jz
+            H = data.g_J * _uB * B * Jz
             if self.I != 0:
                 gI = data.g_I
-                IdotJ = (Iz@Jz + (1/2)*(Ip@Jm + Im@Jp))
+                IdotJ = Iz @ Jz + (1 / 2) * (Ip @ Jm + Im @ Jp)
 
-                H += - gI*_uN*B*Iz
-                H += data.Ahfs*IdotJ
+                H += -gI * _uN * B * Iz
+                H += data.Ahfs * IdotJ
 
-                if J > 1/2:
+                if J > 1 / 2:
                     IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
-                    ident = np.identity(I_dim*J_dim)
-                    H += data.Bhfs/(2*I*J*(2*I-1)*(2*J-1))*(
-                        3*IdotJ2 + (3/2)*IdotJ - ident*I*(I+1)*J*(J+1))
+                    ident = np.identity(I_dim * J_dim)
+                    H += (
+                        data.Bhfs
+                        / (2 * I * J * (2 * I - 1) * (2 * J - 1))
+                        * (
+                            3 * IdotJ2
+                            + (3 / 2) * IdotJ
+                            - ident * I * (I + 1) * J * (J + 1)
+                        )
+                    )
 
             H /= hbar  # work in angular frequency units
             lev = data.slice()
@@ -343,21 +361,23 @@ class Ion:
             E = E[inds]
 
             # check that the eigensolver found the angular momentum eigenstates
-            M = np.diag(V.conj().T@(Iz+Jz)@V)
-            if max(abs(M-np.rint(2*M)/2)) > 1e-5:
-                raise ValueError('Error finding angular momentum'
-                                 ' eigenstates at {}T. Is the field too small'
-                                 ' to lift the state degeneracy?'.format(B))
+            M = np.diag(V.conj().T @ (Iz + Jz) @ V)
+            if max(abs(M - np.rint(2 * M) / 2)) > 1e-5:
+                raise ValueError(
+                    "Error finding angular momentum"
+                    " eigenstates at {}T. Is the field too small"
+                    " to lift the state degeneracy?".format(B)
+                )
 
             self.E[lev] = E
             self.V[lev, lev] = V
-            self.M[lev] = np.rint(2*M)/2
+            self.M[lev] = np.rint(2 * M) / 2
             self.MIax[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
             self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
-            self.MI[lev] = np.rint(2*np.diag(V.conj().T@(Iz)@V))/2
-            self.MJ[lev] = np.rint(2*np.diag(V.conj().T@(Jz)@V))/2
+            self.MI[lev] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
+            self.MJ[lev] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
 
-            F_list = np.arange(I-J, I+J+1)
+            F_list = np.arange(I - J, I + J + 1)
             if data.Ahfs < 0:
                 F_list = F_list[::-1]
 
@@ -371,7 +391,7 @@ class Ion:
             self.calc_Epole()
 
     def calc_Epole(self):
-        """ Calculate the electric multi-pole matrix elements for each
+        """Calculate the electric multi-pole matrix elements for each
         transition. Currently we only calculate dipole (E1) and Quadrupole
         (E2) matrix elements.
 
@@ -385,14 +405,14 @@ class Ion:
         frequencies.
 
         To do: double check the signs of the amplitudes.
-         """
+        """
         # We calculate the scattering amplitudes in the high-field basis where
         # we can forget about nuclear spin. It's then straightforward to
         # transform to arbitrary fields using the expansion coefficients we've
         # already calculated.
         if self.ePole_hf is None:
             self.ePole_hf = np.zeros((self.num_states, self.num_states))
-            Idim = np.rint(2.0*self.I+1).astype(int)
+            Idim = np.rint(2.0 * self.I + 1).astype(int)
 
             for _, transition in self.transitions.items():
                 A = transition.A
@@ -400,52 +420,56 @@ class Ion:
                 lower = transition.lower
                 Ju = upper.J
                 Jl = lower.J
-                Mu = np.arange(-Ju, Ju+1)
-                Ml = np.arange(-Jl, Jl+1)
-                Jdim_u = int(np.rint(2*Ju+1))
-                Jdim_l = int(np.rint(2*Jl+1))
+                Mu = np.arange(-Ju, Ju + 1)
+                Ml = np.arange(-Jl, Jl + 1)
+                Jdim_u = int(np.rint(2 * Ju + 1))
+                Jdim_l = int(np.rint(2 * Jl + 1))
                 Jdim = Jdim_u + Jdim_l
 
                 subspace = np.r_[self.slice(lower), self.slice(upper)]
                 subspace = np.ix_(subspace, subspace)
 
-                dJ = Ju-Jl
+                dJ = Ju - Jl
                 dL = upper.L - lower.L
                 if dJ in [-1, 0, +1] and dL in [-1, 0, +1]:
                     order = 1
                 elif abs(dJ) in [0, 1, 2] and abs(dL) in [0, 1, 2]:
                     order = 2
                 else:
-                    raise ValueError("Unsupported transition order. \n"
-                                     "Only 1st and 2nd order transitions are "
-                                     "supported. [abs(dL) & abs(dJ) <2]\n"
-                                     "Got dJ={} and dL={}".format(dJ, dL))
+                    raise ValueError(
+                        "Unsupported transition order. \n"
+                        "Only 1st and 2nd order transitions are "
+                        "supported. [abs(dL) & abs(dJ) <2]\n"
+                        "Got dJ={} and dL={}".format(dJ, dL)
+                    )
 
                 # High-field scattering rates for this transition (ignoring I)
                 ePole_hf = np.zeros((Jdim, Jdim))
                 for ind_u in range(Jdim_u):
                     # q := Mu - Ml
-                    for q in range(-order, order+1):
+                    for q in range(-order, order + 1):
                         if abs(Mu[ind_u] - q) > Jl:
                             continue
 
-                        ind_l = np.argwhere(Ml == Mu[ind_u]-q)
-                        sign = (-1)**(2*Ju+Jl-Mu[ind_u]+order)
-                        ePole_hf[ind_l, ind_u+Jdim_l] = wigner3j(
-                            Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u]-q))*sign
-                ePole_hf *= np.sqrt(A*(2*Ju+1))
+                        ind_l = np.argwhere(Ml == Mu[ind_u] - q)
+                        sign = (-1) ** (2 * Ju + Jl - Mu[ind_u] + order)
+                        ePole_hf[ind_l, ind_u + Jdim_l] = (
+                            wigner3j(Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u] - q))
+                            * sign
+                        )
+                ePole_hf *= np.sqrt(A * (2 * Ju + 1))
 
                 # introduce the (still decoupled) nuclear spin
                 self.ePole_hf[subspace] = np.kron(ePole_hf, np.identity(Idim))
 
         # now couple...
         V = self.V
-        self.ePole = V.T@self.ePole_hf@V
+        self.ePole = V.T @ self.ePole_hf @ V
         self.Gamma = np.power(np.abs(self.ePole), 2)
         self.GammaJ = np.sum(self.Gamma, 0)
 
     def calc_M1(self):
-        """ Calculates the matrix elements for M1 transitions within each
+        """Calculates the matrix elements for M1 transitions within each
         level.
 
         The matrix elements, Rij, are defined so that:
@@ -462,40 +486,40 @@ class Ion:
         """
         self.M1 = np.zeros((self.num_states, self.num_states))
         I = self.I
-        I_dim = np.rint(2.0*I+1).astype(int)
+        I_dim = np.rint(2.0 * I + 1).astype(int)
         eyeI = np.identity(I_dim)
 
         for level, data in self.levels.items():
             lev = data.slice()
-            J_dim = np.rint(2.0*level.J+1).astype(int)
-            dim = J_dim*I_dim
+            J_dim = np.rint(2.0 * level.J + 1).astype(int)
+            dim = J_dim * I_dim
             eyeJ = np.identity(J_dim)
 
             # magnetic dipole operator in spherical coordinates
-            Jp = np.kron((-1/np.sqrt(2))*operators.Jp(level.J), eyeI)
-            Jm = np.kron((+1/np.sqrt(2))*operators.Jm(level.J), eyeI)
+            Jp = np.kron((-1 / np.sqrt(2)) * operators.Jp(level.J), eyeI)
+            Jm = np.kron((+1 / np.sqrt(2)) * operators.Jm(level.J), eyeI)
             Jz = np.kron(operators.Jz(level.J), eyeI)
 
-            up = -data.g_J*_uB*Jp
-            um = -data.g_J*_uB*Jm
-            uz = -data.g_J*_uB*Jz
+            up = -data.g_J * _uB * Jp
+            um = -data.g_J * _uB * Jm
+            uz = -data.g_J * _uB * Jz
 
             if self.I > 0:
-                Ip = np.kron(eyeJ, (-1/np.sqrt(2))*operators.Jp(I))
-                Im = np.kron(eyeJ, (+1/np.sqrt(2))*operators.Jm(I))
+                Ip = np.kron(eyeJ, (-1 / np.sqrt(2)) * operators.Jp(I))
+                Im = np.kron(eyeJ, (+1 / np.sqrt(2)) * operators.Jm(I))
                 Iz = np.kron(eyeJ, operators.Jz(I))
 
-                up += data.g_I*_uN*Ip
-                um += data.g_I*_uN*Im
-                uz += data.g_I*_uN*Iz
+                up += data.g_I * _uN * Ip
+                um += data.g_I * _uN * Im
+                uz += data.g_I * _uN * Iz
 
             u = [um, uz, up]
 
             Mj = np.tile(self.M[lev], (dim, 1))
             Mi = Mj.T
-            Q = (Mi - Mj)
+            Q = Mi - Mj
 
-            valid = (np.abs(Q) <= 1)
+            valid = np.abs(Q) <= 1
             valid[np.diag_indices(dim)] = False
 
             M1 = np.zeros((dim, dim))
@@ -508,5 +532,5 @@ class Ion:
                 psi_i = V[:, i]
                 psi_j = V[:, j]
 
-                M1[i, j] = ((-1)**(q+1)) * psi_i.conj().T@u[q+1]@psi_j
+                M1[i, j] = ((-1) ** (q + 1)) * psi_i.conj().T @ u[q + 1] @ psi_j
             self.M1[lev, lev] = M1
