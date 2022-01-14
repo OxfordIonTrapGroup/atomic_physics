@@ -1,26 +1,23 @@
 """ Wigner 3J symbols using the Racah formula. """
 import numpy as np
-
-# import warnings
 from functools import lru_cache
 
-# np.seterr(all='warn')  # catch overflows
-# warnings.filterwarnings('error')
 
 _max_fact = 12  # 12 for int32, 20 for int64
 _fact_store = np.ones(_max_fact + 1, dtype=np.int32)
+
 
 for n in np.arange(_max_fact, dtype=np.int32):
     _fact_store[n + 1] = _fact_store[n] * np.int32(n + 1)
 
 
-def _fact(n):
+def _fact(n: int):
     """Returns n factorial."""
     assert n >= 0, str(n)
     return _fact_store[int(np.rint(n))]
 
 
-def wigner3j(j1, j2, j3, m1, m2, m3):
+def wigner3j(j1: float, j2: float, j3: float, m1: float, m2: float, m3: float):
     """Returns the Wigner 3J symbol."""
 
     # selection rules
@@ -58,7 +55,7 @@ def wigner3j(j1, j2, j3, m1, m2, m3):
 
 
 @lru_cache(maxsize=512)
-def _wigner3j(j1, j2, j3, m1, m2, m3):
+def _wigner3j(j1: float, j2: float, j3: float, m1: float, m2: float, m3: float):
     sign = (-1) ** (np.abs(j1 - j2 - m3))
     tri = np.sqrt(
         (_fact(j1 + j2 - j3) * _fact(j1 + j3 - j2) * _fact(j2 + j3 - j1))

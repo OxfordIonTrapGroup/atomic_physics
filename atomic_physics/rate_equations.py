@@ -1,37 +1,39 @@
 import numpy as np
+import typing
+import atomic_physics as ap
 
 
 class Rates:
-    def __init__(self, ion):
-        self.ion = ion
+    def __init__(self, atom: ap.Atom):
+        self.atom = atom
 
-        if ion.ePole is None:
-            ion.calc_Epole()
+        if atom.ePole is None:
+            atom.calc_Epole()
 
     def get_spont(self):
         """Returns the spontaneous emission matrix."""
-        Gamma = np.power(np.abs(self.ion.ePole), 2)
+        Gamma = np.power(np.abs(self.atom.ePole), 2)
         for ii in range(Gamma.shape[0]):
-            Gamma[ii, ii] = -self.ion.GammaJ[ii]
+            Gamma[ii, ii] = -self.atom.GammaJ[ii]
         return Gamma
 
-    def get_stim(self, lasers):
+    def get_stim(self, lasers: [ap.Laser]):
         """Returns the stimulated emission matrix for a list of lasers."""
-        Gamma = np.power(np.abs(self.ion.ePole), 2)
-        GammaJ = self.ion.GammaJ
+        Gamma = np.power(np.abs(self.atom.ePole), 2)
+        GammaJ = self.atom.GammaJ
         stim = np.zeros(Gamma.shape)
 
-        for transition in self.ion.transitions.keys():
+        for transition in self.atom.transitions.keys():
             _lasers = [laser for laser in lasers if laser.transition == transition]
             if _lasers == []:
                 continue
 
-            lower = self.ion.transitions[transition].lower
-            upper = self.ion.transitions[transition].upper
-            lower_states = self.ion.slice(lower)
-            upper_states = self.ion.slice(upper)
-            n_lower = self.ion.levels[lower]._num_states
-            n_upper = self.ion.levels[upper]._num_states
+            lower = self.atom.transitions[transition].lower
+            upper = self.atom.transitions[transition].upper
+            lower_states = self.atom.slice(lower)
+            upper_states = self.atom.slice(upper)
+            n_lower = self.atom.levels[lower]._num_states
+            n_upper = self.atom.levels[upper]._num_states
 
             dJ = upper.J - lower.J
             dL = upper.L - lower.L
@@ -47,14 +49,14 @@ class Rates:
                     "Got dJ={} and dL={}".format(dJ, dL)
                 )
 
-            Mu = self.ion.M[upper_states]
-            Ml = self.ion.M[lower_states]
+            Mu = self.atom.M[upper_states]
+            Ml = self.atom.M[lower_states]
             Mu = np.repeat(Mu, n_lower).reshape(n_upper, n_lower).T
             Ml = np.repeat(Ml, n_upper).reshape(n_lower, n_upper)
 
             # Transition detunings
-            El = self.ion.E[lower_states]
-            Eu = self.ion.E[upper_states]
+            El = self.atom.E[lower_states]
+            Eu = self.atom.E[upper_states]
             El = np.repeat(El, n_upper).reshape(n_lower, n_upper)
             Eu = np.repeat(Eu, n_lower).reshape(n_upper, n_lower).T
             delta_lu = Eu - El
@@ -85,17 +87,22 @@ class Rates:
             stim[upper_states, lower_states] = R.T
 
         stim_j = np.sum(stim, 0)
-        for ii in range(self.ion.num_states):
+        for ii in range(self.atom.num_states):
             stim[ii, ii] = -stim_j[ii]
         return stim
 
-    def get_transitions(self, lasers):
+    def get_transitions(self, lasers: [ap.Laser]):
         """
         Returns the complete transitions matrix for a given set of lasers.
         """
         return self.get_spont() + self.get_stim(lasers)
 
-    def steady_state(self, *, trans=None, lasers=None):
+    def steady_state(
+        self,
+        *,
+        trans: typing.Optional[ap.Transition] = None,
+        lasers: typing.Optional[typing.List[ap.Laser]] = None
+    ):
         """Returns the steady-state vector for *either* a transitions matrix
         or a list of lasers.
         :param trans: transitions matrix to solve for

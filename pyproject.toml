@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ion_phys"
+name = "atomic_physics"
 version = "0.1.0"
 description = "Nascent toolkit for calculating state energies, transition matrix elements, rate equations, obe solver, etc"
 authors = ["hartytp <thomas.peter.harty@gmail.com>"]
@@ -15,6 +15,7 @@ poethepoet = "^0.12.1"
 sympy = "^1.9"
 black = "^21.12b0"
 flake8 = "^4.0.1"
+matplotlib = "^3.5.1"
 
 [tool.poetry-dynamic-versioning]
 enable = true

@@ -1,17 +1,17 @@
 import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
-from scipy.constants import hbar
+import typing
+import atomic_physics as ap
 
-from . import operators
-from .utils import Lande_g
-from .wigner import wigner3j
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
+
 # frequencies in angular units
 Level = namedtuple("Level", "n,L,J,S")
+
 
 Transition = namedtuple("Transition", "lower,upper,freq,A")
 Transition.__doc__ = """ Represents a transition.
@@ -21,6 +21,7 @@ Transition.__doc__ = """ Represents a transition.
 :param A: the transition's Einstein A coefficient.
 """
 
+
 Laser = namedtuple("Laser", "transition,q,I,delta")
 Laser.__doc__ = """Represents a laser.
    :param transition: string with the name of the transition the laser couples
@@ -28,14 +29,20 @@ Laser.__doc__ = """Represents a laser.
    :param q: laser polarization, +1/-1 for sigma plus/minus, 0 for pi.
    :param I: laser intensity (saturation intensities).
    :param delta: laser detuning from transition centre of gravity (c.f.
-     ion.delta)
+     atom.delta)
 """
 
 
 class LevelData:
     """Stored atomic structure information about a single level."""
 
-    def __init__(self, g_J=None, g_I=None, Ahfs=0, Bhfs=0):
+    def __init__(
+        self,
+        g_J: typing.Optional[float] = None,
+        g_I: typing.Optional[float] = None,
+        Ahfs: float = 0,
+        Bhfs: float = 0,
+    ):
         """
         :param g_J: G factor. If None, we use the Lande g factor.
         :param g_I: Nuclear g factor.
@@ -77,10 +84,18 @@ class LevelData:
         )
 
 
-class Ion:
+class Atom:
     """Base class for storing atomic structure data."""
 
-    def __init__(self, *, B=None, I=0, levels={}, transitions={}, level_filter=None):
+    def __init__(
+        self,
+        *,
+        levels: typing.Dict[Level, LevelData],
+        transitions: typing.Dict[str, Transition],
+        B: typing.Optional[float] = None,
+        I: float = 0,
+        level_filter: typing.Optional[typing.List[Level]] = None
+    ):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
@@ -143,14 +158,14 @@ class Ion:
 
         for level, data in self.levels.items():
             if data.g_J is None:
-                data.g_J = Lande_g(level)
+                data.g_J = ap.utils.Lande_g(level)
 
         self._sort_levels()  # arrange levels in energy order
 
         if B is not None:
             self.setB(B)
 
-    def slice(self, level):
+    def slice(self, level: Level):
         """Returns a slice object that selects the states within a given
         level.
 
@@ -160,7 +175,15 @@ class Ion:
         """
         return self.levels[level].slice()
 
-    def index(self, level, M, *, F=None, MI=None, MJ=None):
+    def index(
+        self,
+        level: Level,
+        M: float,
+        *,
+        F: typing.Optional[float] = None,
+        MI: typing.Optional[float] = None,
+        MJ: typing.Optional[float] = None
+    ):
         """Returns the index of a state.
 
         If no kwargs are given, we return an array of indices of all states
@@ -191,7 +214,7 @@ class Ion:
             inds = int(inds)
         return inds + self.levels[level]._start_ind
 
-    def level(self, state):
+    def level(self, state: int):
         """Returns the level a state lies in."""
         for level, data in self.levels.items():
             sl = data.slice()
@@ -200,7 +223,7 @@ class Ion:
                 return level
         raise ValueError("No state with index {}".format(state))
 
-    def delta(self, lower, upper):
+    def delta(self, lower: int, upper: int):
         """Returns the detuning of the transition between a pair of states
         from the overall centre of gravity of the set of transitions between
         the levels containing those states.
@@ -214,7 +237,7 @@ class Ion:
         """
         return self.E[upper] - self.E[lower]
 
-    def population(self, state, inds):
+    def population(self, state: int, inds: typing.Union[Level, int, slice]):
         """Returns the total population in a set of states.
 
         :param state: state vector
@@ -227,7 +250,7 @@ class Ion:
             raise TypeError("inds must be a level, slice or index")
         return np.sum(state[inds])
 
-    def I0(self, transition):
+    def I0(self, transition: Transition):
         """Returns the saturation intensity for a transition.
 
         We adopt a convention whereby, for a resonantly-driven cycling
@@ -245,9 +268,9 @@ class Ion:
         trans = self.transitions[transition]
         omega = trans.freq
         Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
-        return hbar * (omega ** 3) * Gamma / (6 * np.pi * (consts.c ** 2))
+        return consts.hbar * (omega ** 3) * Gamma / (6 * np.pi * (consts.c ** 2))
 
-    def P0(self, transition, w0):
+    def P0(self, transition: Transition, w0: float):
         """Returns the power needed at the focus of a Guassian beam with waist
         w0 to give an on-axis intensity of I0.
 
@@ -304,7 +327,7 @@ class Ion:
 
         self.num_states = start_ind
 
-    def setB(self, B):
+    def setB(self, B: float):
         """Calculate atomic data at a given B-field (Tesla)."""
         self.B = B
         self.M = np.zeros(self.num_states)
@@ -324,13 +347,13 @@ class Ion:
             J = level.J
             J_dim = np.rint(2.0 * J + 1).astype(int)
 
-            Jp = np.kron(operators.Jp(J), np.identity(I_dim))
-            Jm = np.kron(operators.Jm(J), np.identity(I_dim))
-            Jz = np.kron(operators.Jz(J), np.identity(I_dim))
+            Jp = np.kron(ap.operators.Jp(J), np.identity(I_dim))
+            Jm = np.kron(ap.operators.Jm(J), np.identity(I_dim))
+            Jz = np.kron(ap.operators.Jz(J), np.identity(I_dim))
 
-            Ip = np.kron(np.identity(J_dim), operators.Jp(I))
-            Im = np.kron(np.identity(J_dim), operators.Jm(I))
-            Iz = np.kron(np.identity(J_dim), operators.Jz(I))
+            Ip = np.kron(np.identity(J_dim), ap.operators.Jp(I))
+            Im = np.kron(np.identity(J_dim), ap.operators.Jm(I))
+            Iz = np.kron(np.identity(J_dim), ap.operators.Jz(I))
 
             H = data.g_J * _uB * B * Jz
             if self.I != 0:
@@ -353,7 +376,7 @@ class Ion:
                         )
                     )
 
-            H /= hbar  # work in angular frequency units
+            H /= consts.hbar  # work in angular frequency units
             lev = data.slice()
             E, V = np.linalg.eig(H)
             inds = np.argsort(E)
@@ -454,7 +477,9 @@ class Ion:
                         ind_l = np.argwhere(Ml == Mu[ind_u] - q)
                         sign = (-1) ** (2 * Ju + Jl - Mu[ind_u] + order)
                         ePole_hf[ind_l, ind_u + Jdim_l] = (
-                            wigner3j(Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u] - q))
+                            ap.wigner.wigner3j(
+                                Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u] - q)
+                            )
                             * sign
                         )
                 ePole_hf *= np.sqrt(A * (2 * Ju + 1))
@@ -496,18 +521,18 @@ class Ion:
             eyeJ = np.identity(J_dim)
 
             # magnetic dipole operator in spherical coordinates
-            Jp = np.kron((-1 / np.sqrt(2)) * operators.Jp(level.J), eyeI)
-            Jm = np.kron((+1 / np.sqrt(2)) * operators.Jm(level.J), eyeI)
-            Jz = np.kron(operators.Jz(level.J), eyeI)
+            Jp = np.kron((-1 / np.sqrt(2)) * ap.operators.Jp(level.J), eyeI)
+            Jm = np.kron((+1 / np.sqrt(2)) * ap.operators.Jm(level.J), eyeI)
+            Jz = np.kron(ap.operators.Jz(level.J), eyeI)
 
             up = -data.g_J * _uB * Jp
             um = -data.g_J * _uB * Jm
             uz = -data.g_J * _uB * Jz
 
             if self.I > 0:
-                Ip = np.kron(eyeJ, (-1 / np.sqrt(2)) * operators.Jp(I))
-                Im = np.kron(eyeJ, (+1 / np.sqrt(2)) * operators.Jm(I))
-                Iz = np.kron(eyeJ, operators.Jz(I))
+                Ip = np.kron(eyeJ, (-1 / np.sqrt(2)) * ap.operators.Jp(I))
+                Im = np.kron(eyeJ, (+1 / np.sqrt(2)) * ap.operators.Jm(I))
+                Iz = np.kron(eyeJ, ap.operators.Jz(I))
 
                 up += data.g_I * _uN * Ip
                 um += data.g_I * _uN * Im

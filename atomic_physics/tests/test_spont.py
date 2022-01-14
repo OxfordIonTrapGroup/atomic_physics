@@ -1,14 +1,14 @@
 import numpy as np
 import unittest
 from sympy.physics.wigner import wigner_3j, wigner_6j
-from ion_phys.ions.ca43 import Ca43
+from atomic_physics.ions import ca43
 
 
 class TestGamma(unittest.TestCase):
     def test_LF(self):
         """Check that, in the low-field, our scattering rates match a more
         direct calculation."""
-        ion = Ca43(B=1e-8)
+        ion = ca43.Ca43(B=1e-8)
         ion.calc_Epole()
         Gamma_ion = ion.Gamma
         I = ion.I
@@ -61,7 +61,7 @@ class TestGamma(unittest.TestCase):
     def test_HF(self):
         """Check that, in the high-field, our scattering rates match a more
         direct calculation."""
-        ion = Ca43(B=1000)
+        ion = ca43.Ca43(B=1000)
         ion.calc_Epole()
         Gamma_ion = ion.Gamma
         Idim = int(np.rint(2 * ion.I + 1))
