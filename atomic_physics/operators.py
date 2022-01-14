@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def Jp(j):
+def Jp(j: float):
     """Angular momentum raising operator (J+) represented in the basis of
     angular momentum eigenstates.
 
@@ -17,7 +17,7 @@ def Jp(j):
     return np.diag(np.sqrt((j - Mj) * (j + Mj + 1)), -1)
 
 
-def Jm(j):
+def Jm(j: float):
     """Angular momentum lowering operation (J-).
 
     See Jp.
@@ -28,7 +28,7 @@ def Jm(j):
     return Jp(j).T
 
 
-def Jz(j):
+def Jz(j: float):
     """Angular momentum projection operation represented in the basis of
     angular momentum eigenstates.
 

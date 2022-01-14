@@ -2,9 +2,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ion_phys.ions.ca43 import Ca43, ground_level
+from atomic_physics.ions import ca43
 
-ion = Ca43(level_filter=[ground_level])
+ion = ca43.Ca43(level_filter=[ca43.ground_level])
 idim = int(np.rint(2 * ion.I + 1))
 jdim = int(np.rint(2 * 1 / 2 + 1))
 
@@ -23,3 +23,4 @@ plt.ylabel("Frequency (MHz)")
 plt.xlabel("B field (G)")
 plt.grid()
 plt.show()
+print("done")

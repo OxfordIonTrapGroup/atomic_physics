@@ -1,13 +1,10 @@
 """Test Rates Calculations"""
-
 import unittest
-
-from ion_phys.ions.ca43 import Ca43, ground_level, P32
-from ion_phys import Laser
-from ion_phys.rate_equations import Rates
+import atomic_physics as ap
+from atomic_physics.ions import ca43
 
 
-def _steady_state_population(intensity):
+def _steady_state_population(intensity: float):
     "Steady state population in the P-state for resonant intensity /I0"
     return intensity / (2 * intensity + 1)
 
@@ -23,14 +20,14 @@ class TestTSS(unittest.TestCase):
         This relation is used in the steady states tests."""
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
-        ion = Ca43(B=5e-4, level_filter=[ground_level, P32])
-        s_idx = ion.index(ground_level, 4)
-        p_idx = ion.index(P32, +5)
+        ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
+        s_idx = ion.index(ca43.ground_level, 4)
+        p_idx = ion.index(ca43.P32, +5)
 
-        rates = Rates(ion)
+        rates = ap.rates.Rates(ion)
         delta = ion.delta(s_idx, p_idx)
         for I in intensity_list:
-            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
+            Lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant
             trans = rates.get_transitions(Lasers)
 
             spont = rates.get_spont()
@@ -43,15 +40,15 @@ class TestTSS(unittest.TestCase):
         # use both integers and floats
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
-        ion = Ca43(B=5e-4, level_filter=[ground_level, P32])
-        s_idx = ion.index(ground_level, 4)
-        p_idx = ion.index(P32, +5)
+        ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
+        s_idx = ion.index(ca43.ground_level, 4)
+        p_idx = ion.index(ca43.P32, +5)
 
-        rates = Rates(ion)
+        rates = ap.rates.Rates(ion)
         delta = ion.delta(s_idx, p_idx)
 
         for I in intensity_list:
-            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
+            Lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant
             trans = rates.get_transitions(Lasers)
 
             Np_ss = _steady_state_population(I)
@@ -67,14 +64,14 @@ class TestTSS(unittest.TestCase):
         """Test steady state detuning dependence"""
 
         # assume 1 saturation intensity
-        ion = Ca43(B=5e-4, level_filter=[ground_level, P32])
-        s_idx = ion.index(ground_level, 4)
-        p_idx = ion.index(P32, +5)
+        ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
+        s_idx = ion.index(ca43.ground_level, 4)
+        p_idx = ion.index(ca43.P32, +5)
 
-        rates = Rates(ion)
+        rates = ap.rates.Rates(ion)
         delta = ion.delta(s_idx, p_idx)
 
-        Lasers = [Laser("393", q=+1, I=1.0, delta=delta)]  # resonant
+        Lasers = [ap.Laser("393", q=+1, I=1.0, delta=delta)]  # resonant
         trans = rates.get_transitions(Lasers)
         line_width = abs(trans[p_idx, p_idx] + trans[p_idx, s_idx])
 
@@ -84,7 +81,7 @@ class TestTSS(unittest.TestCase):
             I_eff = 1 / (4 * det ** 2 + 1)
             Np_ss = _steady_state_population(I_eff)
 
-            Lasers = [Laser("393", q=+1, I=1.0, delta=delta + line_width * det)]
+            Lasers = [ap.Laser("393", q=+1, I=1.0, delta=delta + line_width * det)]
             trans = rates.get_transitions(Lasers)
 
             # transition rates normalised by A coefficient

@@ -1,6 +1,6 @@
 import unittest
 from sympy.physics import wigner
-from ion_phys.wigner import wigner3j
+import atomic_physics as ap
 import numpy as np
 
 
@@ -16,9 +16,9 @@ class TestWigner(unittest.TestCase):
                     for m1 in np.arange(-j1, j1 + 1):
                         for m2 in np.arange(-j2, j2 + 1):
                             for m3 in np.arange(-j3, j3 + 1):
-                                ip = wigner3j(j1, j2, j3, m1, m2, m3)
-                                sp = wigner.wigner_3j(j1, j2, j3, m1, m2, m3)
-                                self.assertTrue(np.abs(ip - sp) < 1e-15)
+                                wigner_ap = ap.wigner.wigner3j(j1, j2, j3, m1, m2, m3)
+                                wigner_sp = wigner.wigner_3j(j1, j2, j3, m1, m2, m3)
+                                self.assertTrue(np.abs(wigner_ap - wigner_sp) < 1e-15)
 
 
 if __name__ == "__main__":
