@@ -3,7 +3,7 @@ name: Package
 on:
   push:
     branches:
-      - packaging
+      - master
   workflow_dispatch:
   pull_request:
 
