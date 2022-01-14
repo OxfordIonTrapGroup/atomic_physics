@@ -25,8 +25,8 @@ jobs:
       - name: Configure poetry
         if: github.event_name == 'push'
         run: |
-          poetry config repositories.pypi https://pypi.org/simple/
           poetry config pypi-token.pypi ${{ secrets.ATOMICPYPI }}
+
       - name: Upload wheel
         if: github.event_name == 'push'
         run: poetry publish -r pypi
