@@ -14,6 +14,7 @@ pytest = "^6.2.5"
 poethepoet = "^0.12.1"
 sympy = "^1.9"
 black = "^21.12b0"
+flake8 = "^4.0.1"
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -30,3 +31,4 @@ build-backend = "poetry.core.masonry.api"
 test = "pytest"
 fmt-test = "black --check ."
 fmt = "black ."
+flake = "flake8 ."

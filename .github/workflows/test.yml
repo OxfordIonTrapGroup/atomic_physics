@@ -17,6 +17,9 @@ jobs:
       - name: Check formatting
         run: poe fmt-test
 
-      - name: Run non-hardware tests
+      - name: Check syntax
+        run: poe flake
+
+      - name: Run tests
         run: poe test
 
