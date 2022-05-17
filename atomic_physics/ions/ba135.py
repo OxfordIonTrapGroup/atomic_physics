@@ -24,11 +24,11 @@ import atomic_physics as ap
 
 
 # level aliases
-ground_level = S12 = ap.Level(n=4, S=1 / 2, L=0, J=1 / 2)
-P12 = ap.Level(n=4, S=1 / 2, L=1, J=1 / 2)
-P32 = ap.Level(n=4, S=1 / 2, L=1, J=3 / 2)
-D32 = ap.Level(n=4, S=1 / 2, L=2, J=3 / 2)
-shelf = D52 = ap.Level(n=4, S=1 / 2, L=2, J=5 / 2)
+ground_level = S12 = ap.Level(n=6, S=1 / 2, L=0, J=1 / 2)
+P12 = ap.Level(n=6, S=1 / 2, L=1, J=1 / 2)
+P32 = ap.Level(n=6, S=1 / 2, L=1, J=3 / 2)
+D32 = ap.Level(n=5, S=1 / 2, L=2, J=3 / 2)
+shelf = D52 = ap.Level(n=5, S=1 / 2, L=2, J=5 / 2)
 
 
 class Ba135(ap.Atom):
