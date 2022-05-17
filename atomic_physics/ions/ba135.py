@@ -38,7 +38,7 @@ class Ba135(ap.Atom):
         B: typing.Optional[float] = None,
         level_filter: typing.Optional[typing.List[ap.Level]] = None
     ):
-        """43Ca+ atomic structure.
+        """135Ba+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
         :param level_filter: list of Levels to include in the simulation, if
