@@ -48,7 +48,7 @@ class Ba135(ap.Atom):
             ground_level: ap.LevelData(
                 g_J=2.00225664,  # [2]
                 g_I=(2 / 3) * 0.838627,  # [3]
-                Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
+                Ahfs=-3225.60828640e6 * consts.h,  # [1]
             ),
             P12: ap.LevelData(
                 Ahfs=-145.4e6 * consts.h,
