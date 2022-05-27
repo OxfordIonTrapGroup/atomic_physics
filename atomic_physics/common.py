@@ -363,7 +363,7 @@ class Atom:
                 H += -gI * _uN * B * Iz
                 H += data.Ahfs * IdotJ
 
-                if J > 1 / 2:
+                if J > 1 / 2 and I > 1 / 2:
                     IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
                     ident = np.identity(I_dim * J_dim)
                     H += (
