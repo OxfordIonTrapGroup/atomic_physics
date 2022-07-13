@@ -16,6 +16,7 @@ TODO: fix isotope shifts
 [5] https://journals.aps.org/pra/pdf/10.1103/PhysRevA.33.2117
 """
 import numpy as np
+import typing
 import scipy.constants as consts
 import atomic_physics as ap
 
@@ -28,7 +29,12 @@ shelf = D52 = ap.Level(n=5, S=1 / 2, L=2, J=5 / 2)
 
 
 class Ba137(ap.Atom):
-    def __init__(self, *, B=None, level_filter=None):
+    def __init__(
+        self,
+        *,
+        B: typing.Optional[float] = None,
+        level_filter: typing.Optional[typing.List[ap.Level]] = None
+    ):
         """137Ba+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
@@ -37,7 +43,7 @@ class Ba137(ap.Atom):
         """
         levels = {
             ground_level: ap.LevelData(
-                g_J=2.00225664,  # [3]
+                g_J=2.00225664,  # [2]
                 g_I=(2 / 3) * -0.93107,  # [1]
                 Ahfs=4018.87083385e6 * consts.h,  # [2]
             ),
