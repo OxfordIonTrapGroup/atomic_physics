@@ -406,7 +406,7 @@ class Atom:
 
             for M in set(self.M[lev]):
                 for Fidx, idx in np.ndenumerate(np.where(M == self.M[lev])):
-                    self.F[lev][idx] = F_list[M <= F_list][Fidx[1]]
+                    self.F[lev][idx] = F_list[abs(M) <= F_list][Fidx[1]]
 
         if self.M1 is not None:
             self.calc_M1()
