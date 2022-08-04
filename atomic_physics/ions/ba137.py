@@ -57,8 +57,8 @@ class Ba137(ap.Atom):
                 g_I=(2 / 3) * -0.93107,  # [1]
             ),
             D32: ap.LevelData(
-                Ahfs=44.5417 * consts.h,  # [2]
-                Bhfs=189.7288e6 * consts.h,  # [2]
+                Ahfs=189.7288e6 * consts.h,  # [2]
+                Bhfs=44.5417e6 * consts.h,  # [2]
                 g_I=(2 / 3) * -0.93107,  # [1]
             ),
             D52: ap.LevelData(
