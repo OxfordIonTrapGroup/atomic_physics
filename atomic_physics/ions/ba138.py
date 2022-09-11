@@ -12,7 +12,6 @@ References:
 [3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
  """
 import numpy as np
-import scipy.constants as consts
 import atomic_physics as ap
 
 # level aliases
