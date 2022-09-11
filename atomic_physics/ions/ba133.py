@@ -7,13 +7,18 @@ However, this data is based of calculations done in the late 60s. These are
 only ~10% accurate.
 
 References:
-[1] - F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
-  Clusters, 31, 27 (1994)
-[2] - G. Tommaseo, et al., The European Physical Journal D, 25 (2003)
-[3] - T. P. Harty, et al. Phys. Rev. Lett 113, 220501 (2014)
-[4] - W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
-[5] - J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
-[6] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
+[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+[2] - A. A. Madej and J. D. Sankey, Phys. Rev. A 41, 2621, (1990)
+[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+[4] - N. J. Stone, Table of nuclear magnetic dipole and electric
+  quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
+  Issue 1 (2005)
+[5] - H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
+  Physik D Atoms, Molecules and Clusters volume 25, pages205–208 (1993)
+[6] - David Hucul, Justin E. Christensen, Eric R. Hudson, and
+  Wesley C. Campbell, Phys. Rev. Lett. 119, 100501 (2017)
+[7] - J.E. Christensen, D. Hucul, W.C. Campbell et al.,
+  npj Quantum Inf 6, 35 (2020).
 """
 import numpy as np
 import typing
@@ -36,7 +41,7 @@ class Ba133(ap.Atom):
         B: typing.Optional[float] = None,
         level_filter: typing.Optional[typing.List[ap.Level]] = None
     ):
-        """43Ca+ atomic structure.
+        """133Ba+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
         :param level_filter: list of Levels to include in the simulation, if
@@ -44,72 +49,70 @@ class Ba133(ap.Atom):
         """
         levels = {
             ground_level: ap.LevelData(
-                g_J=2.00225664,  # [2]
-                g_I=(2 / 1) * 0.77167,  # [3]
-                Ahfs=-9925.45355459e6 * consts.h,  # [1]
+                Ahfs=-9925.45355459e6 * consts.h,  # [6]
+                g_J=2.0024906,  # [5]
+                g_I=(2 / 1) * -0.77167,  # [4]
             ),
             P12: ap.LevelData(
-                Ahfs=-145.4e6 * consts.h,
-                g_I=(2 / 1) * 0.77167,  # [4]  # [3]
+                Ahfs=-1840e6 * consts.h,  # [6]
+                g_I=(2 / 1) * -0.77167,  # [4]
             ),
             P32: ap.LevelData(
-                Ahfs=-31.4e6 * consts.h,  # [4]
-                Bhfs=-6.9 * consts.h,  # [4]
-                g_I=(2 / 1) * 0.77167,  # [3]
+                Ahfs=-311.5e6 * consts.h,  # [8]
+                g_I=(2 / 1) * -0.77167,  # [4]
             ),
             D32: ap.LevelData(
-                Ahfs=-47.3e6 * consts.h,  # [4]
-                Bhfs=-3.7 * consts.h,  # [4]
-                g_I=(2 / 1) * 0.77167,  # [3]
+                Ahfs=-468.5e6 * consts.h,  # [6]
+                g_I=(2 / 1) * -0.77167,  # [4]
             ),
             D52: ap.LevelData(
-                Ahfs=-89.59e6 * consts.h / 3,  # [5]
-                g_I=(2 / 1) * 0.77167,  # [3]
+                Ahfs=16.6e6 * consts.h / 3,  # [8]
+                g_I=(2 / 1) * -0.77167,  # [4]
             ),
         }
 
         transitions = {
-            "397": ap.Transition(
+            "493": ap.Transition(
                 lower=S12,
                 upper=P12,
-                A=132e6,  # [?]
-                freq=2 * np.pi * 755223443.81e6,  # [6]
+                A=9.53e7,  # [1]
+                freq=2 * np.pi * 607426317510693.9,  #
             ),
-            "393": ap.Transition(
+            "455": ap.Transition(
                 lower=S12,
                 upper=P32,
-                A=135e6,  # [?]
-                freq=2 * np.pi * 761905691.40e6,  # [6]
+                A=1.11e8,  # [1]
+                freq=2 * np.pi * 658116515416903.1,  #
             ),
-            "866": ap.Transition(
+            "650": ap.Transition(
                 lower=D32,
                 upper=P12,
-                A=8.4e6,  # [?]
-                freq=2 * np.pi * 345996772.78e6,  # [6]
+                A=3.1e7,  # [1]
+                freq=2 * np.pi * 461311910409872.25,  #
             ),
-            "850": ap.Transition(
+            "585": ap.Transition(
                 lower=D32,
                 upper=P32,
-                A=0.955e6,  # [?]
-                freq=2 * np.pi * 352679020.37e6,  # [6]
+                A=6.0e6,  # [1]
+                freq=2 * np.pi * 512002108316081.56,  #
             ),
-            "854": ap.Transition(
+            "614": ap.Transition(
                 lower=D52,
                 upper=P32,
-                A=8.48e6,  # [?]
-                freq=2 * np.pi * 350859426.91e6,  # [6]
+                A=4.12e7,  # [1]
+                freq=2 * np.pi * 487990081496342.56,  #
             ),
-            "729": ap.Transition(
+            "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=0.856,  # [?]
-                freq=411046264.4881 * 2 * np.pi,  # [6]
+                A=29e-3,  # [2]
+                freq=2 * np.pi * 170126433920560.6,  #
             ),
-            "733": ap.Transition(
+            "2051": ap.Transition(
                 lower=S12,
                 upper=D32,
-                A=0.850,  # [?]
-                freq=409226671.03 * 2 * np.pi,  # [6]
+                A=12.5e-3,  # [3]
+                freq=2 * np.pi * 146114407100821.6,  #
             ),
         }
 

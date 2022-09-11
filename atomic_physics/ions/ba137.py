@@ -6,14 +6,21 @@ A cursory look turned up:
 However, this data is based of calculations done in the late 60s. These are
 only ~10% accurate.
 
-TODO: fix isotope shifts
-
-[1] https://journals.aps.org/pr/pdf/10.1103/PhysRev.102.1334
-[2] Hucul, David, et al. "Spectroscopy of a synthetic trapped ion qubit." Physical review letters 119.10 (2017): 100501.
-    https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.119.100501
-[3] - G. Tommaseo, et al., The European Physical Journal D, 25 (2003)
-[4] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[5] https://journals.aps.org/pra/pdf/10.1103/PhysRevA.33.2117
+References:
+[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+[2] - A. A. Madej and J. D. Sankey, Phys. Rev. A 41, 2621 (1990)
+[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+[4] - N. J. Stone, Table of nuclear magnetic dipole and electric
+  quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
+  Issue 1 (2005)
+[5] - H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
+  Physik D Atoms, Molecules and Clusters volume 25, pages205–208 (1993)
+[6] - R. Blatt and G. Werth, Phys. Rev. A 25, 1476 (1982)
+[7] - P Villemoes et al, J. Phys. B: At. Mol. Opt. Phys. 26 4289 (1993)
+[8] - Nicholas C. Lewty, Boon Leng Chuah, Radu Cazan, B. K. Sahoo, and
+  M. D. Barrett, Opt. Express 21, 7131-7132 (2013)
+[9] - Nicholas C. Lewty, Boon Leng Chuah, Radu Cazan, Murray D. Barrett,
+  and B. K. Sahoo, Phys. Rev. A 88, 012518 (2013)
 """
 import numpy as np
 import typing
@@ -43,27 +50,28 @@ class Ba137(ap.Atom):
         """
         levels = {
             ground_level: ap.LevelData(
-                g_J=2.00225664,  # [2]
-                g_I=(2 / 3) * -0.93107,  # [1]
-                Ahfs=4018.87083385e6 * consts.h,  # [2]
+                Ahfs=4018.87083384e6 * consts.h,  # [6]
+                g_J=2.0024906,  # [5]
+                g_I=(2 / 3) * 0.93737,  # [4]
             ),
             P12: ap.LevelData(
-                Ahfs=743.7e6 * consts.h, g_I=(2 / 3) * -0.93107  # [1]  # [1]
+                Ahfs=743.7e6 * consts.h,  # [7]
+                g_I=(2 / 3) * 0.93737,  # [4]
             ),
             P32: ap.LevelData(
-                Ahfs=126.9e6 * consts.h,  # [5]
-                Bhfs=92.8e6 * consts.h,  # [5]
-                g_I=(2 / 3) * -0.93107,  # [1]
+                Ahfs=127.2e6 * consts.h,  # [7]
+                Bhfs=92.5e6 * consts.h,  # [7]
+                g_I=(2 / 3) * 0.93737,  # [4]
             ),
             D32: ap.LevelData(
-                Ahfs=189.7288e6 * consts.h,  # [2]
-                Bhfs=44.5417e6 * consts.h,  # [2]
-                g_I=(2 / 3) * -0.93107,  # [1]
+                Ahfs=189.731101e6 * consts.h,  # [8]
+                Bhfs=44.536612e6 * consts.h,  # [8]
+                g_I=(2 / 3) * 0.93737,  # [4]
             ),
             D52: ap.LevelData(
-                Ahfs=-12.028e6 * consts.h,  # [5]
-                Bhfs=59.533e6 * consts.h,  # [5]
-                g_I=(2 / 3) * -0.93107,  # [1]
+                Ahfs=-12.029234e6 * consts.h,  # [9]
+                Bhfs=59.52552e6 * consts.h,  # [9]
+                g_I=(2 / 3) * 0.93737,  # [4]
             ),
         }
 
@@ -72,43 +80,43 @@ class Ba137(ap.Atom):
                 lower=S12,
                 upper=P12,
                 A=9.53e7,  # [1]
-                freq=2 * np.pi * 607426317510693.9,  # [1]
+                freq=2 * np.pi * 607426317510693.9,  #
             ),
             "455": ap.Transition(
                 lower=S12,
                 upper=P32,
                 A=1.11e8,  # [1]
-                freq=2 * np.pi * 658116515416903.1,  # [1]
+                freq=2 * np.pi * 658116515416903.1,  #
             ),
             "650": ap.Transition(
                 lower=D32,
                 upper=P12,
                 A=3.1e7,  # [1]
-                freq=2 * np.pi * 461311910409872.25,  # [1]
+                freq=2 * np.pi * 461311910409872.25,  #
             ),
             "585": ap.Transition(
                 lower=D32,
                 upper=P32,
                 A=6.0e6,  # [1]
-                freq=2 * np.pi * 512002108316081.56,  # [1]
+                freq=2 * np.pi * 512002108316081.56,  #
             ),
             "614": ap.Transition(
                 lower=D52,
                 upper=P32,
                 A=4.12e7,  # [1]
-                freq=2 * np.pi * 487990081496342.56,  # [1]
+                freq=2 * np.pi * 487990081496342.56,  #
             ),
             "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=0.04,  # [1]
-                freq=2 * np.pi * 170126433920560.6,  # [1]
+                A=29e-3,  # [2]
+                freq=2 * np.pi * 170126433920560.6,  #
             ),
             "2051": ap.Transition(
                 lower=S12,
                 upper=D32,
-                A=0.04,  # [1]
-                freq=2 * np.pi * 146114407100821.6,  # [1]
+                A=12.5e-3,  # [3]
+                freq=2 * np.pi * 146114407100821.6,  #
             ),
         }
 
