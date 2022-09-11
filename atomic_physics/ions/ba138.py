@@ -6,6 +6,11 @@ A cursory look turned up:
 However, this data is based of calculations done in the late 60s. These are
 only ~10% accurate.
 
+Where no references are given next to the transition frequencies, they
+were calculated based on transition frequencies between other levels.
+For example the frequency of the 1762 nm transition f(1762) was found
+from f(1762)=f(455)-f(614).
+
 References:
 [1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
 [2] - A. A. Madej and J. D. Sankey, Phys. Rev. A 41, 2621, (1990)
@@ -73,13 +78,13 @@ class Ba138(ap.Atom):
                 lower=S12,
                 upper=D52,
                 A=29e-3,  # [2]
-                freq=2 * np.pi * 170126433920560.6,  # [1]
+                freq=2 * np.pi * 170126433920560.6,
             ),
             "2051": ap.Transition(
                 lower=S12,
                 upper=D32,
                 A=12.5e-3,  # [3]
-                freq=2 * np.pi * 146114407100821.6,  # [1]
+                freq=2 * np.pi * 146114407100821.62,
             ),
         }
 
