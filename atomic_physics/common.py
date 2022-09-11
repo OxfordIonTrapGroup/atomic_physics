@@ -219,7 +219,7 @@ class Atom:
         for level, data in self.levels.items():
             sl = data.slice()
             # kludge: pending redesign of LevelData (see #38)
-            if state >= min(sl.start, sl.stop) and state < max(sl.start, sl.stop):
+            if state > min(sl.start, sl.stop) and state < max(sl.start, sl.stop):
                 return level
         raise ValueError("No state with index {}".format(state))
 
@@ -363,7 +363,7 @@ class Atom:
                 H += -gI * _uN * B * Iz
                 H += data.Ahfs * IdotJ
 
-                if J > 1 / 2 and I > 1 / 2:
+                if J > 1 / 2:
                     IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
                     ident = np.identity(I_dim * J_dim)
                     H += (
