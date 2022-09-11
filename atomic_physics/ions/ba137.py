@@ -120,7 +120,7 @@ class Ba137(ap.Atom):
                 lower=S12,
                 upper=D52,
                 A=29e-3,  # [2]
-                freq=2 * np.pi * 170126433920558.25,
+                freq=2 * np.pi * 170126433920821.75,
             ),
             "2051": ap.Transition(
                 lower=S12,
