@@ -25,7 +25,7 @@ shelf = D52 = ap.Level(n=5, S=1 / 2, L=2, J=5 / 2)
 
 class Ba138(ap.Atom):
     def __init__(self, *, B=None, level_filter=None):
-        """88Sr+ atomic structure.
+        """138Ba+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
         :param level_filter: list of Levels to include in the simulation, if
