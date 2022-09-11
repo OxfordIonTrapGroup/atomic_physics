@@ -17,7 +17,7 @@ shelf = D52 = ap.Level(n=5, S=1 / 2, L=2, J=5 / 2)
 
 class Ba138(ap.Atom):
     def __init__(self, *, B=None, level_filter=None):
-        """ 88Sr+ atomic structure.
+        """88Sr+ atomic structure.
 
         :param B: B-field in Tesla (can be changed using :meth setB:)
         :param level_filter: list of Levels to include in the simulation, if
@@ -28,63 +28,54 @@ class Ba138(ap.Atom):
             P12: ap.LevelData(),
             P32: ap.LevelData(),
             D32: ap.LevelData(),
-            D52: ap.LevelData()
+            D52: ap.LevelData(),
         }
 
         transitions = {
-            "493":
-            ap.Transition(
+            "493": ap.Transition(
                 lower=S12,
                 upper=P12,
                 A=9.53e7,  # [1]
-                freq=2 * np.pi * 607426317510693.9  # [1]
+                freq=2 * np.pi * 607426317510693.9,  # [1]
             ),
-            "455":
-            ap.Transition(
+            "455": ap.Transition(
                 lower=S12,
                 upper=P32,
                 A=1.11e8,  # [1]
-                freq=2 * np.pi * 658116515416903.1  # [1]
+                freq=2 * np.pi * 658116515416903.1,  # [1]
             ),
-            "650":
-            ap.Transition(
+            "650": ap.Transition(
                 lower=D32,
                 upper=P12,
                 A=3.1e7,  # [1]
-                freq=2 * np.pi * 461311910409872.25  # [1]
+                freq=2 * np.pi * 461311910409872.25,  # [1]
             ),
-            "585":
-            ap.Transition(
+            "585": ap.Transition(
                 lower=D32,
                 upper=P32,
                 A=6.0e6,  # [1]
-                freq=2 * np.pi * 512002108316081.56  # [1]
+                freq=2 * np.pi * 512002108316081.56,  # [1]
             ),
-            "614":
-            ap.Transition(
+            "614": ap.Transition(
                 lower=D52,
                 upper=P32,
                 A=4.12e7,  # [1]
-                freq=2 * np.pi * 487990081496342.56  # [1]
+                freq=2 * np.pi * 487990081496342.56,  # [1]
             ),
-            "1762":
-            ap.Transition(
+            "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
                 A=0.04,  # [1]
-                freq=2 * np.pi * 170126433920560.6  # [1]
+                freq=2 * np.pi * 170126433920560.6,  # [1]
             ),
-            "2051":
-            ap.Transition(
+            "2051": ap.Transition(
                 lower=S12,
                 upper=D32,
                 A=0.04,  # [1]
-                freq=2 * np.pi * 146114407100821.6  # [1]
+                freq=2 * np.pi * 146114407100821.6,  # [1]
             ),
         }
 
-        super().__init__(B=B,
-                         I=0,
-                         levels=levels,
-                         transitions=transitions,
-                         level_filter=level_filter)
+        super().__init__(
+            B=B, I=0, levels=levels, transitions=transitions, level_filter=level_filter
+        )
