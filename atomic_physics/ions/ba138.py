@@ -1,7 +1,15 @@
 """ 138Ba+
 
+TODO: We need a reference for the Einstein A values
+A cursory look turned up:
+    Kramida, A., et al., NIST Atomic Spectra Database (ver. 5.8), [Online].
+However, this data is based of calculations done in the late 60s. These are
+only ~10% accurate.
+
 References:
-[1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+[2] - A. A. Madej and J. D. Sankey, Phys. Rev. A 41, 2621, (1990)
+[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
  """
 import numpy as np
 import scipy.constants as consts
@@ -65,13 +73,13 @@ class Ba138(ap.Atom):
             "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=0.04,  # [1]
+                A=29e-3,  # [2]
                 freq=2 * np.pi * 170126433920560.6,  # [1]
             ),
             "2051": ap.Transition(
                 lower=S12,
                 upper=D32,
-                A=0.04,  # [1]
+                A=12.5e-3,  # [3]
                 freq=2 * np.pi * 146114407100821.6,  # [1]
             ),
         }
