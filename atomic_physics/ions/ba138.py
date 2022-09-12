@@ -1,11 +1,5 @@
 """ 138Ba+
 
-TODO: We need a reference for the Einstein A values
-A cursory look turned up:
-    Kramida, A., et al., NIST Atomic Spectra Database (ver. 5.8), [Online].
-However, this data is based of calculations done in the late 60s. These are
-only ~10% accurate.
-
 Where no references are given next to the transition frequencies, they
 were calculated based on transition frequencies between other levels.
 For example the frequency of the 1762 nm transition f(1762) was found
