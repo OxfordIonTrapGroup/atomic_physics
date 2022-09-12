@@ -1,11 +1,5 @@
 """ 43Ca+
 
-ToDo: We need a reference for the Einstein A values
-A cursory look turned up:
-    Kramida, A., et al., NIST Atomic Spectra Database (ver. 5.8), [Online].
-However, this data is based of calculations done in the late 60s. These are
-only ~10% accurate.
-
 References:
 [1] - F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
   Clusters, 31, 27 (1994)
