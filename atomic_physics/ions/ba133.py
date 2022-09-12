@@ -8,7 +8,7 @@ only ~10% accurate.
 
 The transition frequencies are calculated based on the 138Ba+ frequencies
 from [1] and the isotope shifts in the second reference listed next to
-the freqiency. Where no references are given, the transition frequencies
+the frequency. Where no references are given, the transition frequencies
 were calculated based on transition frequencies between other levels.
 For example the frequency of the 1762 nm transition f(1762) was found
 from f(1762)=f(455)-f(614).
