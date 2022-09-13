@@ -20,4 +20,3 @@ class TesLevel(unittest.TestCase):
         for i in range(6):
             self.assertEqual(ion.level(i + 2).L, 2)
             self.assertEqual(ion.level(i + 2).J, 2.5)
-

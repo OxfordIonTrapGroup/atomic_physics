@@ -14,11 +14,11 @@ class TesLevel(unittest.TestCase):
 
         # check that states in F=1 have indices 0-2
         for i in range(3):
-            self.assertEqual(ion.index(level, -(i-1), F=1), i)
+            self.assertEqual(ion.index(level, -(i - 1), F=1), i)
 
         # check that states in F=2 have indices 3-7
         for i in range(5):
-            self.assertEqual(ion.index(level, i-2, F=2), i+3)
+            self.assertEqual(ion.index(level, i - 2, F=2), i + 3)
 
     def test_negative_hfs(self):
         level = ba133.ground_level
@@ -26,8 +26,7 @@ class TesLevel(unittest.TestCase):
 
         # check that states in F=1 have indices 0-2
         for i in range(3):
-            self.assertEqual(ion.index(level, i-1, F=1), i)
+            self.assertEqual(ion.index(level, i - 1, F=1), i)
 
         # check that F=0, mF=0 has index 3
         self.assertEqual(ion.index(level, 0, F=0), 3)
-
