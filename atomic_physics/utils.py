@@ -117,5 +117,5 @@ def ac_zeeman_shift(atom: ap.Atom, state: int, f_RF: float):
         for _state in np.argwhere(M[state] == Mpr):
             freq = E[_state] - E[state]
             w = rabi[state, _state][0]
-            acz[q + 1] += 0.5 * w ** 2 * (freq / (freq ** 2 - (f_RF) ** 2))
+            acz[q + 1] += 0.5 * w**2 * (freq / (freq**2 - (f_RF) ** 2))
     return acz

@@ -268,7 +268,7 @@ class Atom:
         trans = self.transitions[transition]
         omega = trans.freq
         Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
-        return consts.hbar * (omega ** 3) * Gamma / (6 * np.pi * (consts.c ** 2))
+        return consts.hbar * (omega**3) * Gamma / (6 * np.pi * (consts.c**2))
 
     def P0(self, transition: Transition, w0: float):
         """Returns the power needed at the focus of a Guassian beam with waist
@@ -279,7 +279,7 @@ class Atom:
         :return: beam power (W)
         """
         I0 = self.I0(transition)
-        return 0.5 * np.pi * (w0 ** 2) * I0
+        return 0.5 * np.pi * (w0**2) * I0
 
     def _sort_levels(self):
         """Use the transition data to sort the atomic levels in order of
