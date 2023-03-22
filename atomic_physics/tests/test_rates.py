@@ -78,7 +78,7 @@ class TestTSS(unittest.TestCase):
         # detuning scan relative to linewidth
         norm_detuning = [-1e4, 2.3e1, 2, -4, 0.5, 0]
         for det in norm_detuning:
-            I_eff = 1 / (4 * det ** 2 + 1)
+            I_eff = 1 / (4 * det**2 + 1)
             Np_ss = _steady_state_population(I_eff)
 
             Lasers = [ap.Laser("393", q=+1, I=1.0, delta=delta + line_width * det)]
