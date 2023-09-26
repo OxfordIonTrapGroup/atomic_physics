@@ -343,7 +343,6 @@ class Atom:
         I_dim = np.rint(2.0 * I + 1).astype(int)
 
         for level, data in self.levels.items():
-
             J = level.J
             J_dim = np.rint(2.0 * J + 1).astype(int)
 
@@ -400,7 +399,7 @@ class Atom:
             self.MI[lev] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
             self.MJ[lev] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
 
-            F_list = np.arange(I - J, I + J + 1)
+            F_list = np.arange(abs(I - J), I + J + 1)
             if data.Ahfs < 0:
                 F_list = F_list[::-1]
 
