@@ -20,6 +20,8 @@ References:
   Wesley C. Campbell, Phys. Rev. Lett. 119, 100501 (2017)
 [7] - J.E. Christensen, D. Hucul, W.C. Campbell et al.,
   npj Quantum Inf 6, 35 (2020).
+[8] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+ M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
 """
 import numpy as np
 import typing
@@ -106,7 +108,7 @@ class Ba133(ap.Atom):
             "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=29e-3,  # [2]
+                A=1 / 30.14,  # [8]
                 freq=2 * np.pi * 170126433920702.56,
             ),
             "2051": ap.Transition(

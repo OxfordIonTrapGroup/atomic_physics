@@ -25,6 +25,8 @@ References:
 [10] - K. Wendt, S. A. Ahmad, F. Buchinger, A. C. Mueller, R. Neugart, and
   E. -W. Otten, Zeitschrift für Physik A Atoms and Nuclei volume 318,
   pages 125–129 (1984)
+[11] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+ M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
 """
 import numpy as np
 import typing
@@ -113,7 +115,7 @@ class Ba137(ap.Atom):
             "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=29e-3,  # [2]
+                A=1 / 30.14,  # [11]
                 freq=2 * np.pi * 170126433920821.75,
             ),
             "2051": ap.Transition(

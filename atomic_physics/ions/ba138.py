@@ -9,6 +9,8 @@ References:
 [1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
 [2] - A. A. Madej and J. D. Sankey, Phys. Rev. A 41, 2621, (1990)
 [3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+[4] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+ M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
  """
 import numpy as np
 import atomic_physics as ap
@@ -71,7 +73,7 @@ class Ba138(ap.Atom):
             "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=29e-3,  # [2]
+                A=1 / 30.14,  # [4]
                 freq=2 * np.pi * 170126433920560.6,
             ),
             "2051": ap.Transition(
