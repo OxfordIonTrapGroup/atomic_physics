@@ -47,17 +47,17 @@ class Ca43(ap.Atom):
             ),
             P32: ap.LevelData(
                 Ahfs=-31.4e6 * consts.h,  # [4]
-                Bhfs=-6.9 * consts.h,  # [4]
+                Bhfs=-6.9e6 * consts.h,  # [4]
                 g_I=(2 / 7) * -1.315348,  # [3]
             ),
             D32: ap.LevelData(
                 Ahfs=-47.3e6 * consts.h,  # [4]
-                Bhfs=-3.7 * consts.h,  # [4]
+                Bhfs=-3.7e6 * consts.h,  # [4]
                 g_I=(2 / 7) * -1.315348,  # [3]
             ),
             D52: ap.LevelData(
                 Ahfs=-3.8931e6 * consts.h,  # [5]
-                Bhfs=4.241 * consts.h,  # [5]
+                Bhfs=-4.241e6 * consts.h,  # [5]
                 g_I=(2 / 7) * -1.315348,  # [3]
             ),
         }
