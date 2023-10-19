@@ -59,7 +59,7 @@ class Ba133(ap.Atom):
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
             P32: ap.LevelData(
-                Ahfs=-311.5e6 * consts.h,  # [8]
+                Ahfs=-311.5e6 * consts.h,  # [7]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
             D32: ap.LevelData(
@@ -67,7 +67,7 @@ class Ba133(ap.Atom):
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
             D52: ap.LevelData(
-                Ahfs=16.6e6 * consts.h / 3,  # [8]
+                Ahfs=83e6 * consts.h / 3,  # [7]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
         }
