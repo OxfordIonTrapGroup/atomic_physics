@@ -4,6 +4,8 @@ import scipy.optimize as opt
 import scipy.constants as consts
 import atomic_physics as ap
 
+import warnings
+from typing import Optional
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
@@ -66,7 +68,7 @@ def d2f_dB2(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-4):
 
 
 def field_insensitive_point(
-    atom: ap.Atom, lower: int, upper: int, B_min: float = 1e-3, B_max: float = 1e-1
+    atom: ap.Atom, lower: int, upper: int, B_min: Optional[float] = None, B_max: Optional[float] = None, *, B0: float = 1e-8
 ):
     """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
@@ -74,22 +76,33 @@ def field_insensitive_point(
     :param atom: the atom to work with
     :param lower: index of the lower energy state
     :param upper: index of the higher-energy state
-    :param B_min: minimum magnetic field used in numerical minimization (T)
-    :param B_max: maximum magnetic field used in numerical maximization (T)
+
+    :param B_min: (UNUSED) minimum magnetic field used in numerical minimization (T)
+    :param B_max: (UNUSED) maximum magnetic field used in numerical maximization (T)
+
+    :param B0: Initial guess for the magnetic field root (T)
     :return: the field-independent point (T) or None if none found
 
     To do: add special case where we can use the BR formula
+    To do: Choose to either implement B-field bounds or remove in a future PR 
 
     NB this does not change the atom's state (e.g. it does not set the B-field
     to the field insensitive point)
     """
+
+    if (B_min is not None) or (B_max is not None):
+        warnings.warn((
+            "B_min and B_max bounds are currently unused -- they will either be removed or implemented in a future update."
+            "\nSet the initial guess B0 instead"), 
+            PendingDeprecationWarning
+        )
     atom = deepcopy(atom)
 
     def fun(B: float):
         atom.setB(B)
         return df_dB(atom, lower, upper)
 
-    res = opt.root(fun, x0=1e-8, options={"xtol": 1e-4, "eps": 1e-7})
+    res = opt.root(fun, x0=B0, options={"xtol": 1e-4, "eps": 1e-7})
     return res.x[0] if res.success else None
 
 
