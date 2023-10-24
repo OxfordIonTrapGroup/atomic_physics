@@ -4,7 +4,6 @@ import scipy.optimize as opt
 import scipy.constants as consts
 import atomic_physics as ap
 
-
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
@@ -65,17 +64,14 @@ def d2f_dB2(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-4):
     return (dfpr - df) / eps
 
 
-def field_insensitive_point(
-    atom: ap.Atom, lower: int, upper: int, B_min: float = 1e-3, B_max: float = 1e-1
-):
+def field_insensitive_point(atom: ap.Atom, lower: int, upper: int, B0: float = 1e-8):
     """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
 
     :param atom: the atom to work with
     :param lower: index of the lower energy state
     :param upper: index of the higher-energy state
-    :param B_min: minimum magnetic field used in numerical minimization (T)
-    :param B_max: maximum magnetic field used in numerical maximization (T)
+    :param B0: Initial guess for the magnetic field root (T)
     :return: the field-independent point (T) or None if none found
 
     To do: add special case where we can use the BR formula
@@ -89,7 +85,7 @@ def field_insensitive_point(
         atom.setB(B)
         return df_dB(atom, lower, upper)
 
-    res = opt.root(fun, x0=1e-8, options={"xtol": 1e-4, "eps": 1e-7})
+    res = opt.root(fun, x0=B0, options={"xtol": 1e-4, "eps": 1e-7})
     return res.x[0] if res.success else None
 
 
