@@ -9,7 +9,8 @@ from f(1762)=f(455)-f(614).
 
 References:
 [1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[2] - A. A. Madej and J. D. Sankey, Phys. Rev. A 41, 2621, (1990)
+[2] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+ M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
 [3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
 [4] - N. J. Stone, Table of nuclear magnetic dipole and electric
   quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
@@ -20,8 +21,6 @@ References:
   Wesley C. Campbell, Phys. Rev. Lett. 119, 100501 (2017)
 [7] - J.E. Christensen, D. Hucul, W.C. Campbell et al.,
   npj Quantum Inf 6, 35 (2020).
-[8] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
- M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
 """
 import numpy as np
 import typing
@@ -108,7 +107,7 @@ class Ba133(ap.Atom):
             "1762": ap.Transition(
                 lower=S12,
                 upper=D52,
-                A=1 / 30.14,  # [8]
+                A=1 / 30.14,  # [2]
                 freq=2 * np.pi * 170126433920702.56,
             ),
             "2051": ap.Transition(
