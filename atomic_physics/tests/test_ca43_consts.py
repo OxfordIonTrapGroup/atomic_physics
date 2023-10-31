@@ -32,16 +32,18 @@ class TestCa43Consts(unittest.TestCase):
             ion, l_index, u_index, B0=S12_44_D52_43_clock_fields[0]
         )
         self.assertAlmostEqual(
-            model_field_independent_point_1, S12_44_D52_43_clock_fields[0], places=2
+            model_field_independent_point_1, S12_44_D52_43_clock_fields[0], places=6
         )
 
         # 4.96 G
-        # The curve is quite flat near this point, giving the solver some trouble. Using a slightly larger delta
         model_field_independent_point_2 = field_insensitive_point(
             ion, l_index, u_index, B0=S12_44_D52_43_clock_fields[1]
         )
+        # FIXME: field_insensitive_point() gives 4.947… G, which does not match the
+        # value from [1] to the number of significant digits given there. This is not a
+        # straightforward root finding or finite-difference accuracy issue.
         self.assertAlmostEqual(
-            model_field_independent_point_2, S12_44_D52_43_clock_fields[1], delta=0.02
+            model_field_independent_point_2, S12_44_D52_43_clock_fields[1], places=5
         )
 
     def test_s12_40_31_clock(self):
@@ -55,8 +57,10 @@ class TestCa43Consts(unittest.TestCase):
         model_field_independent_point_40_31 = field_insensitive_point(
             ion, s12_40_index, s12_31_index, B0=S12_40_31_clock_field
         )
+        # FIXME: field_insensitive_point() gives 146.089 G, which does not match the
+        # value from [2] (see GitHub issue #24); fix and increase `places` to 7.
         self.assertAlmostEqual(
-            model_field_independent_point_40_31, S12_40_31_clock_field, places=1
+            model_field_independent_point_40_31, S12_40_31_clock_field, places=6
         )
 
     def test_s12_41_31_clock(self):
@@ -71,5 +75,5 @@ class TestCa43Consts(unittest.TestCase):
             ion, s12_41_index, s12_31_index, B0=S12_41_31_clock_field
         )
         self.assertAlmostEqual(
-            model_field_independent_point_41_31, S12_41_31_clock_field, delta=1
+            model_field_independent_point_41_31, S12_41_31_clock_field, places=4
         )
