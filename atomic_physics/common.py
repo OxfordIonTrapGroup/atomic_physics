@@ -209,9 +209,9 @@ class Atom:
             MJvec = self.MJ[lev]
             inds = np.logical_and(inds, MJvec == MJ)
 
-        inds = np.argwhere(inds)
+        inds = np.nonzero(inds)[0]
         if len(inds) == 1:
-            inds = int(inds)
+            inds = inds[0]
         return inds + self.levels[level]._start_ind
 
     def level(self, state: int):
