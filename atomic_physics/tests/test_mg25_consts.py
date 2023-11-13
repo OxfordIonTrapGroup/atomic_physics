@@ -9,7 +9,7 @@ from atomic_physics.ions import mg25
 from atomic_physics.utils import field_insensitive_point
 import numpy as np
 
-S12_41_31_clock_field = 212.8e-4  # [1]
+S12_31_21_clock_field = 212.8e-4  # [1]
 MW_transition_freqs = {(3,2):1.326456e9,
                        (2,2):1.460516e9,
                        (1,2):1.573543e9,
@@ -25,16 +25,16 @@ class TestMg25Consts(unittest.TestCase):
         """
         ion = mg25.Mg25(level_filter=[mg25.S12])
 
-        ion.setB(S12_41_31_clock_field)
+        ion.setB(S12_31_21_clock_field)
         l_index = ion.index(mg25.S12, 1, F=3)
         u_index = ion.index(mg25.S12, 1, F=2)
 
         # 212.8 G
         model_field_independent_point = field_insensitive_point(
-            ion, l_index, u_index, B0=S12_41_31_clock_field
+            ion, l_index, u_index, B0=S12_31_21_clock_field
         )
         self.assertAlmostEqual(
-            model_field_independent_point, S12_41_31_clock_field, places=1
+            model_field_independent_point, S12_31_21_clock_field, places=5
         )
 
     def test_mw_transitions(self):
@@ -43,12 +43,12 @@ class TestMg25Consts(unittest.TestCase):
         """
         ion = mg25.Mg25(level_filter=[mg25.S12])
 
-        ion.setB(S12_41_31_clock_field[0])
-        l_index = ion.index(mg25.S12, 1, F=4)
-        u_index = ion.index(mg25.S12, 1, F=3)
+        ion.setB(S12_31_21_clock_field)
+        l_index = ion.index(mg25.S12, 1, F=3)
+        u_index = ion.index(mg25.S12, 1, F=2)
 
         model_field_independent_point = field_insensitive_point(
-            ion, l_index, u_index, B0=S12_41_31_clock_field
+            ion, l_index, u_index, B0=S12_31_21_clock_field
         )
         ion.setB(model_field_independent_point)
 
