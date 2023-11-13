@@ -63,4 +63,4 @@ class TestMg25Consts(unittest.TestCase):
                 * np.pi
             )
 
-            self.assertAlmostEqual(freq_model, transition[3], places=4)
+            self.assertAlmostEqual(freq_model, transition[2], places=4)
