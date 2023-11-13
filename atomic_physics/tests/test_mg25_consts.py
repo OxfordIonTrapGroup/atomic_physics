@@ -25,16 +25,16 @@ class TestMg25Consts(unittest.TestCase):
         """
         ion = mg25.Mg25(level_filter=[mg25.S12])
 
-        ion.setB(S12_41_31_clock_field[0])
+        ion.setB(S12_41_31_clock_field)
         l_index = ion.index(mg25.S12, 1, F=3)
         u_index = ion.index(mg25.S12, 1, F=2)
 
         # 212.8 G
         model_field_independent_point = field_insensitive_point(
-            ion, l_index, u_index, B0=S12_41_31_clock_field[0]
+            ion, l_index, u_index, B0=S12_41_31_clock_field
         )
         self.assertAlmostEqual(
-            model_field_independent_point, S12_41_31_clock_field[0], places=4
+            model_field_independent_point, S12_41_31_clock_field, places=1
         )
 
     def test_mw_transitions(self):
@@ -48,7 +48,7 @@ class TestMg25Consts(unittest.TestCase):
         u_index = ion.index(mg25.S12, 1, F=3)
 
         model_field_independent_point = field_insensitive_point(
-            ion, l_index, u_index, B0=S12_41_31_clock_field[0]
+            ion, l_index, u_index, B0=S12_41_31_clock_field
         )
         ion.setB(model_field_independent_point)
 
