@@ -18,7 +18,7 @@ MW_transition_freqs = [
     [1, 1, 1.686459e9],
     [0, 1, 1.786044e9],
     [0, -1, 1.975445e9],
-    ]  # [1]
+]  # [1]
 
 
 class TestMg25Consts(unittest.TestCase):
