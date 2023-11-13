@@ -53,7 +53,7 @@ class TestMg25Consts(unittest.TestCase):
         )
         ion.setB(model_field_independent_point)
 
-        for key, value in MW_transition_freqs:
+        for key, value in MW_transition_freqs.items():
             freq_model = (
                 ion.delta(
                     ion.index(mg25.S12, F=3, M=key[0]),
