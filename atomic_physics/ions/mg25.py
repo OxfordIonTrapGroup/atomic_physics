@@ -23,6 +23,7 @@ ground_level = S12 = ap.Level(n=3, S=1 / 2, L=0, J=1 / 2)
 P12 = ap.Level(n=3, S=1 / 2, L=1, J=1 / 2)
 P32 = ap.Level(n=3, S=1 / 2, L=1, J=3 / 2)
 
+
 class Mg25(ap.Atom):
     def __init__(
         self,
@@ -38,18 +39,18 @@ class Mg25(ap.Atom):
         """
         levels = {
             ground_level: ap.LevelData(
-                g_J=2.002, # [1] (approximate)
-                g_I=(2 / 5) * -0.85545, # [7]
-                Ahfs=-596.2542487e6 * consts.h, # [5] (or —596.254376(54)e6 [1])
+                g_J=2.002,  # [1] (approximate)
+                g_I=(2 / 5) * -0.85545,  # [7]
+                Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
             ),
             P12: ap.LevelData(
-                Ahfs=102.16e6 * consts.h, # [6]
-                g_I=(2 / 5) * -0.85545, # [7]
+                Ahfs=102.16e6 * consts.h,  # [6]
+                g_I=(2 / 5) * -0.85545,  # [7]
             ),
             P32: ap.LevelData(
-                Ahfs=-19.0972e6 * consts.h, # [8]
-                g_I=(2 / 5) * -0.85545, # [7]
-                Bhfs=22.3413e6 * consts.h, # [8]
+                Ahfs=-19.0972e6 * consts.h,  # [8]
+                g_I=(2 / 5) * -0.85545,  # [7]
+                Bhfs=22.3413e6 * consts.h,  # [8]
             ),
         }
 
@@ -57,14 +58,16 @@ class Mg25(ap.Atom):
             "280": ap.Transition(
                 lower=S12,
                 upper=P12,
-                A=5.58e8, # [4]
-                freq=1069.339957e12 * 2 * np.pi, # [3]
+                A=5.58e8,  # [4]
+                freq=1069.339957e12 * 2 * np.pi,  # [3]
             ),
             "279": ap.Transition(
                 lower=S12,
                 upper=P32,
-                A=2.60e8, # [4]
-                freq=1072.084547e12 * 2 * np.pi, # [3] (or 1072084547e6 * 2 * np.pi [2])
+                A=2.60e8,  # [4]
+                freq=1072.084547e12
+                * 2
+                * np.pi,  # [3] (or 1072084547e6 * 2 * np.pi [2])
             ),
         }
 
