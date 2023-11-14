@@ -11,14 +11,14 @@ import numpy as np
 
 S12_31_21_clock_field = 212.8e-4  # [1]
 MW_transition_freqs = [
-    [3, 2, 1.326456e9],
-    [2, 2, 1.460516e9],
-    [1, 2, 1.573543e9],
-    [2, 1, 1.573432e9],
-    [1, 1, 1.686459e9],
-    [0, 1, 1.786044e9],
-    [0, -1, 1.975445e9],
-]  # [1]
+    [3, 2, 1.326456],
+    [2, 2, 1.460516],
+    [1, 2, 1.573543],
+    [2, 1, 1.573432],
+    [1, 1, 1.686459],
+    [0, 1, 1.786044],
+    [0, -1, 1.975445],
+]  # [1] Frequency in GHz
 
 
 class TestMg25Consts(unittest.TestCase):
@@ -57,6 +57,6 @@ class TestMg25Consts(unittest.TestCase):
             freq_model = ion.delta(
                 ion.index(mg25.S12, F=3, M=transition[0]),
                 ion.index(mg25.S12, F=2, M=transition[1]),
-            ) / (2 * np.pi)
+            ) / (2 * np.pi * 1e9)
 
             self.assertAlmostEqual(freq_model, transition[2], places=4)
