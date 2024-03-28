@@ -5,7 +5,7 @@ description = "Nascent toolkit for calculating state energies, transition matrix
 authors = ["hartytp <thomas.peter.harty@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.11"
+python = "^3.8"
 numpy = "^1.22.0"
 scipy = "^1.7.3"
 
