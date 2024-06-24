@@ -1,4 +1,4 @@
-"""Test Spin 1/2 nuclei"""
+"""Test level assignment"""
 import unittest
 from atomic_physics.ions import ca40
 
