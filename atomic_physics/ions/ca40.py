@@ -3,6 +3,7 @@
 References:
 [1] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
 [2] - T. P. Harty, DPhil Thesis (2013)
+[3] - M. Chwalla et all, PRL 102, 023002 (2009)
 """
 import numpy as np
 import typing
@@ -35,7 +36,7 @@ class Ca40(ap.Atom):
             P12: ap.LevelData(),
             P32: ap.LevelData(),
             D32: ap.LevelData(),
-            D52: ap.LevelData(),
+            D52: ap.LevelData(g_J = 1.2003340), # [3]
         }
 
         transitions = {
