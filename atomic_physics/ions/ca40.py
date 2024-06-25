@@ -36,7 +36,7 @@ class Ca40(ap.Atom):
             P12: ap.LevelData(),
             P32: ap.LevelData(),
             D32: ap.LevelData(),
-            D52: ap.LevelData(g_J = 1.2003340), # [3]
+            D52: ap.LevelData(g_J=1.2003340),  # [3]
         }
 
         transitions = {
