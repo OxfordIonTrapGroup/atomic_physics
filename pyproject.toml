@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "atomic_physics"
-version = "1.0.2"
+version = "1.0.3"
 description = "Nascent toolkit for calculating state energies, transition matrix elements, rate equations, obe solver, etc"
 authors = ["hartytp <thomas.peter.harty@gmail.com>"]
 
