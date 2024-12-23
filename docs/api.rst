@@ -9,22 +9,22 @@ Common
     :members:
 
 Rate Equations
-~~~~~~
+~~~~~~~~~~~~~~
 .. automodule:: atomic_physics.rate_equations
     :members:
 
 Helper Utilities
-~~~~~~
+~~~~~~~~~~~~~~~~
 .. automodule:: atomic_physics.utils
     :members:
 
 Operators
-~~~~~~
+~~~~~~~~~
 .. automodule:: atomic_physics.operators
     :members:
 
 Ions
-~~~~~~~
+~~~~
 
-.. automodule:: ionics_fits.ions
+.. automodule:: atomic_physics.ions
     :imported-members:

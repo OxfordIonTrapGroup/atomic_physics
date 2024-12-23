@@ -2,6 +2,7 @@ import numpy as np
 from collections import namedtuple
 import scipy.constants as consts
 import typing
+from typing import Slice
 import atomic_physics as ap
 
 
@@ -237,7 +238,7 @@ class Atom:
         """
         return self.E[upper] - self.E[lower]
 
-    def population(self, state: int, inds: typing.Union[Level, int, slice]):
+    def population(self, state: int, inds: typing.Union[Level, int, Slice]):
         """Returns the total population in a set of states.
 
         :param state: state vector
@@ -496,16 +497,18 @@ class Atom:
         """Calculates the matrix elements for M1 transitions within each
         level.
 
-        The matrix elements, Rij, are defined so that:
-          - R[i, j] := (-1)**(q+1)<i|u_q|j>
-          - q := Mi - Mj = (-1, 0, 1)
-          - u_q is the qth component of the magnetic dipole operator in
+        The matrix elements, ``Rij``, are defined so that::
+
+          * ``R[i, j] := (-1)**(q+1)<i|u_q|j>``
+          * ``q := Mi - Mj = (-1, 0, 1)``
+          * ``u_q`` is the ``q``th component of the magnetic dipole operator in
             spherical coordinates.
 
-        NB with this definition, the Rabi frequency is given by:
-          - hbar * W = B_-q * R
-          - t_pi = pi/W
-          - where B_-q is the -qth component of the magnetic field in spherical
+        NB with this definition, the Rabi frequency is given by::
+
+          * ``hbar * W = B_-q * R``
+          * ``t_pi = pi/W``
+          * where ``B_-q`` is the ``-q``th component of the magnetic field in spherical
             coordinates.
         """
         self.M1 = np.zeros((self.num_states, self.num_states))

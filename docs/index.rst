@@ -1,5 +1,5 @@
 Atomic Physics
-===========
+==============
 
 Nascent toolkit for calculating state energies, transition matrix elements, rate
 equations, obe solver, etc.
