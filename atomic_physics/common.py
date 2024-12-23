@@ -32,6 +32,12 @@ Laser.__doc__ = """Represents a laser.
      atom.delta)
 """
 
+State = namedtuple("State", ["level", "F", "M"])
+State.__doc__ = """Convenient holder for storing atomic state data.
+    :param level: the Level object that the state is in.
+    :param F: total angular momentum number.
+    :param M: z-projection of F."""
+
 
 class LevelData:
     """Stored atomic structure information about a single level."""
@@ -131,6 +137,11 @@ class Atom:
 
         self.levels = levels
         self.transitions = transitions
+        # Store the transitions indexed by the upper and lower levels it connects,
+        # useful fro reverse searching
+        self.reverse_transitions = {
+            (t.lower, t.upper): t for t in self.transitions.values()
+        }
 
         # ordered in terms of increasing state energies
         self.num_states = None  # Total number of electronic states
@@ -422,9 +433,7 @@ class Atom:
         since they are somewhat more convenient to work with. The two are
         related by constants and power of the transition frequencies.
 
-        To do: define what we mean by a matrix element, and how the amplitudes
-        stored in ePole are related to the matrix elements and to the Rabi
-        frequencies.
+        For converting to Rabi frequencies, use the functions in atomic_physics.rabi.
 
         To do: double check the signs of the amplitudes.
         """
