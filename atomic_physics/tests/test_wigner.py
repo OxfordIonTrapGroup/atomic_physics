@@ -1,5 +1,6 @@
 import unittest
-from sympy.physics import wigner
+#from sympy.physics import wigner
+from . import utils as wigner  # HACK: waiting for new sympy release
 import atomic_physics as ap
 import numpy as np
 

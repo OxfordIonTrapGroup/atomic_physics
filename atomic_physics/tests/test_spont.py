@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-from sympy.physics.wigner import wigner_3j, wigner_6j
+from .utils import wigner_3j, wigner_6j
 from atomic_physics.ions import ca43
 
 
