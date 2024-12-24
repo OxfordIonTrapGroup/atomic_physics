@@ -1,5 +1,5 @@
 import numpy as np
-from collections import namedtuple
+from dataclasses import dataclass
 import scipy.constants as consts
 import typing
 import atomic_physics as ap
@@ -9,28 +9,60 @@ _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
 
-# frequencies in angular units
-Level = namedtuple("Level", "n,L,J,S")
+@dataclass(frozen=True)
+class Level:
+    """Represents a single level.
+
+    Attributes:
+        n: the level's principal quantum number
+        L: the level's orbital angular momentum
+        J: the level's total (spin + orbital) angular momentum
+        S: the level's spin angular momentum
+
+    """
+
+    n: int
+    L: float
+    J: float
+    S: float
 
 
-Transition = namedtuple("Transition", "lower,upper,freq,A")
-Transition.__doc__ = """ Represents a transition.
-:param lower: the lower Level in the transition.
-:param upper: the upper Level in the transition.
-:param freq: the transition frequency (rad/s)
-:param A: the transition's Einstein A coefficient.
-"""
+@dataclass(frozen=True)
+class Transition:
+    """Represents a transition between a pair of states.
+
+    Attributes:
+        lower: the :class:`Level` in the transition with lower energy
+        upper:  the :class:`Level` in the transition with greater energy
+        freq: the transition frequency (rad/s)
+        A: the transition's Einstein A coefficient
+    """
+
+    lower: Level
+    upper: Level
+    freq: float
+    A: float
 
 
-Laser = namedtuple("Laser", "transition,q,I,delta")
-Laser.__doc__ = """Represents a laser.
-   :param transition: string with the name of the transition the laser couples
-     to.
-   :param q: laser polarization, +1/-1 for sigma plus/minus, 0 for pi.
-   :param I: laser intensity (saturation intensities).
-   :param delta: laser detuning from transition centre of gravity (c.f.
-     atom.delta)
-"""
+@dataclass
+class Laser:
+    """Represents a laser.
+
+    Attributes:
+        transition: string giving the name of the transition driven by the laser.
+        q: the laser's polarization, defined as the difference in angular momentum
+            between the higher and lower energy states coupled by this laser
+            (``q = M_upper - M_lower``). ``q = +1`` for σ+ light, ``q = -1`` for σ-
+            light and ``q = 0`` for π light.
+        I: the laser intensity (saturation intensities).
+        delta: the laser's detuning (rad/s) from the transition centre of gravity,
+           defined so that ``w_laser = w_transition + delta``.
+    """
+
+    transition: str
+    q: int
+    I: float
+    delta: float
 
 
 class LevelData:
@@ -285,37 +317,43 @@ class Atom:
         """Use the transition data to sort the atomic levels in order of
         increasing energy.
         """
-        if not (self.transitions):
-            levels = list(self.levels.keys())
-            if len(levels) != 1:
-                raise ValueError("Disconnected level structure.")
-            sorted_levels = {levels[0]: 0}
-            unsorted = []
-        else:
-            unsorted = list(self.transitions.keys())
-            lower, upper, dE, _ = self.transitions[unsorted.pop()]
-            sorted_levels = {lower: 0, upper: dE}
+        unsorted_levels: List[str] = []
+        sorted_levels: Dict[Level, float] = {}
 
-        while unsorted:
-            for trans in unsorted:
-                lower, upper, dE, _ = self.transitions[trans]
-                if lower in sorted_levels:
-                    sorted_levels[upper] = sorted_levels[lower] + dE
+        if len(self.levels) == 1:
+            sorted_levels[list(self.levels.keys())[0]] = 0.
+        else:
+            unsorted_levels += list(self.transitions.keys())
+            transition = self.transitions[unsorted_levels.pop()]
+            sorted_levels[transition.lower] = 0
+            sorted_levels[transition.upper] = transition.freq
+
+        while unsorted_levels:
+            for transition_name in unsorted_levels:
+                transition = self.transitions[transition_name]
+                if transition.lower in sorted_levels:
+                    freq = sorted_levels[transition.lower] + transition.freq
+                    sorted_levels[transition.upper] = freq
                     break
-                elif upper in sorted_levels:
-                    sorted_levels[lower] = sorted_levels[upper] - dE
+                elif transition.upper in sorted_levels:
+                    freq = sorted_levels[transition.upper] - transition.freq
+                    sorted_levels[transition.lower] = freq
                     break
             else:
                 raise ValueError(
                     "Transition '{}' would lead to a disconnected level"
                     " structure.".format(trans)
                 )
-            unsorted.remove(trans)
+            unsorted_levels.remove(transition_name)
 
         if sorted_levels.keys() != self.levels.keys():
             raise ValueError("Disconnected level structure")
 
-        sorted_levels = sorted(sorted_levels.items(), key=lambda x: x[1])
+        sorted_levels: List[Tuple[Level, float]] = sorted(
+            sorted_levels.items(),
+            key=lambda x: x[1]
+        )
+
         E0 = sorted_levels[0][1]  # ground-state energy
         start_ind = 0
         for level, energy in sorted_levels:
