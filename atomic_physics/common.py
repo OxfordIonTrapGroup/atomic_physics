@@ -66,6 +66,24 @@ class LevelData:
 
 
 @dataclass(frozen=True)
+class LevelStates:
+    """Stores information about the states within a level.
+
+    Attributes:
+        self.freq: frequency of the centre-of-gravity transition from the ground-level
+            to this level.
+        self.start_ind: index into the state vector of the lowest-lying state within
+            this level.
+        self.stop_ind: index into the state vector of the highest-lying state within
+            this level.
+    """
+
+    freq: float
+    start_index: int
+    stop_index: int
+
+
+@dataclass(frozen=True)
 class Transition:
     """Represents a transition between a pair of states.
 
