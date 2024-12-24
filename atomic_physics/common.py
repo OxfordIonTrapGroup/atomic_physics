@@ -108,11 +108,11 @@ class Laser:
 
 
 class Atom:
-    """Base class for storing atomic structure data.
+    r"""Base class for storing atomic structure data.
 
     Attributes:
         num_states: the number of states contained within the atom
-        level_states: dictionary mapping :class:`.Level`s to :class:`.LevelStates`.
+        level_states: dictionary mapping :class:`.Level`\s to :class:`.LevelStates`.
     """
 
     num_states: int
