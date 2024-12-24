@@ -241,6 +241,27 @@ class Atom:
         if B is not None:
             self.setB(B)
 
+    def get_transition_frequency(self, lower: int, upper: int, relative: bool) -> float:
+        """Returns the frequency (angular units) of the transition between a pair of
+        states.
+
+        :param lower: index of the state with lower energy
+        :param upper: index of the state with higher energy
+        :param relative: if ``True`` the centre-of-gravity of the transition between
+            the two states.
+        """
+        f_rel = self.E[upper] - self.E[lower]
+
+        if relative:
+            return f_rel
+
+        transition = self.get_transition(
+            lower=self.get_level(lower), upper=self.get_level(upper)
+        )
+        f_abs = f_rel + transition.freq
+
+        return f_abs
+
     def get_slice(self, level: Level):
         """Returns a slice object that selects the states within a given
         level.
@@ -291,13 +312,21 @@ class Atom:
             inds = inds.ravel()[0]
         return inds + self.level_states[level].start_index
 
-    def level(self, state: int):
+    def get_level(self, state: int):
         """Returns the level a state lies in."""
         for level, level_states in self.level_states.items():
             if state >= level_states.start_index and state < level_states.stop_index:
                 return level
 
         raise ValueError(f"No state with index {state}")
+
+    def get_transition(self, lower: Level, upper: Level) -> Transition:
+        r"""Returns the transition between a pair of :class:`Level`\s."""
+        for transition in self.transitions.values():
+            if transition.lower == lower and transition.upper == upper:
+                return transition
+
+        raise ValueError(f"No transition found between levels {lower} and {upper}")
 
     def delta(self, lower: int, upper: int):
         """Returns the detuning of the transition between a pair of states
