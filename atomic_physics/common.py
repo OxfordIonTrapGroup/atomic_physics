@@ -112,7 +112,7 @@ class Atom:
 
     Attributes:
         num_states: the number of states contained within the atom
-        level_states: dictionary mapping :class:`Level`s to :class:`LevelStates`.
+        level_states: dictionary mapping :class:`.Level`s to :class:`.LevelStates`.
     """
 
     num_states: int
