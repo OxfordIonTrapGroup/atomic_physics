@@ -12,7 +12,7 @@ for n in np.arange(_max_fact, dtype=np.int32):
     _fact_store[n + 1] = _fact_store[n] * np.int32(n + 1)
 
 
-def _fact(n: int):
+def _fact(n: int | float):
     """Returns n factorial."""
     assert n >= 0, str(n)
     return _fact_store[int(np.rint(n))]
