@@ -1,25 +1,27 @@
 """25Mg+
 
-References:
-[1] -   W. M. Itano and D. J. Wineland, Precision measurement of the
-        ground-state hyperfine constant of Mg+, PRA, 24, 3 (1981)
-[2] -   W. H. Yuan et. al., Precision measurement of the light shift of
-        25Mg+ions, Phys. Rev. A, 98, 5 (2018)
-[3] -   G. Clos et. al., Decoherence-Assisted Spectroscopy of a Single
-        Mg+ Ion, Phys. Rev. Lett., 112, 11 (2014)
-[4] -   M. Kaur et. al., Radiative transition properties of singly charged
-        magnesium, calcium, strontium and barium ions, Atomic Data and Nuclear
-        Data Tables, 137 (2021)
-[5] -   Z. T. Xu et. al., Precision measurement of the 25Mg+
-        ground-state hyperfine constant, Phys. Rev. A, 96, 5, (2017)
-[6] -   J. Nguyen, The Linewidth and Hyperfine A Constant of the 2P1/2 State
-        of a Magnesium Ion Confined in a Linear Paul Trap, Thesis,
-        McMaster University (2009) http://hdl.handle.net/11375/17398
-[7] -   N. J. Stone, Table of nuclear magnetic dipole and electric
-        quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
-        Issue 1 (2005)
-[8] -   L. Toppozini, Trapped-Mg+ Apparatus for Control and Structure Studies,
-        Thesis, McMaster University (2006) http://hdl.handle.net/11375/21342
+References::
+
+    * [1] W. M. Itano and D. J. Wineland, Precision measurement of the
+      ground-state hyperfine constant of Mg+, PRA, 24, 3 (1981)
+    * [2] W. H. Yuan et. al., Precision measurement of the light shift of
+      25Mg+ions, Phys. Rev. A, 98, 5 (2018)
+    * [3] G. Clos et. al., Decoherence-Assisted Spectroscopy of a Single
+      Mg+ Ion, Phys. Rev. Lett., 112, 11 (2014)
+    * [4] M. Kaur et. al., Radiative transition properties of singly charged
+      magnesium, calcium, strontium and barium ions, Atomic Data and Nuclear
+      Data Tables, 137 (2021)
+    * [5] Z. T. Xu et. al., Precision measurement of the 25Mg+
+      ground-state hyperfine constant, Phys. Rev. A, 96, 5, (2017)
+    * [6] J. Nguyen, The Linewidth and Hyperfine A Constant of the 2P1/2 State
+      of a Magnesium Ion Confined in a Linear Paul Trap, Thesis,
+      McMaster University (2009) http://hdl.handle.net/11375/17398
+    * [7]  N. J. Stone, Table of nuclear magnetic dipole and electric
+      quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
+      Issue 1 (2005)
+    * [8] L. Toppozini, Trapped-Mg+ Apparatus for Control and Structure Studies,
+      Thesis, McMaster University (2006) http://hdl.handle.net/11375/21342
+
 """
 
 import numpy as np

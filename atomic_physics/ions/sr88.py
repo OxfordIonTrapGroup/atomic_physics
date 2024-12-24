@@ -1,9 +1,11 @@
 """88Sr+
 
-References:
-[1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[2] P. Dubé, Metrologia (2015)
-[3] V. Letchumanan, Phys. Rev. A (2005)
+References::
+
+   * [1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+   * [2] P. Dubé, Metrologia (2015)
+   * [3] V. Letchumanan, Phys. Rev. A (2005)
+
 """
 
 import numpy as np
