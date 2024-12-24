@@ -9,4 +9,4 @@ def main():
             "but you should be able to run it in the WSL."
         )
 
-    subprocess.check_call("poetry run pytype .".split())
+    subprocess.check_call("poetry run pytype -k .".split())
