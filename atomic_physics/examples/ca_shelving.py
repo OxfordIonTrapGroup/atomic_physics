@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.linalg import expm
 
-import atomic_physics as ap
+from atomic_physics.common import Laser
 from atomic_physics.ions import ca43
+from atomic_physics.rate_equations import Rates
 
 
 def main():
@@ -15,9 +16,9 @@ def main():
     ion = ca43.Ca43(B=146e-4)
     stretch = ion.get_index(ca43.ground_level, 4)
 
-    rates = ap.rates.Rates(ion)
+    rates = Rates(ion)
     delta = ion.get_transition_frequency(stretch, ion.get_index(ca43.P32, +5))
-    lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant 393 sigma+
+    lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant 393 sigma+
     trans = rates.get_transitions(lasers)
 
     Vi = np.zeros((ion.num_states, 1))  # initial state

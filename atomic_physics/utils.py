@@ -4,28 +4,13 @@ import numpy as np
 import scipy.constants as consts
 import scipy.optimize as opt
 
-import atomic_physics as ap
+from atomic_physics.common import Atom
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
 
-def Lande_g(level: ap.Level):
-    """Returns the Lande g factor for a level."""
-    gL = 1
-    gS = -consts.physical_constants["electron g factor"][0]
-
-    S = level.S
-    J = level.J
-    L = level.L
-
-    gJ = gL * (J * (J + 1) - S * (S + 1) + L * (L + 1)) / (2 * J * (J + 1)) + gS * (
-        J * (J + 1) + S * (S + 1) - L * (L + 1)
-    ) / (2 * J * (J + 1))
-    return gJ
-
-
-def df_dB(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-6):
+def df_dB(atom: Atom, lower: int, upper: int, eps: float = 1e-6):
     """Returns the field-sensitivity of a transition between two
     states in the same level at a given magnetic field.
 
@@ -45,7 +30,7 @@ def df_dB(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-6):
     return (fpr - f) / eps
 
 
-def d2f_dB2(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-4):
+def d2f_dB2(atom: Atom, lower: int, upper: int, eps: float = 1e-4):
     """Returns the second-order field-sensitivity of a transition
     between two states in thise same level at a given magnetic field.
 
@@ -66,7 +51,7 @@ def d2f_dB2(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-4):
     return (dfpr - df) / eps
 
 
-def field_insensitive_point(atom: ap.Atom, lower: int, upper: int, B0: float = 1e-8):
+def field_insensitive_point(atom: Atom, lower: int, upper: int, B0: float = 1e-8):
     """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
 
@@ -91,7 +76,7 @@ def field_insensitive_point(atom: ap.Atom, lower: int, upper: int, B0: float = 1
     return res.x[0] if res.success else None
 
 
-def ac_zeeman_shift(atom: ap.Atom, state: int, f_RF: float):
+def ac_zeeman_shift(atom: Atom, state: int, f_RF: float):
     """Returns the AC Zeeman shifts for a state normalized to a field of 1T.
 
     :param atom: the atom

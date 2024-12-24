@@ -1,10 +1,10 @@
 import numpy as np
 
-import atomic_physics as ap
+from atomic_physics.common import Atom, Laser, Transition
 
 
 class Rates:
-    def __init__(self, atom: ap.Atom):
+    def __init__(self, atom: Atom):
         self.atom = atom
 
         if atom.ePole is None:
@@ -17,7 +17,7 @@ class Rates:
             Gamma[ii, ii] = -self.atom.GammaJ[ii]
         return Gamma
 
-    def get_stim(self, lasers: list[ap.Laser]):
+    def get_stim(self, lasers: list[Laser]):
         """Returns the stimulated emission matrix for a list of lasers."""
         Gamma = np.power(np.abs(self.atom.ePole), 2)
         GammaJ = self.atom.GammaJ
@@ -91,7 +91,7 @@ class Rates:
             stim[ii, ii] = -stim_j[ii]
         return stim
 
-    def get_transitions(self, lasers: list[ap.Laser]):
+    def get_transitions(self, lasers: list[Laser]):
         """
         Returns the complete transitions matrix for a given set of lasers.
         """
@@ -100,8 +100,8 @@ class Rates:
     def steady_state(
         self,
         *,
-        trans: ap.Transition | None = None,
-        lasers: list[ap.Laser] | None = None,
+        trans: Transition | None = None,
+        lasers: list[Laser] | None = None,
     ):
         """Returns the steady-state vector for *either* a transitions matrix
         or a list of lasers.

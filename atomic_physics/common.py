@@ -3,7 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 import scipy.constants as consts
 
-import atomic_physics as ap
+from atomic_physics import operators
+from atomic_physics.wigner import wigner3j
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
@@ -46,16 +47,31 @@ class LevelData:
 
     def __post_init__(self):
         if self.g_J is None:
-            self.g_J = ap.utils.Lande_g(self.level)
+            g_L = 1
+            g_S = -consts.physical_constants["electron g factor"][0]
+
+            S = self.level.S
+            J = self.level.J
+            L = self.level.L
+
+            self.g_J = g_L * (J * (J + 1) - S * (S + 1) + L * (L + 1)) / (
+                2 * J * (J + 1)
+            ) + g_S * (J * (J + 1) + S * (S + 1) - L * (L + 1)) / (2 * J * (J + 1))
 
 
 @dataclass(frozen=True)
 class LevelStates:
-    """Stores information about the states within a level.
+    r"""Stores information about the states within a level.
 
     Attributes:
         freq: frequency of the centre-of-gravity transition from the ground-level
-            to this level.
+            to this level. These frequencies are calculated by combining the various
+            transitions. In cases where the the level structure is multiply connected,
+            taking different routes between the same levels may give slightly different
+            values for the level frequencies due to inconsistencies between the measured
+            transition frequencies. We do not make guarantees about which route is taken
+            for these calculations and this data should not be relied on for accurate
+            calculations (see :class:`Atom`\'s ``get_transition_frequency`` method).
         start_index: index into the state vector of the lowest-lying state within
             this level.
         stop_index: index into the state vector of the highest-lying state within
@@ -396,13 +412,13 @@ class Atom:
             J = level.J
             J_dim = np.rint(2.0 * J + 1).astype(int)
 
-            Jp = np.kron(ap.operators.Jp(J), np.identity(I_dim))
-            Jm = np.kron(ap.operators.Jm(J), np.identity(I_dim))
-            Jz = np.kron(ap.operators.Jz(J), np.identity(I_dim))
+            Jp = np.kron(operators.Jp(J), np.identity(I_dim))
+            Jm = np.kron(operators.Jm(J), np.identity(I_dim))
+            Jz = np.kron(operators.Jz(J), np.identity(I_dim))
 
-            Ip = np.kron(np.identity(J_dim), ap.operators.Jp(I))
-            Im = np.kron(np.identity(J_dim), ap.operators.Jm(I))
-            Iz = np.kron(np.identity(J_dim), ap.operators.Jz(I))
+            Ip = np.kron(np.identity(J_dim), operators.Jp(I))
+            Im = np.kron(np.identity(J_dim), operators.Jm(I))
+            Iz = np.kron(np.identity(J_dim), operators.Jz(I))
 
             H = data.g_J * _uB * B * Jz
             if self.I != 0:
@@ -526,9 +542,7 @@ class Atom:
                         ind_l = np.argwhere(Ml == Mu[ind_u] - q)
                         sign = (-1) ** (2 * Ju + Jl - Mu[ind_u] + order)
                         ePole_hf[ind_l, ind_u + Jdim_l] = (
-                            ap.wigner.wigner3j(
-                                Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u] - q)
-                            )
+                            wigner3j(Ju, order, Jl, -Mu[ind_u], q, (Mu[ind_u] - q))
                             * sign
                         )
                 ePole_hf *= np.sqrt(A * (2 * Ju + 1))
@@ -571,18 +585,18 @@ class Atom:
             eyeJ = np.identity(J_dim)
 
             # magnetic dipole operator in spherical coordinates
-            Jp = np.kron((-1 / np.sqrt(2)) * ap.operators.Jp(level.J), eyeI)
-            Jm = np.kron((+1 / np.sqrt(2)) * ap.operators.Jm(level.J), eyeI)
-            Jz = np.kron(ap.operators.Jz(level.J), eyeI)
+            Jp = np.kron((-1 / np.sqrt(2)) * operators.Jp(level.J), eyeI)
+            Jm = np.kron((+1 / np.sqrt(2)) * operators.Jm(level.J), eyeI)
+            Jz = np.kron(operators.Jz(level.J), eyeI)
 
             up = -data.g_J * _uB * Jp
             um = -data.g_J * _uB * Jm
             uz = -data.g_J * _uB * Jz
 
             if self.I > 0:
-                Ip = np.kron(eyeJ, (-1 / np.sqrt(2)) * ap.operators.Jp(I))
-                Im = np.kron(eyeJ, (+1 / np.sqrt(2)) * ap.operators.Jm(I))
-                Iz = np.kron(eyeJ, ap.operators.Jz(I))
+                Ip = np.kron(eyeJ, (-1 / np.sqrt(2)) * operators.Jp(I))
+                Im = np.kron(eyeJ, (+1 / np.sqrt(2)) * operators.Jm(I))
+                Iz = np.kron(eyeJ, operators.Jz(I))
 
                 up += data.g_I * _uN * Ip
                 um += data.g_I * _uN * Im

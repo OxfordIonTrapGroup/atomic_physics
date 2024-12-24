@@ -1,7 +1,7 @@
 import numpy as np
 
-import atomic_physics as ap
 import atomic_physics.ions.ca43 as ca43
+from atomic_physics.utils import d2f_dB2, field_insensitive_point
 
 if __name__ == "__main__":
     # all seems about correct (e.g. agrees with TPH thesis) but expect some
@@ -16,11 +16,11 @@ if __name__ == "__main__":
             ion.setB(1e-4)
             F4 = ion.get_index(ca43.ground_level, M3 - q, F=4)
             F3 = ion.get_index(ca43.ground_level, M3, F=3)
-            B0 = ap.utils.field_insensitive_point(ion, F4, F3)
+            B0 = field_insensitive_point(ion, F4, F3)
             if B0 is not None:
                 ion.setB(B0)
                 f0 = ion.get_transition_frequency(F4, F3)
-                d2fdB2 = ap.utils.d2f_dB2(ion, F4, F3)
+                d2fdB2 = d2f_dB2(ion, F4, F3)
                 print(
                     "4, {} --> 3, {}: {:.6f} GHz @ {:.5f} G ({:.3e} Hz/G^2)".format(
                         M3 - q,
