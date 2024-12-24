@@ -38,10 +38,10 @@ ground-level ``F=4, M=+4`` "stretched state" to the 3D5/2 level using a 393nm la
    t_ax = np.linspace(0, 100e-6, 100)
 
    ion = ca43.Ca43(B=146e-4)
-   stretch = ion.index(ca43.ground_level, 4)
+   stretch = ion.get_index(ca43.ground_level, 4)
 
    rates = ap.rates.Rates(ion)
-   delta = ion.delta(stretch, ion.index(ca43.P32, +5))
+   delta = ion.get_transition_frequency(stretch, ion.get_index(ca43.P32, +5))
    lasers = [ap.Laser("393", q=+1, I=0.02, delta=delta)]  # resonant 393 sigma+
    trans = rates.get_transitions(lasers)
 

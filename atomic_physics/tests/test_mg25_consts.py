@@ -29,8 +29,8 @@ class TestMg25Consts(unittest.TestCase):
         ion = mg25.Mg25(level_filter=[mg25.S12])
 
         ion.setB(S12_31_21_clock_field)
-        l_index = ion.index(mg25.S12, 1, F=3)
-        u_index = ion.index(mg25.S12, 1, F=2)
+        l_index = ion.get_index(mg25.S12, 1, F=3)
+        u_index = ion.get_index(mg25.S12, 1, F=2)
 
         # 212.8 G
         model_field_independent_point = field_insensitive_point(
@@ -47,8 +47,8 @@ class TestMg25Consts(unittest.TestCase):
         ion = mg25.Mg25(level_filter=[mg25.S12])
 
         ion.setB(1e-4)
-        l_index = ion.index(mg25.S12, 1, F=3)
-        u_index = ion.index(mg25.S12, 1, F=2)
+        l_index = ion.get_index(mg25.S12, 1, F=3)
+        u_index = ion.get_index(mg25.S12, 1, F=2)
 
         model_field_independent_point = field_insensitive_point(
             ion, l_index, u_index, B0=S12_31_21_clock_field
@@ -56,9 +56,9 @@ class TestMg25Consts(unittest.TestCase):
         ion.setB(model_field_independent_point)
 
         for transition in MW_transition_freqs:
-            freq_model = ion.delta(
-                ion.index(mg25.S12, F=3, M=transition[0]),
-                ion.index(mg25.S12, F=2, M=transition[1]),
+            freq_model = ion.get_transition_frequency(
+                ion.get_index(mg25.S12, F=3, M=transition[0]),
+                ion.get_index(mg25.S12, F=2, M=transition[1]),
             ) / (2 * np.pi * 1e9)
 
             self.assertAlmostEqual(freq_model, transition[2], places=4)

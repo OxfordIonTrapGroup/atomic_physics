@@ -241,14 +241,19 @@ class Atom:
         if B is not None:
             self.setB(B)
 
-    def get_transition_frequency(self, lower: int, upper: int, relative: bool) -> float:
+    def get_transition_frequency(
+        self, lower: int, upper: int, relative: bool = True
+    ) -> float:
         """Returns the frequency (angular units) of the transition between a pair of
         states.
 
         :param lower: index of the state with lower energy
         :param upper: index of the state with higher energy
-        :param relative: if ``True`` the centre-of-gravity of the transition between
-            the two states.
+        :param relative: if ``True`` (default) the frequency is relative to the
+            centre-of-gravity of the transition between the states, otherwise it is the
+            absolute transition frequency. If both states lie within the same level this
+            parameter has no effect.
+        :return: the transition frequency (rad/s)
         """
         f_rel = self.E[upper] - self.E[lower]
 
@@ -273,7 +278,7 @@ class Atom:
         states = self.level_states[level]
         return slice(states.start_index, states.stop_index)
 
-    def index(
+    def get_index(
         self,
         level: Level,
         M: float,
@@ -327,20 +332,6 @@ class Atom:
                 return transition
 
         raise ValueError(f"No transition found between levels {lower} and {upper}")
-
-    def delta(self, lower: int, upper: int):
-        """Returns the detuning of the transition between a pair of states
-        from the overall centre of gravity of the set of transitions between
-        the levels containing those states.
-
-        If both states are in the same level, this returns the transition
-        frequency.
-
-        :param lower: index of the lower state
-        :param upper: index of the upper state
-        :return: the detuning (rad/s)
-        """
-        return self.E[upper] - self.E[lower]
 
     def population(self, state: np.ndarray, inds: Level | int | slice):
         """Returns the total population in a set of states.

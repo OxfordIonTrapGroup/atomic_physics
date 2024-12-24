@@ -23,11 +23,11 @@ class TestTSS(unittest.TestCase):
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
         ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
-        s_idx = ion.index(ca43.ground_level, 4)
-        p_idx = ion.index(ca43.P32, +5)
+        s_idx = ion.get_index(ca43.ground_level, 4)
+        p_idx = ion.get_index(ca43.P32, +5)
 
         rates = ap.rates.Rates(ion)
-        delta = ion.delta(s_idx, p_idx)
+        delta = ion.get_transition_frequency(s_idx, p_idx)
         for I in intensity_list:
             Lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant
             trans = rates.get_transitions(Lasers)
@@ -43,11 +43,11 @@ class TestTSS(unittest.TestCase):
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
         ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
-        s_idx = ion.index(ca43.ground_level, 4)
-        p_idx = ion.index(ca43.P32, +5)
+        s_idx = ion.get_index(ca43.ground_level, 4)
+        p_idx = ion.get_index(ca43.P32, +5)
 
         rates = ap.rates.Rates(ion)
-        delta = ion.delta(s_idx, p_idx)
+        delta = ion.get_transition_frequency(s_idx, p_idx)
 
         for I in intensity_list:
             Lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant
@@ -67,11 +67,11 @@ class TestTSS(unittest.TestCase):
 
         # assume 1 saturation intensity
         ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
-        s_idx = ion.index(ca43.ground_level, 4)
-        p_idx = ion.index(ca43.P32, +5)
+        s_idx = ion.get_index(ca43.ground_level, 4)
+        p_idx = ion.get_index(ca43.P32, +5)
 
         rates = ap.rates.Rates(ion)
-        delta = ion.delta(s_idx, p_idx)
+        delta = ion.get_transition_frequency(s_idx, p_idx)
 
         Lasers = [ap.Laser("393", q=+1, I=1.0, delta=delta)]  # resonant
         trans = rates.get_transitions(Lasers)

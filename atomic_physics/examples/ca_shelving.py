@@ -13,10 +13,10 @@ def main():
     I = 0.02  # 393 intensity
 
     ion = ca43.Ca43(B=146e-4)
-    stretch = ion.index(ca43.ground_level, 4)
+    stretch = ion.get_index(ca43.ground_level, 4)
 
     rates = ap.rates.Rates(ion)
-    delta = ion.delta(stretch, ion.index(ca43.P32, +5))
+    delta = ion.get_delta(stretch, ion.get_index(ca43.P32, +5))
     lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant 393 sigma+
     trans = rates.get_transitions(lasers)
 

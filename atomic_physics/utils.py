@@ -38,10 +38,10 @@ def df_dB(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-6):
 
     To do: add a special case when we can use the BR formula
     """
-    f = atom.delta(lower, upper)
+    f = atom.get_transition_frequency(lower, upper)
     atom = deepcopy(atom)
     atom.setB(atom.B + eps)
-    fpr = atom.delta(lower, upper)
+    fpr = atom.get_transition_frequency(lower, upper)
     return (fpr - f) / eps
 
 

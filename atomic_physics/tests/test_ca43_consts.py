@@ -24,8 +24,8 @@ class TestCa43Consts(unittest.TestCase):
         ion = ca43.Ca43(level_filter=[ca43.S12, ca43.D52])
 
         ion.setB(S12_44_D52_43_clock_fields[0])
-        l_index = ion.index(ca43.S12, 4, F=4)
-        u_index = ion.index(ca43.D52, 3, F=4)
+        l_index = ion.get_index(ca43.S12, 4, F=4)
+        u_index = ion.get_index(ca43.D52, 3, F=4)
 
         # 3.38 G
         model_field_independent_point_1 = field_insensitive_point(
@@ -51,8 +51,8 @@ class TestCa43Consts(unittest.TestCase):
         ion = ca43.Ca43(level_filter=[ca43.S12])
 
         ion.setB(S12_40_31_clock_field)
-        s12_40_index = ion.index(ca43.S12, 0, F=4)
-        s12_31_index = ion.index(ca43.S12, 1, F=3)
+        s12_40_index = ion.get_index(ca43.S12, 0, F=4)
+        s12_31_index = ion.get_index(ca43.S12, 1, F=3)
 
         model_field_independent_point_40_31 = field_insensitive_point(
             ion, s12_40_index, s12_31_index, B0=S12_40_31_clock_field
@@ -68,8 +68,8 @@ class TestCa43Consts(unittest.TestCase):
         ion = ca43.Ca43(level_filter=[ca43.S12])
 
         ion.setB(B=S12_41_31_clock_field)
-        s12_41_index = ion.index(ca43.S12, 1, F=4)
-        s12_31_index = ion.index(ca43.S12, 1, F=3)
+        s12_41_index = ion.get_index(ca43.S12, 1, F=4)
+        s12_31_index = ion.get_index(ca43.S12, 1, F=3)
 
         model_field_independent_point_41_31 = field_insensitive_point(
             ion, s12_41_index, s12_31_index, B0=S12_41_31_clock_field
