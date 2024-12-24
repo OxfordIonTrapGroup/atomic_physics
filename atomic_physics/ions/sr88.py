@@ -33,7 +33,7 @@ class Sr88(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = [
+        level_data = [
             ap.LevelData(level=ground_level),
             ap.LevelData(level=P12),
             ap.LevelData(level=P32),
@@ -87,5 +87,9 @@ class Sr88(ap.Atom):
         }
 
         super().__init__(
-            B=B, I=0, levels=levels, transitions=transitions, level_filter=level_filter
+            B=B,
+            I=0,
+            level_data=level_data,
+            transitions=transitions,
+            level_filter=level_filter,
         )
