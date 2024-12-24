@@ -100,7 +100,7 @@ def ac_zeeman_shift(atom: ap.Atom, state: int, f_RF: float):
     :return: Array of AC Zeeman shifts (rad/s) caused by a field of 1T with
       sigma_minus, pi or sigma_plus polarisation [sigma_m, pi, sigma_p]
     """
-    level = atom.level(state)
+    level = atom.get_level(state)
     states = atom.get_slice(level)
     state -= states.start
 
