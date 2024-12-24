@@ -420,7 +420,7 @@ class Atom:
             self.MJ[lev] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
 
             F_list = np.arange(abs(I - J), I + J + 1)
-            if data.Ahfs < 0:
+            if self.I != 0 and data.Ahfs < 0:
                 F_list = F_list[::-1]
 
             for M in set(self.M[lev]):
