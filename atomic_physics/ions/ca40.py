@@ -27,7 +27,7 @@ class Ca40(Atom):
     ):
         """40Ca+ atomic structure.
 
-        :param B: B-field in Tesla (can be changed using :meth:`setB`)
+        :param B: B-field (T)
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """

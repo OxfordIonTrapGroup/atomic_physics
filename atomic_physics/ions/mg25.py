@@ -42,7 +42,7 @@ class Mg25(Atom):
     ):
         """25Mg+ atomic structure.
 
-        :param B: B-field in Tesla (can be changed using :meth setB:) # 212.8G at NIST
+        :param B: B-field (T)
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
