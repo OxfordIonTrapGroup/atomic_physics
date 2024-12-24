@@ -33,13 +33,13 @@ class Ca40(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(g_J=2.00225664),  # [2]
-            P12: ap.LevelData(),
-            P32: ap.LevelData(),
-            D32: ap.LevelData(),
-            D52: ap.LevelData(g_J=1.2003340),  # [3]
-        }
+        level_data = [
+            ap.LevelData(level=ground_level, g_J=2.00225664),  # [2]
+            ap.LevelData(level=P12),
+            ap.LevelData(level=P32),
+            ap.LevelData(level=D32),
+            ap.LevelData(level=D52, g_J=1.2003340),  # [3]
+        ]
 
         transitions = {
             "397": ap.Transition(
@@ -87,5 +87,9 @@ class Ca40(ap.Atom):
         }
 
         super().__init__(
-            B=B, I=0, levels=levels, transitions=transitions, level_filter=level_filter
+            B=B,
+            I=0,
+            level_data=level_data,
+            transitions=transitions,
+            level_filter=level_filter,
         )

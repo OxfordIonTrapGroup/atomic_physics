@@ -32,13 +32,13 @@ class Ba138(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(),
-            P12: ap.LevelData(),
-            P32: ap.LevelData(),
-            D32: ap.LevelData(),
-            D52: ap.LevelData(),
-        }
+        level_data = [
+            ap.LevelData(level=ground_level),
+            ap.LevelData(level=P12),
+            ap.LevelData(level=P32),
+            ap.LevelData(level=D32),
+            ap.LevelData(level=D52),
+        ]
 
         transitions = {
             "493": ap.Transition(
@@ -86,5 +86,9 @@ class Ba138(ap.Atom):
         }
 
         super().__init__(
-            B=B, I=0, levels=levels, transitions=transitions, level_filter=level_filter
+            B=B,
+            I=0,
+            level_data=level_data,
+            transitions=transitions,
+            level_filter=level_filter,
         )

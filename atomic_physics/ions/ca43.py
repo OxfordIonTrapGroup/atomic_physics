@@ -38,32 +38,37 @@ class Ca43(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(
+        level_data = [
+            ap.LevelData(
+                level=ground_level,
                 g_J=2.00225664,  # [2]
                 g_I=(2 / 7) * -1.315348,  # [3]
                 Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
             ),
-            P12: ap.LevelData(
+            ap.LevelData(
+                level=P12,
                 Ahfs=-145.4e6 * consts.h,
                 g_I=(2 / 7) * -1.315348,  # [4]  # [3]
             ),
-            P32: ap.LevelData(
+            ap.LevelData(
+                level=P32,
                 Ahfs=-31.4e6 * consts.h,  # [4]
                 Bhfs=-6.9e6 * consts.h,  # [4]
                 g_I=(2 / 7) * -1.315348,  # [3]
             ),
-            D32: ap.LevelData(
+            ap.LevelData(
+                level=D32,
                 Ahfs=-47.3e6 * consts.h,  # [4]
                 Bhfs=-3.7e6 * consts.h,  # [4]
                 g_I=(2 / 7) * -1.315348,  # [3]
             ),
-            D52: ap.LevelData(
+            ap.LevelData(
+                level=D52,
                 Ahfs=-3.8931e6 * consts.h,  # [5]
                 Bhfs=-4.241e6 * consts.h,  # [5]
                 g_I=(2 / 7) * -1.315348,  # [3]
             ),
-        }
+        ]
 
         transitions = {
             "397": ap.Transition(
@@ -113,7 +118,7 @@ class Ca43(ap.Atom):
         super().__init__(
             B=B,
             I=7 / 2,
-            levels=levels,
+            level_data=level_data,
             transitions=transitions,
             level_filter=level_filter,
         )

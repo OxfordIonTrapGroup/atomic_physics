@@ -26,6 +26,45 @@ class Level:
     S: float
 
 
+@dataclass
+class LevelData:
+    """Atomic structure data about a single level.
+
+    Attributes:
+        level: the :class:`Level` this data is for.
+        g_J: G factor. If ``None``, we use the Lande g factor.
+        g_I: Nuclear g factor.
+        Ahfs: Nuclear A coefficient.
+        Bhfs: Nuclear B (quadrupole) coefficient.
+    """
+
+    level: Level
+    g_J: float | None = None
+    g_I: float | None = None
+    Ahfs: float | None = None
+    Bhfs: float | None = None
+
+    def __post_init__(self):
+        if self.g_J is None:
+            self.g_J = ap.utils.Lande_g(self.level)
+
+        # Move these out of here!
+        self.E = None  # In angular frequency units
+        self._num_states = None
+        self._start_ind = None
+        self._stop_ind = None
+
+    def get_slice(self):
+        """Returns a slice object that selects the states within a given
+        level.
+
+        Internally, we store states in order of increasing energy. This
+        provides a more convenient means of accessing the states within a
+        given level.
+        """
+        return slice(self._start_ind, self._stop_ind)
+
+
 @dataclass(frozen=True)
 class Transition:
     """Represents a transition between a pair of states.
@@ -64,64 +103,13 @@ class Laser:
     delta: float
 
 
-class LevelData:
-    """Atomic structure data about a single level."""
-
-    def __init__(
-        self,
-        g_J: float | None = None,
-        g_I: float | None = None,
-        Ahfs: float = 0,
-        Bhfs: float = 0,
-    ):
-        """
-        :param g_J: G factor. If None, we use the Lande g factor.
-        :param g_I: Nuclear g factor.
-        :param Ahfs: Nuclear A coefficient
-        :param Bhfs: Nuclear B quadrupole coefficient
-        """
-        self.g_J = g_J
-        self.g_I = g_I
-        self.Ahfs = Ahfs
-        self.Bhfs = Bhfs
-
-        self.E = None  # In angular frequency units
-        self._num_states = None
-        self._start_ind = None
-        self._stop_ind = None
-
-    def get_slice(self):
-        """Returns a slice object that selects the states within a given
-        level.
-
-        Internally, we store states in order of increasing energy. This
-        provides a more convenient means of accessing the states within a
-        given level.
-        """
-        return slice(self._start_ind, self._stop_ind)
-
-    def __repr__(self):
-        return (
-            "LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
-            " stop_ind={})"
-            "".format(
-                self.g_J,
-                self.g_I,
-                self.E,
-                self._num_states,
-                self._start_ind,
-                self._stop_ind,
-            )
-        )
-
-
 class Atom:
     """Base class for storing atomic structure data."""
 
     def __init__(
         self,
         *,
-        levels: dict[Level, LevelData],
+        level_data: list[Level],
         transitions: dict[str, Transition],
         B: float | None = None,
         I: float = 0,
@@ -131,7 +119,7 @@ class Atom:
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
         :param I: Nuclear spin
-        :param levels: dictionary mapping Level:LevelData
+        :param level_data: list of atomic structure for each level in the atom
         :param transitions: dictionary mapping transition name strings to
           Transition objects.
         :param level_filter: list of Levels to include in the simulation, if
@@ -143,7 +131,7 @@ class Atom:
         self.B = None
         self.I = I
 
-        levels = dict(levels)
+        levels = {data.level: data for data in level_data}
         transitions = dict(transitions)
 
         if level_filter is not None:
@@ -186,10 +174,6 @@ class Atom:
         self.V = None
         self.MIax = None
         self.MJax = None
-
-        for level, data in self.levels.items():
-            if data.g_J is None:
-                data.g_J = ap.utils.Lande_g(level)
 
         self._sort_levels()  # arrange levels in energy order
 

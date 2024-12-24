@@ -33,13 +33,13 @@ class Sr88(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(),
-            P12: ap.LevelData(),
-            P32: ap.LevelData(),
-            D32: ap.LevelData(),
-            D52: ap.LevelData(),
-        }
+        levels = [
+            ap.LevelData(level=ground_level),
+            ap.LevelData(level=P12),
+            ap.LevelData(level=P32),
+            ap.LevelData(level=D32),
+            ap.LevelData(level=D52),
+        ]
 
         transitions = {
             "422": ap.Transition(
