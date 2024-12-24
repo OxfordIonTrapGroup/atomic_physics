@@ -18,7 +18,6 @@ class Level:
         L: the level's orbital angular momentum
         J: the level's total (spin + orbital) angular momentum
         S: the level's spin angular momentum
-
     """
 
     n: int
@@ -66,7 +65,7 @@ class Laser:
 
 
 class LevelData:
-    """Stored atomic structure information about a single level."""
+    """Atomic structure data about a single level."""
 
     def __init__(
         self,
@@ -269,7 +268,7 @@ class Atom:
         """
         return self.E[upper] - self.E[lower]
 
-    def population(self, state: int, inds: Level | int | slice):
+    def population(self, state: np.array, inds: Level | int | slice):
         """Returns the total population in a set of states.
 
         :param state: state vector
