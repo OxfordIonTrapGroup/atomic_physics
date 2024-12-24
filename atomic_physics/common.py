@@ -109,7 +109,7 @@ class Atom:
     def __init__(
         self,
         *,
-        level_data: list[Level],
+        level_data: list[LevelData],
         transitions: dict[str, Transition],
         B: float | None = None,
         I: float = 0,
