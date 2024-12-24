@@ -56,9 +56,9 @@ class LevelStates:
     Attributes:
         freq: frequency of the centre-of-gravity transition from the ground-level
             to this level.
-        start_ind: index into the state vector of the lowest-lying state within
+        start_index: index into the state vector of the lowest-lying state within
             this level.
-        stop_ind: index into the state vector of the highest-lying state within
+        stop_index: index into the state vector of the highest-lying state within
             this level.
         num_states: the number of states within the level.
     """
@@ -343,7 +343,7 @@ class Atom:
 
         trans = self.transitions[transition]
         omega = trans.freq
-        Gamma = self.GammaJ[self.level_states[trans.upper].start_ind]
+        Gamma = self.GammaJ[self.level_states[trans.upper].start_index]
         return consts.hbar * (omega**3) * Gamma / (6 * np.pi * (consts.c**2))
 
     def P0(self, transition: Transition, w0: float):
