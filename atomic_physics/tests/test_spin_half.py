@@ -1,9 +1,12 @@
 """Test Spin 1/2 nuclei"""
+
 import unittest
-from atomic_physics.ions import ba133
-from atomic_physics.utils import Lande_g
+
 import numpy as np
 import scipy.constants as ct
+
+from atomic_physics.ions import ba133
+from atomic_physics.utils import Lande_g
 
 
 def _gF(F, J, I, gJ):
@@ -18,8 +21,8 @@ class TestSpinHalf(unittest.TestCase):
         ion = ba133.Ba133(level_filter=[level])
         B = 0.1e-4
         ion.setB(B)
-        E_0_0 = ion.E[ion.index(level, 0, F=0)]
-        E_1_0 = ion.E[ion.index(level, 0, F=1)]
+        E_0_0 = ion.E[ion.get_index(level, 0, F=0)]
+        E_1_0 = ion.E[ion.get_index(level, 0, F=1)]
 
         Ahfs = 2 * np.pi * 9925.45355459e6
 
@@ -30,8 +33,8 @@ class TestSpinHalf(unittest.TestCase):
         ion = ba133.Ba133(level_filter=[level])
         B = 10e-4
         ion.setB(B)
-        E_1_0 = ion.E[ion.index(level, 0, F=1)]
-        E_1_1 = ion.E[ion.index(level, 1, F=1)]
+        E_1_0 = ion.E[ion.get_index(level, 0, F=1)]
+        E_1_1 = ion.E[ion.get_index(level, 1, F=1)]
 
         gJ = Lande_g(level)
         gF = _gF(1, 1 / 2, 1 / 2, gJ)

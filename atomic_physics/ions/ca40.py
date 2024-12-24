@@ -1,14 +1,16 @@
-""" 40Ca+
+"""40Ca+
 
 References:
 [1] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
 [2] - T. P. Harty, DPhil Thesis (2013)
 [3] - M. Chwalla et all, PRL 102, 023002 (2009)
 """
-import numpy as np
-import typing
-import atomic_physics as ap
 
+import typing
+
+import numpy as np
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=4, S=1 / 2, L=0, J=1 / 2)
@@ -23,21 +25,21 @@ class Ca40(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """40Ca+ atomic structure.
 
-        :param B: B-field in Tesla (can be changed using :meth setB:)
+        :param B: B-field in Tesla (can be changed using :meth:`setB`)
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(g_J=2.00225664),  # [2]
-            P12: ap.LevelData(),
-            P32: ap.LevelData(),
-            D32: ap.LevelData(),
-            D52: ap.LevelData(g_J=1.2003340),  # [3]
-        }
+        level_data = [
+            ap.LevelData(level=ground_level, g_J=2.00225664),  # [2]
+            ap.LevelData(level=P12),
+            ap.LevelData(level=P32),
+            ap.LevelData(level=D32),
+            ap.LevelData(level=D52, g_J=1.2003340),  # [3]
+        ]
 
         transitions = {
             "397": ap.Transition(
@@ -85,5 +87,9 @@ class Ca40(ap.Atom):
         }
 
         super().__init__(
-            B=B, I=0, levels=levels, transitions=transitions, level_filter=level_filter
+            B=B,
+            I=0,
+            level_data=level_data,
+            transitions=transitions,
+            level_filter=level_filter,
         )

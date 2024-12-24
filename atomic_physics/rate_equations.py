@@ -1,5 +1,5 @@
 import numpy as np
-import typing
+
 import atomic_physics as ap
 
 
@@ -17,7 +17,7 @@ class Rates:
             Gamma[ii, ii] = -self.atom.GammaJ[ii]
         return Gamma
 
-    def get_stim(self, lasers: [ap.Laser]):
+    def get_stim(self, lasers: list[ap.Laser]):
         """Returns the stimulated emission matrix for a list of lasers."""
         Gamma = np.power(np.abs(self.atom.ePole), 2)
         GammaJ = self.atom.GammaJ
@@ -30,10 +30,10 @@ class Rates:
 
             lower = self.atom.transitions[transition].lower
             upper = self.atom.transitions[transition].upper
-            lower_states = self.atom.slice(lower)
-            upper_states = self.atom.slice(upper)
-            n_lower = self.atom.levels[lower]._num_states
-            n_upper = self.atom.levels[upper]._num_states
+            lower_states = self.atom.get_slice(lower)
+            upper_states = self.atom.get_slice(upper)
+            n_lower = self.atom.level_states[lower].num_states
+            n_upper = self.atom.level_states[upper].num_states
 
             dJ = upper.J - lower.J
             dL = upper.L - lower.L
@@ -91,7 +91,7 @@ class Rates:
             stim[ii, ii] = -stim_j[ii]
         return stim
 
-    def get_transitions(self, lasers: [ap.Laser]):
+    def get_transitions(self, lasers: list[ap.Laser]):
         """
         Returns the complete transitions matrix for a given set of lasers.
         """
@@ -100,8 +100,8 @@ class Rates:
     def steady_state(
         self,
         *,
-        trans: typing.Optional[ap.Transition] = None,
-        lasers: typing.Optional[typing.List[ap.Laser]] = None
+        trans: ap.Transition | None = None,
+        lasers: list[ap.Laser] | None = None,
     ):
         """Returns the steady-state vector for *either* a transitions matrix
         or a list of lasers.

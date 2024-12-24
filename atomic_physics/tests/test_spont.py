@@ -1,7 +1,10 @@
-import numpy as np
 import unittest
-from sympy.physics.wigner import wigner_3j, wigner_6j
+
+import numpy as np
+
 from atomic_physics.ions import ca43
+
+from .utils import wigner_3j, wigner_6j
 
 
 class TestGamma(unittest.TestCase):
@@ -33,7 +36,7 @@ class TestGamma(unittest.TestCase):
             else:
                 raise ValueError("Unsupported transition order {}".format(order))
 
-            subspace = np.r_[ion.slice(lower), ion.slice(upper)]
+            subspace = np.r_[ion.get_slice(lower), ion.get_slice(upper)]
 
             for l_ind in list(subspace[:l_dim]):
                 for u_ind in list(subspace[l_dim:]):
@@ -85,7 +88,7 @@ class TestGamma(unittest.TestCase):
             else:
                 raise ValueError("Unsupported transition order {}".format(order))
 
-            subspace = np.r_[ion.slice(lower), ion.slice(upper)]
+            subspace = np.r_[ion.get_slice(lower), ion.get_slice(upper)]
 
             for l_ind in list(subspace[:l_dim]):
                 for u_ind in list(subspace[l_dim:]):

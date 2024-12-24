@@ -1,4 +1,4 @@
-""" 25Mg+
+"""25Mg+
 
 References:
 [1] -   W. M. Itano and D. J. Wineland, Precision measurement of the
@@ -21,11 +21,13 @@ References:
 [8] -   L. Toppozini, Trapped-Mg+ Apparatus for Control and Structure Studies,
         Thesis, McMaster University (2006) http://hdl.handle.net/11375/21342
 """
-import numpy as np
-import typing
-import scipy.constants as consts
-import atomic_physics as ap
 
+import typing
+
+import numpy as np
+import scipy.constants as consts
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=3, S=1 / 2, L=0, J=1 / 2)
@@ -38,7 +40,7 @@ class Mg25(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """25Mg+ atomic structure.
 
@@ -46,22 +48,25 @@ class Mg25(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(
+        level_data = [
+            ap.LevelData(
+                level=ground_level,
                 g_J=2.002,  # [1] (approximate)
                 g_I=(2 / 5) * -0.85545,  # [7]
                 Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
             ),
-            P12: ap.LevelData(
+            ap.LevelData(
+                level=P12,
                 Ahfs=102.16e6 * consts.h,  # [6]
                 g_I=(2 / 5) * -0.85545,  # [7]
             ),
-            P32: ap.LevelData(
+            ap.LevelData(
+                level=P32,
                 Ahfs=-19.0972e6 * consts.h,  # [8]
                 g_I=(2 / 5) * -0.85545,  # [7]
                 Bhfs=22.3413e6 * consts.h,  # [8]
             ),
-        }
+        ]
 
         transitions = {
             "280": ap.Transition(
@@ -83,7 +88,7 @@ class Mg25(ap.Atom):
         super().__init__(
             B=B,
             I=5 / 2,
-            levels=levels,
+            level_data=level_data,
             transitions=transitions,
             level_filter=level_filter,
         )

@@ -1,6 +1,7 @@
-""" Produces Breit-Rabi plots for Calcium 43"""
-import numpy as np
+"""Produces Breit-Rabi plots for Calcium 43"""
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 from atomic_physics.ions import ca43
 

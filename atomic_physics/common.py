@@ -1,106 +1,137 @@
-import numpy as np
-from collections import namedtuple
-import scipy.constants as consts
-import typing
-import atomic_physics as ap
+from dataclasses import dataclass
 
+import numpy as np
+import scipy.constants as consts
+
+import atomic_physics as ap
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
 
-# frequencies in angular units
-Level = namedtuple("Level", "n,L,J,S")
+@dataclass(frozen=True)
+class Level:
+    """Represents a single level.
+
+    Attributes:
+        n: the level's principal quantum number
+        L: the level's orbital angular momentum
+        J: the level's total (spin + orbital) angular momentum
+        S: the level's spin angular momentum
+    """
+
+    n: int
+    L: float
+    J: float
+    S: float
 
 
-Transition = namedtuple("Transition", "lower,upper,freq,A")
-Transition.__doc__ = """ Represents a transition.
-:param lower: the lower Level in the transition.
-:param upper: the upper Level in the transition.
-:param freq: the transition frequency (rad/s)
-:param A: the transition's Einstein A coefficient.
-"""
-
-
-Laser = namedtuple("Laser", "transition,q,I,delta")
-Laser.__doc__ = """Represents a laser.
-   :param transition: string with the name of the transition the laser couples
-     to.
-   :param q: laser polarization, +1/-1 for sigma plus/minus, 0 for pi.
-   :param I: laser intensity (saturation intensities).
-   :param delta: laser detuning from transition centre of gravity (c.f.
-     atom.delta)
-"""
-
-
+@dataclass
 class LevelData:
-    """Stored atomic structure information about a single level."""
+    """Atomic structure data about a single level.
 
-    def __init__(
-        self,
-        g_J: typing.Optional[float] = None,
-        g_I: typing.Optional[float] = None,
-        Ahfs: float = 0,
-        Bhfs: float = 0,
-    ):
-        """
-        :param g_J: G factor. If None, we use the Lande g factor.
-        :param g_I: Nuclear g factor.
-        :param Ahfs: Nuclear A coefficient
-        :param Bhfs: Nuclear B quadrupole coefficient
-        """
-        self.g_J = g_J
-        self.g_I = g_I
-        self.Ahfs = Ahfs
-        self.Bhfs = Bhfs
+    Attributes:
+        level: the :class:`Level` this data is for.
+        g_J: G factor. If ``None``, we use the Lande g factor.
+        g_I: Nuclear g factor.
+        Ahfs: Nuclear A coefficient.
+        Bhfs: Nuclear B (quadrupole) coefficient.
+    """
 
-        self.E = None  # In angular frequency units
-        self._num_states = None
-        self._start_ind = None
-        self._stop_ind = None
+    level: Level
+    g_J: float | None = None
+    g_I: float | None = None
+    Ahfs: float | None = None
+    Bhfs: float | None = None
 
-    def slice(self):
-        """Returns a slice object that selects the states within a given
-        level.
+    def __post_init__(self):
+        if self.g_J is None:
+            self.g_J = ap.utils.Lande_g(self.level)
 
-        Internally, we store states in order of increasing energy. This
-        provides a more convenient means of accessing the states within a
-        given level.
-        """
-        return slice(self._start_ind, self._stop_ind)
 
-    def __repr__(self):
-        return (
-            "LevelData(g_J={}, g_I={}, E={}, num_states={}, start_ind={}, "
-            " stop_ind={})"
-            "".format(
-                self.g_J,
-                self.g_I,
-                self.E,
-                self._num_states,
-                self._start_ind,
-                self._stop_ind,
-            )
-        )
+@dataclass(frozen=True)
+class LevelStates:
+    """Stores information about the states within a level.
+
+    Attributes:
+        freq: frequency of the centre-of-gravity transition from the ground-level
+            to this level.
+        start_index: index into the state vector of the lowest-lying state within
+            this level.
+        stop_index: index into the state vector of the highest-lying state within
+            this level.
+        num_states: the number of states within the level.
+    """
+
+    freq: float
+    start_index: int
+    stop_index: int
+    num_states: int
+
+
+@dataclass(frozen=True)
+class Transition:
+    """Represents a transition between a pair of states.
+
+    Attributes:
+        lower: the :class:`Level` in the transition with lower energy
+        upper:  the :class:`Level` in the transition with greater energy
+        freq: the transition frequency (rad/s)
+        A: the transition's Einstein A coefficient
+    """
+
+    lower: Level
+    upper: Level
+    freq: float
+    A: float
+
+
+@dataclass
+class Laser:
+    """Represents a laser.
+
+    Attributes:
+        transition: string giving the name of the transition driven by the laser.
+        q: the laser's polarization, defined as the difference in angular momentum
+            between the higher and lower energy states coupled by this laser
+            (``q = M_upper - M_lower``). ``q = +1`` for σ+ light, ``q = -1`` for σ-
+            light and ``q = 0`` for π light.
+        I: the laser intensity (saturation intensities).
+        delta: the laser's detuning (rad/s) from the transition centre of gravity,
+           defined so that ``w_laser = w_transition + delta``.
+    """
+
+    transition: str
+    q: int
+    I: float
+    delta: float
 
 
 class Atom:
-    """Base class for storing atomic structure data."""
+    r"""Base class for storing atomic structure data.
+
+    Attributes:
+        num_states: the number of states contained within the atom
+        level_states: dictionary mapping :class:`.Level`\s to :class:`.LevelStates`.
+    """
+
+    num_states: int
+    level_states: dict[Level, LevelStates]
 
     def __init__(
         self,
         *,
-        levels: typing.Dict[Level, LevelData],
-        transitions: typing.Dict[str, Transition],
-        B: typing.Optional[float] = None,
+        level_data: list[LevelData],
+        transitions: dict[str, Transition],
+        B: float | None = None,
         I: float = 0,
-        level_filter: typing.Optional[typing.List[Level]] = None
+        level_filter: list[Level] | None = None,
     ):
         """
         :param B: Magnetic field (T). To change the B-field later, call
           :meth setB:
         :param I: Nuclear spin
-        :param levels: dictionary mapping Level:LevelData
+        :param level_data: list of atomic structure for each level in the atom
         :param transitions: dictionary mapping transition name strings to
           Transition objects.
         :param level_filter: list of Levels to include in the simulation, if
@@ -112,7 +143,7 @@ class Atom:
         self.B = None
         self.I = I
 
-        levels = dict(levels)
+        levels = {data.level: data for data in level_data}
         transitions = dict(transitions)
 
         if level_filter is not None:
@@ -132,8 +163,59 @@ class Atom:
         self.levels = levels
         self.transitions = transitions
 
+        # use transition data to order levels in terms of increasing energy
+        processed_levels: dict[Level, float] = {}  # level: energy (freq units)
+        unprocessed_transition_names: list[str] = []
+
+        if len(self.levels) == 1:
+            processed_levels[list(self.levels.keys())[0]] = 0.0
+        else:
+            unprocessed_transition_names += list(self.transitions.keys())
+            transition = self.transitions[unprocessed_transition_names.pop()]
+            processed_levels[transition.lower] = 0
+            processed_levels[transition.upper] = transition.freq
+
+        while unprocessed_transition_names:
+            for transition_name in unprocessed_transition_names:
+                transition = self.transitions[transition_name]
+                if transition.lower in processed_levels:
+                    freq = processed_levels[transition.lower] + transition.freq
+                    processed_levels[transition.upper] = freq
+                    break
+                elif transition.upper in processed_levels:
+                    freq = processed_levels[transition.upper] - transition.freq
+                    processed_levels[transition.lower] = freq
+                    break
+            else:
+                raise ValueError(
+                    "Transition '{}' would lead to a disconnected level"
+                    " structure.".format(transition_name)
+                )
+            unprocessed_transition_names.remove(transition_name)
+
+        if processed_levels.keys() != self.levels.keys():
+            raise ValueError("Disconnected level structure")
+
+        sorted_levels: list[tuple[Level, float]] = sorted(
+            processed_levels.items(), key=lambda x: x[1]
+        )
+
+        f0 = sorted_levels[0][1]  # ground-level frequency offset
+        start_index = 0
+        self.level_states: dict[Level, LevelStates] = {}
+        for level, level_freq in sorted_levels:
+            num_states = int(np.rint((2 * self.I + 1) * (2 * level.J + 1)))
+            self.level_states[level] = LevelStates(
+                freq=level_freq - f0,
+                start_index=start_index,
+                stop_index=start_index + num_states,
+                num_states=num_states,
+            )
+            start_index += num_states
+
+        self.num_states = start_index
+
         # ordered in terms of increasing state energies
-        self.num_states = None  # Total number of electronic states
         self.M = None  # Magnetic quantum number of each state
         self.F = None  # F for each state (valid at low field)
         self.MI = None  # MI for each state (only valid at low field)
@@ -156,16 +238,36 @@ class Atom:
         self.MIax = None
         self.MJax = None
 
-        for level, data in self.levels.items():
-            if data.g_J is None:
-                data.g_J = ap.utils.Lande_g(level)
-
-        self._sort_levels()  # arrange levels in energy order
-
         if B is not None:
             self.setB(B)
 
-    def slice(self, level: Level):
+    def get_transition_frequency(
+        self, lower: int, upper: int, relative: bool = True
+    ) -> float:
+        """Returns the frequency (angular units) of the transition between a pair of
+        states.
+
+        :param lower: index of the state with lower energy
+        :param upper: index of the state with higher energy
+        :param relative: if ``True`` (default) the frequency is relative to the
+            centre-of-gravity of the transition between the states, otherwise it is the
+            absolute transition frequency. If both states lie within the same level this
+            parameter has no effect.
+        :return: the transition frequency (rad/s)
+        """
+        f_rel = self.E[upper] - self.E[lower]
+
+        if relative:
+            return f_rel
+
+        transition = self.get_transition(
+            lower=self.get_level(lower), upper=self.get_level(upper)
+        )
+        f_abs = f_rel + transition.freq
+
+        return f_abs
+
+    def get_slice(self, level: Level):
         """Returns a slice object that selects the states within a given
         level.
 
@@ -173,16 +275,17 @@ class Atom:
         provides a more convenient means of accessing the states within a
         given level.
         """
-        return self.levels[level].slice()
+        states = self.level_states[level]
+        return slice(states.start_index, states.stop_index)
 
-    def index(
+    def get_index(
         self,
         level: Level,
         M: float,
         *,
-        F: typing.Optional[float] = None,
-        MI: typing.Optional[float] = None,
-        MJ: typing.Optional[float] = None
+        F: float | None = None,
+        MI: float | None = None,
+        MJ: float | None = None,
     ):
         """Returns the index of a state.
 
@@ -195,7 +298,7 @@ class Atom:
         Internally, we store states in order of increasing energy. This
         provides a more convenient means of accessing a state.
         """
-        lev = self.slice(level)
+        lev = self.get_slice(level)
         Mvec = self.M[lev]
         inds = Mvec == M
 
@@ -211,33 +314,26 @@ class Atom:
 
         inds = np.argwhere(inds)
         if len(inds) == 1:
-            inds = int(inds)
-        return inds + self.levels[level]._start_ind
+            inds = inds.ravel()[0]
+        return inds + self.level_states[level].start_index
 
-    def level(self, state: int):
+    def get_level(self, state: int):
         """Returns the level a state lies in."""
-        for level, data in self.levels.items():
-            sl = data.slice()
-            # kludge: pending redesign of LevelData (see #38)
-            if state >= min(sl.start, sl.stop) and state < max(sl.start, sl.stop):
+        for level, level_states in self.level_states.items():
+            if state >= level_states.start_index and state < level_states.stop_index:
                 return level
-        raise ValueError("No state with index {}".format(state))
 
-    def delta(self, lower: int, upper: int):
-        """Returns the detuning of the transition between a pair of states
-        from the overall centre of gravity of the set of transitions between
-        the levels containing those states.
+        raise ValueError(f"No state with index {state}")
 
-        If both states are in the same level, this returns the transition
-        frequency.
+    def get_transition(self, lower: Level, upper: Level) -> Transition:
+        r"""Returns the transition between a pair of :class:`Level`\s."""
+        for transition in self.transitions.values():
+            if transition.lower == lower and transition.upper == upper:
+                return transition
 
-        :param lower: index of the lower state
-        :param upper: index of the upper state
-        :return: the detuning (rad/s)
-        """
-        return self.E[upper] - self.E[lower]
+        raise ValueError(f"No transition found between levels {lower} and {upper}")
 
-    def population(self, state: int, inds: typing.Union[Level, int, slice]):
+    def population(self, state: np.ndarray, inds: Level | int | slice):
         """Returns the total population in a set of states.
 
         :param state: state vector
@@ -245,7 +341,7 @@ class Atom:
           a state index; or, a slice.
         """
         if isinstance(inds, Level):
-            return np.sum(state[self.slice(inds)])
+            return np.sum(state[self.get_slice(inds)])
         elif not isinstance(inds, int) and not isinstance(inds, slice):
             raise TypeError("inds must be a level, slice or index")
         return np.sum(state[inds])
@@ -267,7 +363,7 @@ class Atom:
 
         trans = self.transitions[transition]
         omega = trans.freq
-        Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
+        Gamma = self.GammaJ[self.level_states[trans.upper].start_index]
         return consts.hbar * (omega**3) * Gamma / (6 * np.pi * (consts.c**2))
 
     def P0(self, transition: Transition, w0: float):
@@ -280,52 +376,6 @@ class Atom:
         """
         I0 = self.I0(transition)
         return 0.5 * np.pi * (w0**2) * I0
-
-    def _sort_levels(self):
-        """Use the transition data to sort the atomic levels in order of
-        increasing energy.
-        """
-        if not (self.transitions):
-            levels = list(self.levels.keys())
-            if len(levels) != 1:
-                raise ValueError("Disconnected level structure.")
-            sorted_levels = {levels[0]: 0}
-            unsorted = []
-        else:
-            unsorted = list(self.transitions.keys())
-            lower, upper, dE, _ = self.transitions[unsorted.pop()]
-            sorted_levels = {lower: 0, upper: dE}
-
-        while unsorted:
-            for trans in unsorted:
-                lower, upper, dE, _ = self.transitions[trans]
-                if lower in sorted_levels:
-                    sorted_levels[upper] = sorted_levels[lower] + dE
-                    break
-                elif upper in sorted_levels:
-                    sorted_levels[lower] = sorted_levels[upper] - dE
-                    break
-            else:
-                raise ValueError(
-                    "Transition '{}' would lead to a disconnected level"
-                    " structure.".format(trans)
-                )
-            unsorted.remove(trans)
-
-        if sorted_levels.keys() != self.levels.keys():
-            raise ValueError("Disconnected level structure")
-
-        sorted_levels = sorted(sorted_levels.items(), key=lambda x: x[1])
-        E0 = sorted_levels[0][1]  # ground-state energy
-        start_ind = 0
-        for level, energy in sorted_levels:
-            data = self.levels[level]
-            data.E = energy - E0
-            data._num_states = int(np.rint((2 * self.I + 1) * (2 * level.J + 1)))
-            data._start_ind = start_ind
-            start_ind = data._stop_ind = start_ind + data._num_states
-
-        self.num_states = start_ind
 
     def setB(self, B: float):
         """Calculate atomic data at a given B-field (Tesla)."""
@@ -376,7 +426,7 @@ class Atom:
                     )
 
             H /= consts.hbar  # work in angular frequency units
-            lev = data.slice()
+            level_slice = self.get_slice(level)
             E, V = np.linalg.eig(H)
             inds = np.argsort(E)
             V = V[:, inds]
@@ -391,21 +441,21 @@ class Atom:
                     " to lift the state degeneracy?".format(B)
                 )
 
-            self.E[lev] = E
-            self.V[lev, lev] = V
-            self.M[lev] = np.rint(2 * M) / 2
-            self.MIax[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
-            self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
-            self.MI[lev] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
-            self.MJ[lev] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
+            self.E[level_slice] = E
+            self.V[level_slice, level_slice] = V
+            self.M[level_slice] = np.rint(2 * M) / 2
+            self.MIax[level_slice] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
+            self.MJax[level_slice] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
+            self.MI[level_slice] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
+            self.MJ[level_slice] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
 
             F_list = np.arange(abs(I - J), I + J + 1)
-            if data.Ahfs < 0:
+            if self.I != 0 and data.Ahfs < 0:
                 F_list = F_list[::-1]
 
-            for M in set(self.M[lev]):
-                for Fidx, idx in np.ndenumerate(np.where(M == self.M[lev])):
-                    self.F[lev][idx] = F_list[abs(M) <= F_list][Fidx[1]]
+            for M in set(self.M[level_slice]):
+                for Fidx, idx in np.ndenumerate(np.where(M == self.M[level_slice])):
+                    self.F[level_slice][idx] = F_list[abs(M) <= F_list][Fidx[1]]
 
         if self.M1 is not None:
             self.calc_M1()
@@ -448,7 +498,7 @@ class Atom:
                 Jdim_l = int(np.rint(2 * Jl + 1))
                 Jdim = Jdim_u + Jdim_l
 
-                subspace = np.r_[self.slice(lower), self.slice(upper)]
+                subspace = np.r_[self.get_slice(lower), self.get_slice(upper)]
                 subspace = np.ix_(subspace, subspace)
 
                 dJ = Ju - Jl
@@ -496,16 +546,18 @@ class Atom:
         """Calculates the matrix elements for M1 transitions within each
         level.
 
-        The matrix elements, Rij, are defined so that:
-          - R[i, j] := (-1)**(q+1)<i|u_q|j>
-          - q := Mi - Mj = (-1, 0, 1)
-          - u_q is the qth component of the magnetic dipole operator in
+        The matrix elements, ``Rij``, are defined so that::
+
+          * ``R[i, j] := (-1)**(q+1)<i|u_q|j>``
+          * ``q := Mi - Mj = (-1, 0, 1)``
+          * ``u_q`` is the ``q``th component of the magnetic dipole operator in
             spherical coordinates.
 
-        NB with this definition, the Rabi frequency is given by:
-          - hbar * W = B_-q * R
-          - t_pi = pi/W
-          - where B_-q is the -qth component of the magnetic field in spherical
+        NB with this definition, the Rabi frequency is given by::
+
+          * ``hbar * W = B_-q * R``
+          * ``t_pi = pi/W``
+          * where ``B_-q`` is the ``-q``th component of the magnetic field in spherical
             coordinates.
         """
         self.M1 = np.zeros((self.num_states, self.num_states))
@@ -514,7 +566,6 @@ class Atom:
         eyeI = np.identity(I_dim)
 
         for level, data in self.levels.items():
-            lev = data.slice()
             J_dim = np.rint(2.0 * level.J + 1).astype(int)
             dim = J_dim * I_dim
             eyeJ = np.identity(J_dim)
@@ -539,7 +590,8 @@ class Atom:
 
             u = [um, uz, up]
 
-            Mj = np.tile(self.M[lev], (dim, 1))
+            level_slice = self.get_slice(level)
+            Mj = np.tile(self.M[level_slice], (dim, 1))
             Mi = Mj.T
             Q = Mi - Mj
 
@@ -547,7 +599,7 @@ class Atom:
             valid[np.diag_indices(dim)] = False
 
             M1 = np.zeros((dim, dim))
-            V = self.V[lev, lev]
+            V = self.V[level_slice, level_slice]
             for transition in np.nditer(np.nonzero(valid)):
                 i = transition[0]
                 j = transition[1]
@@ -557,4 +609,4 @@ class Atom:
                 psi_j = V[:, j]
 
                 M1[i, j] = ((-1) ** (q + 1)) * psi_i.conj().T @ u[q + 1] @ psi_j
-            self.M1[lev, lev] = M1
+            self.M1[level_slice, level_slice] = M1

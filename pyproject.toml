@@ -5,7 +5,7 @@ description = "Nascent toolkit for calculating state energies, transition matrix
 authors = ["hartytp <thomas.peter.harty@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10,<3.11"
 numpy = "^1.22.0"
 scipy = "^1.7.3"
 
@@ -13,16 +13,42 @@ scipy = "^1.7.3"
 pytest = "^6.2.5"
 poethepoet = "^0.12.1"
 sympy = "^1.9"
-black = "^22.3.0"
-flake8 = "^4.0.1"
+ruff = "^0.7.3"
 matplotlib = "^3.5.1"
+pytype = {version = "^2022.4.15", markers = "os_name == 'posix'"}
+sphinx = "^6.0"
+sphinx-rtd-theme = "^1.2.0"
+sphinx-mdinclude = "^0.5.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
-test = "pytest"
-fmt-test = "black --check ."
-fmt = "black ."
-flake = "flake8 ."
+test = "pytest -Werror"
+fmt-test = "ruff format --check ."
+fmt = "ruff format"
+lint = "ruff check"
+types = { script = "run_pytype:main" }
+docs = { cwd = "./docs", cmd = "make html doctest" }
+docs-clean = { cwd = "./docs", cmd = "make clean" }
+
+[tool.ruff]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+]
+
+indent-width = 4
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint.per-file-ignores]
+# Allow unused imports in __init__ files for re-exporting
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint]
+# Sort imports
+extend-select = ["I"]
+ignore = ["E741"]

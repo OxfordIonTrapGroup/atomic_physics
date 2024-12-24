@@ -1,7 +1,11 @@
 import unittest
-from sympy.physics import wigner
-import atomic_physics as ap
+
 import numpy as np
+
+import atomic_physics as ap
+
+# from sympy.physics import wigner
+from . import utils as wigner  # HACK: waiting for new sympy release
 
 
 class TestWigner(unittest.TestCase):

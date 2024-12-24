@@ -1,7 +1,9 @@
-import numpy as np
 from copy import deepcopy
-import scipy.optimize as opt
+
+import numpy as np
 import scipy.constants as consts
+import scipy.optimize as opt
+
 import atomic_physics as ap
 
 _uB = consts.physical_constants["Bohr magneton"][0]
@@ -36,10 +38,10 @@ def df_dB(atom: ap.Atom, lower: int, upper: int, eps: float = 1e-6):
 
     To do: add a special case when we can use the BR formula
     """
-    f = atom.delta(lower, upper)
+    f = atom.get_transition_frequency(lower, upper)
     atom = deepcopy(atom)
     atom.setB(atom.B + eps)
-    fpr = atom.delta(lower, upper)
+    fpr = atom.get_transition_frequency(lower, upper)
     return (fpr - f) / eps
 
 
@@ -98,8 +100,8 @@ def ac_zeeman_shift(atom: ap.Atom, state: int, f_RF: float):
     :return: Array of AC Zeeman shifts (rad/s) caused by a field of 1T with
       sigma_minus, pi or sigma_plus polarisation [sigma_m, pi, sigma_p]
     """
-    level = atom.level(state)
-    states = atom.slice(level)
+    level = atom.get_level(state)
+    states = atom.get_slice(level)
     state -= states.start
 
     E = atom.E[states]

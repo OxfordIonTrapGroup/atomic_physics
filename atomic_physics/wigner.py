@@ -1,7 +1,8 @@
-""" Wigner 3J symbols using the Racah formula. """
-import numpy as np
+"""Wigner 3J symbols using the Racah formula."""
+
 from functools import lru_cache
 
+import numpy as np
 
 _max_fact = 12  # 12 for int32, 20 for int64
 _fact_store = np.ones(_max_fact + 1, dtype=np.int32)
@@ -11,7 +12,7 @@ for n in np.arange(_max_fact, dtype=np.int32):
     _fact_store[n + 1] = _fact_store[n] * np.int32(n + 1)
 
 
-def _fact(n: int):
+def _fact(n: int | float):
     """Returns n factorial."""
     assert n >= 0, str(n)
     return _fact_store[int(np.rint(n))]

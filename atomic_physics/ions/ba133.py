@@ -1,4 +1,4 @@
-""" 133Ba+
+"""133Ba+
 
 The transition frequencies are calculated based on the 138Ba+ frequencies
 from [1] and the isotope shifts in the second reference listed next to
@@ -22,11 +22,13 @@ References:
 [7] - J.E. Christensen, D. Hucul, W.C. Campbell et al.,
   npj Quantum Inf 6, 35 (2020).
 """
-import numpy as np
-import typing
-import scipy.constants as consts
-import atomic_physics as ap
 
+import typing
+
+import numpy as np
+import scipy.constants as consts
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=6, S=1 / 2, L=0, J=1 / 2)
@@ -41,7 +43,7 @@ class Ba133(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """133Ba+ atomic structure.
 
@@ -49,29 +51,34 @@ class Ba133(ap.Atom):
         :param level_filter: list of Levels to include in the simulation, if
             None we include all levels.
         """
-        levels = {
-            ground_level: ap.LevelData(
+        level_data = [
+            ap.LevelData(
+                level=ground_level,
                 Ahfs=-9925.45355459e6 * consts.h,  # [6]
                 g_J=2.0024906,  # [5]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
-            P12: ap.LevelData(
+            ap.LevelData(
+                level=P12,
                 Ahfs=-1840e6 * consts.h,  # [6]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
-            P32: ap.LevelData(
+            ap.LevelData(
+                level=P32,
                 Ahfs=-311.5e6 * consts.h,  # [7]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
-            D32: ap.LevelData(
+            ap.LevelData(
+                level=D32,
                 Ahfs=-468.5e6 * consts.h,  # [6]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
-            D52: ap.LevelData(
+            ap.LevelData(
+                level=D52,
                 Ahfs=83e6 * consts.h / 3,  # [7]
                 g_I=(2 / 1) * -0.77167,  # [4]
             ),
-        }
+        ]
 
         transitions = {
             "493": ap.Transition(
@@ -121,7 +128,7 @@ class Ba133(ap.Atom):
         super().__init__(
             B=B,
             I=1 / 2,
-            levels=levels,
+            level_data=level_data,
             transitions=transitions,
             level_filter=level_filter,
         )
