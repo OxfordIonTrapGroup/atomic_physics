@@ -202,7 +202,7 @@ class Atom:
 
         f0 = sorted_levels[0][1]  # ground-level frequency offset
         start_index = 0
-        self.level_states: dict[Level:LevelStates] = {}
+        self.level_states: dict[Level, LevelStates] = {}
         for level, level_freq in sorted_levels:
             num_states = int(np.rint((2 * self.I + 1) * (2 * level.J + 1)))
             self.level_states[level] = LevelStates(
@@ -546,7 +546,6 @@ class Atom:
         eyeI = np.identity(I_dim)
 
         for level, data in self.levels.items():
-            lev = data.get_slice()
             J_dim = np.rint(2.0 * level.J + 1).astype(int)
             dim = J_dim * I_dim
             eyeJ = np.identity(J_dim)
@@ -571,7 +570,8 @@ class Atom:
 
             u = [um, uz, up]
 
-            Mj = np.tile(self.M[lev], (dim, 1))
+            level_slice = self.get_slice(level)
+            Mj = np.tile(self.M[level_slice], (dim, 1))
             Mi = Mj.T
             Q = Mi - Mj
 
@@ -579,7 +579,7 @@ class Atom:
             valid[np.diag_indices(dim)] = False
 
             M1 = np.zeros((dim, dim))
-            V = self.V[lev, lev]
+            V = self.V[level_slice, level_slice]
             for transition in np.nditer(np.nonzero(valid)):
                 i = transition[0]
                 j = transition[1]
@@ -589,4 +589,4 @@ class Atom:
                 psi_j = V[:, j]
 
                 M1[i, j] = ((-1) ** (q + 1)) * psi_i.conj().T @ u[q + 1] @ psi_j
-            self.M1[lev, lev] = M1
+            self.M1[level_slice, level_slice] = M1
