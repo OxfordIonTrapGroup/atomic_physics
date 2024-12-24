@@ -4,6 +4,8 @@ from atomic_physics.common import Atom, Laser, Transition
 
 
 class Rates:
+    """Rate equations calculations."""
+
     def __init__(self, atom: Atom):
         self.atom = atom
 
