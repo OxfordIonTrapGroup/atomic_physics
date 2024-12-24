@@ -5,11 +5,13 @@ were calculated based on transition frequencies between other levels.
 For example the frequency of the 1762 nm transition f(1762) was found
 from f(1762)=f(455)-f(614).
 
-References:
-[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[2] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
- M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
-[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+References::
+
+    * [1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+    * [2] Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+      M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
+    * [3] N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+
 """
 
 import numpy as np

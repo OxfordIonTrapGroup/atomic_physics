@@ -61,11 +61,17 @@ class LevelData:
 
 @dataclass(frozen=True)
 class LevelStates:
-    """Stores information about the states within a level.
+    r"""Stores information about the states within a level.
 
     Attributes:
         freq: frequency of the centre-of-gravity transition from the ground-level
-            to this level.
+            to this level. These frequencies are calculated by combining the various
+            transitions. In cases where the the level structure is multiply connected,
+            taking different routes between the same levels may give slightly different
+            values for the level frequencies due to inconsistencies between the measured
+            transition frequencies. We do not make guarantees about which route is taken
+            for these calculations and this data should not be relied on for accurate
+            calculations (see :class:`Atom`\'s ``get_transition_frequency`` method).
         start_index: index into the state vector of the lowest-lying state within
             this level.
         stop_index: index into the state vector of the highest-lying state within

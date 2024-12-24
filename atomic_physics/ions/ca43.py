@@ -1,13 +1,15 @@
 """43Ca+
 
-References:
-[1] - F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
-  Clusters, 31, 27 (1994)
-[2] - G. Tommaseo, et al., The European Physical Journal D, 25 (2003)
-[3] - T. P. Harty, et al. Phys. Rev. Lett 113, 220501 (2014)
-[4] - W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
-[5] - J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
-[6] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
+References::
+
+    * [1] F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
+      Clusters, 31, 27 (1994)
+    * [2] G. Tommaseo, et al., The European Physical Journal D, 25 (2003)
+    * [3] T. P. Harty, et al. Phys. Rev. Lett 113, 220501 (2014)
+    * [4] W.  Nortershauser, et al., The European Physical Journal D, 2 (1998)
+    * [5] J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
+    * [6] A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
+
 """
 
 import numpy as np

@@ -1,9 +1,11 @@
 """40Ca+
 
-References:
-[1] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
-[2] - T. P. Harty, DPhil Thesis (2013)
-[3] - M. Chwalla et all, PRL 102, 023002 (2009)
+References::
+
+    * [1] A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
+    * [2] T. P. Harty, DPhil Thesis (2013)
+    * [3] M. Chwalla et all, PRL 102, 023002 (2009)
+
 """
 
 import numpy as np

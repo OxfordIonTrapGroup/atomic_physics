@@ -7,24 +7,25 @@ were calculated based on transition frequencies between other levels.
 For example the frequency of the 1762 nm transition f(1762) was found
 from f(1762)=f(455)-f(614).
 
-References:
-[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[2] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
- M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
-[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
-[4] - N. J. Stone, Table of nuclear magnetic dipole and electric
-  quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
-  Issue 1 (2005)
-[5] - H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
-  Physik D Atoms, Molecules and Clusters volume 25, pages205–208 (1993)
-[6] - W. Becker, G. Werth, Zeitschrift für Physik A Atoms and Nuclei,
-  Volume 311, Issue 1-2, pp. 41-47 (1983)
-[7] - P Villemoes et al, J. Phys. B: At. Mol. Opt. Phys. 26 4289 (1993)
-[8] - Roger E. Silverans, Gustaaf Borghs, Peter De Bisschop, and
-  Marleen Van Hove, Phys. Rev. A 33, 2117 (1986)
-[9] - K. Wendt, S. A. Ahmad, F. Buchinger, A. C. Mueller, R. Neugart, and
-  E. -W. Otten, Zeitschrift für Physik A Atoms and Nuclei volume 318,
-  pages 125–129 (1984)
+References::
+
+    * [1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+    * [2] Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+      M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
+    * [3] N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+    * [4] N. J. Stone, Table of nuclear magnetic dipole and electric
+      quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90, Issue 1 (2005)
+    * [5] H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
+      Physik D Atoms, Molecules and Clusters volume 25, pages205–208 (1993)
+    * [6] W. Becker, G. Werth, Zeitschrift für Physik A Atoms and Nuclei,
+      Volume 311, Issue 1-2, pp. 41-47 (1983)
+    * [7] P Villemoes et al, J. Phys. B: At. Mol. Opt. Phys. 26 4289 (1993)
+    * [8] Roger E. Silverans, Gustaaf Borghs, Peter De Bisschop, and
+      Marleen Van Hove, Phys. Rev. A 33, 2117 (1986)
+    * [9] K. Wendt, S. A. Ahmad, F. Buchinger, A. C. Mueller, R. Neugart, and
+      E. -W. Otten, Zeitschrift für Physik A Atoms and Nuclei volume 318,
+      pages 125–129 (1984)
+
 """
 
 import numpy as np

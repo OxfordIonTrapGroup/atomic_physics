@@ -7,25 +7,26 @@ were calculated based on transition frequencies between other levels.
 For example the frequency of the 1762 nm transition f(1762) was found
 from f(1762)=f(455)-f(614).
 
-References:
-[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[2] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
- M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
-[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
-[4] - N. J. Stone, Table of nuclear magnetic dipole and electric
-  quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
-  Issue 1 (2005)
-[5] - H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
-  Physik D Atoms, Molecules and Clusters volume 25, pages 205–208 (1993)
-[6] - R. Blatt and G. Werth, Phys. Rev. A 25, 1476 (1982)
-[7] - P Villemoes et al, J. Phys. B: At. Mol. Opt. Phys. 26 4289 (1993)
-[8] - Nicholas C. Lewty, Boon Leng Chuah, Radu Cazan, B. K. Sahoo, and
-  M. D. Barrett, Opt. Express 21, 7131-7132 (2013)
-[9] - Nicholas C. Lewty, Boon Leng Chuah, Radu Cazan, Murray D. Barrett,
-  and B. K. Sahoo, Phys. Rev. A 88, 012518 (2013)
-[10] - K. Wendt, S. A. Ahmad, F. Buchinger, A. C. Mueller, R. Neugart, and
-  E. -W. Otten, Zeitschrift für Physik A Atoms and Nuclei volume 318,
-  pages 125–129 (1984)
+References::
+
+    * [1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+    * [2] Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+      M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
+    * [3] N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+    * [4] N. J. Stone, Table of nuclear magnetic dipole and electric
+      quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90, Issue 1 (2005)
+    * [5] H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
+      Physik D Atoms, Molecules and Clusters volume 25, pages 205–208 (1993)
+    * [6] R. Blatt and G. Werth, Phys. Rev. A 25, 1476 (1982)
+    * [7] P Villemoes et al, J. Phys. B: At. Mol. Opt. Phys. 26 4289 (1993)
+    * [8] Nicholas C. Lewty, Boon Leng Chuah, Radu Cazan, B. K. Sahoo, and
+      M. D. Barrett, Opt. Express 21, 7131-7132 (2013)
+    * [9] Nicholas C. Lewty, Boon Leng Chuah, Radu Cazan, Murray D. Barrett,
+      and B. K. Sahoo, Phys. Rev. A 88, 012518 (2013)
+    * [10] K. Wendt, S. A. Ahmad, F. Buchinger, A. C. Mueller, R. Neugart, and
+      E. -W. Otten, Zeitschrift für Physik A Atoms and Nuclei volume 318,
+      pages 125–129 (1984)
+
 """
 
 import numpy as np

@@ -7,20 +7,21 @@ were calculated based on transition frequencies between other levels.
 For example the frequency of the 1762 nm transition f(1762) was found
 from f(1762)=f(455)-f(614).
 
-References:
-[1] - A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
-[2] - Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
- M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
-[3] - N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
-[4] - N. J. Stone, Table of nuclear magnetic dipole and electric
-  quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90,
-  Issue 1 (2005)
-[5] - H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
-  Physik D Atoms, Molecules and Clusters volume 25, pages205–208 (1993)
-[6] - David Hucul, Justin E. Christensen, Eric R. Hudson, and
-  Wesley C. Campbell, Phys. Rev. Lett. 119, 100501 (2017)
-[7] - J.E. Christensen, D. Hucul, W.C. Campbell et al.,
-  npj Quantum Inf 6, 35 (2020).
+References::
+
+    * [1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
+    * [2] Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
+      M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
+    * [3] N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+    * [4] N. J. Stone, Table of nuclear magnetic dipole and electric
+      quadrupole moments, Atomic Data and Nuclear Data Tables, Volume 90, Issue 1 (2005)
+    * [5] H. Knab, K. H. Knöll, F. Scheerer and G. Werth, Zeitschrift für
+      Physik D Atoms, Molecules and Clusters volume 25, pages205–208 (1993)
+    * [6] David Hucul, Justin E. Christensen, Eric R. Hudson, and
+      Wesley C. Campbell, Phys. Rev. Lett. 119, 100501 (2017)
+    * [7] - J.E. Christensen, D. Hucul, W.C. Campbell et al., npj Quantum Inf 6, 35
+      (2020).
+
 """
 
 import numpy as np
