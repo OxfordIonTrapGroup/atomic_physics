@@ -3,10 +3,25 @@
 import unittest
 
 import numpy as np
-import scipy.constants as ct
+import scipy.constants as consts
 
+from atomic_physics.common import Level
 from atomic_physics.ions import ba133
-from atomic_physics.utils import Lande_g
+
+
+def Lande_g(level: Level):
+    """Returns the Lande g factor for a level."""
+    gL = 1
+    gS = -consts.physical_constants["electron g factor"][0]
+
+    S = level.S
+    J = level.J
+    L = level.L
+
+    gJ = gL * (J * (J + 1) - S * (S + 1) + L * (L + 1)) / (2 * J * (J + 1)) + gS * (
+        J * (J + 1) + S * (S + 1) - L * (L + 1)
+    ) / (2 * J * (J + 1))
+    return gJ
 
 
 def _gF(F, J, I, gJ):
@@ -38,7 +53,7 @@ class TestSpinHalf(unittest.TestCase):
 
         gJ = Lande_g(level)
         gF = _gF(1, 1 / 2, 1 / 2, gJ)
-        muB = ct.physical_constants["Bohr magneton"][0]
-        E_Zeeman = gF * muB * B / ct.hbar
+        muB = consts.physical_constants["Bohr magneton"][0]
+        E_Zeeman = gF * muB * B / consts.hbar
 
         self.assertAlmostEqual(abs(E_1_0 - E_1_1) / 1e6, E_Zeeman / 1e6, 0)

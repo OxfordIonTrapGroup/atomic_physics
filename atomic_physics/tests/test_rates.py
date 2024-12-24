@@ -2,8 +2,9 @@
 
 import unittest
 
-import atomic_physics as ap
+from atomic_physics.common import Laser
 from atomic_physics.ions import ca43
+from atomic_physics.rate_equations import Rates
 
 
 def _steady_state_population(intensity: float):
@@ -26,10 +27,10 @@ class TestTSS(unittest.TestCase):
         s_idx = ion.get_index(ca43.ground_level, 4)
         p_idx = ion.get_index(ca43.P32, +5)
 
-        rates = ap.rates.Rates(ion)
+        rates = Rates(ion)
         delta = ion.get_transition_frequency(s_idx, p_idx)
         for I in intensity_list:
-            Lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant
+            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
             trans = rates.get_transitions(Lasers)
 
             spont = rates.get_spont()
@@ -46,11 +47,11 @@ class TestTSS(unittest.TestCase):
         s_idx = ion.get_index(ca43.ground_level, 4)
         p_idx = ion.get_index(ca43.P32, +5)
 
-        rates = ap.rates.Rates(ion)
+        rates = Rates(ion)
         delta = ion.get_transition_frequency(s_idx, p_idx)
 
         for I in intensity_list:
-            Lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant
+            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
             trans = rates.get_transitions(Lasers)
 
             Np_ss = _steady_state_population(I)
@@ -70,10 +71,10 @@ class TestTSS(unittest.TestCase):
         s_idx = ion.get_index(ca43.ground_level, 4)
         p_idx = ion.get_index(ca43.P32, +5)
 
-        rates = ap.rates.Rates(ion)
+        rates = Rates(ion)
         delta = ion.get_transition_frequency(s_idx, p_idx)
 
-        Lasers = [ap.Laser("393", q=+1, I=1.0, delta=delta)]  # resonant
+        Lasers = [Laser("393", q=+1, I=1.0, delta=delta)]  # resonant
         trans = rates.get_transitions(Lasers)
         line_width = abs(trans[p_idx, p_idx] + trans[p_idx, s_idx])
 
@@ -83,7 +84,7 @@ class TestTSS(unittest.TestCase):
             I_eff = 1 / (4 * det**2 + 1)
             Np_ss = _steady_state_population(I_eff)
 
-            Lasers = [ap.Laser("393", q=+1, I=1.0, delta=delta + line_width * det)]
+            Lasers = [Laser("393", q=+1, I=1.0, delta=delta + line_width * det)]
             trans = rates.get_transitions(Lasers)
 
             # transition rates normalised by A coefficient
