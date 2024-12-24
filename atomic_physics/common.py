@@ -321,7 +321,7 @@ class Atom:
         sorted_levels: Dict[Level, float] = {}
 
         if len(self.levels) == 1:
-            sorted_levels[list(self.levels.keys())[0]] = 0.
+            sorted_levels[list(self.levels.keys())[0]] = 0.0
         else:
             unsorted_levels += list(self.transitions.keys())
             transition = self.transitions[unsorted_levels.pop()]
@@ -350,8 +350,7 @@ class Atom:
             raise ValueError("Disconnected level structure")
 
         sorted_levels: List[Tuple[Level, float]] = sorted(
-            sorted_levels.items(),
-            key=lambda x: x[1]
+            sorted_levels.items(), key=lambda x: x[1]
         )
 
         E0 = sorted_levels[0][1]  # ground-state energy
