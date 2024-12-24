@@ -1,7 +1,8 @@
-""" Wigner 3J symbols using the Racah formula. """
-import numpy as np
+"""Wigner 3J symbols using the Racah formula."""
+
 from functools import lru_cache
 
+import numpy as np
 
 _max_fact = 12  # 12 for int32, 20 for int64
 _fact_store = np.ones(_max_fact + 1, dtype=np.int32)

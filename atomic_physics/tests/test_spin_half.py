@@ -1,9 +1,12 @@
 """Test Spin 1/2 nuclei"""
+
 import unittest
-from atomic_physics.ions import ba133
-from atomic_physics.utils import Lande_g
+
 import numpy as np
 import scipy.constants as ct
+
+from atomic_physics.ions import ba133
+from atomic_physics.utils import Lande_g
 
 
 def _gF(F, J, I, gJ):

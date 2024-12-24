@@ -1,14 +1,16 @@
-""" 40Ca+
+"""40Ca+
 
 References:
 [1] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
 [2] - T. P. Harty, DPhil Thesis (2013)
 [3] - M. Chwalla et all, PRL 102, 023002 (2009)
 """
-import numpy as np
-import typing
-import atomic_physics as ap
 
+import typing
+
+import numpy as np
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=4, S=1 / 2, L=0, J=1 / 2)
@@ -23,7 +25,7 @@ class Ca40(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """40Ca+ atomic structure.
 

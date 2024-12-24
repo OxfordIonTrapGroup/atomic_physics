@@ -16,7 +16,7 @@ jobs:
       - run: pipx inject poetry poetry-dynamic-versioning==0.21.3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.10"
       - run: poetry build
       - name: Test wheel
         if: github.event_name != 'release'

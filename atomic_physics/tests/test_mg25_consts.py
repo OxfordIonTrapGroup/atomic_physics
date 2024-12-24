@@ -5,9 +5,11 @@ References:
 """
 
 import unittest
+
+import numpy as np
+
 from atomic_physics.ions import mg25
 from atomic_physics.utils import field_insensitive_point
-import numpy as np
 
 S12_31_21_clock_field = 212.8e-4  # [1]
 MW_transition_freqs = [

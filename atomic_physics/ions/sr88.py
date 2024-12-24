@@ -1,14 +1,16 @@
-""" 88Sr+
+"""88Sr+
 
 References:
 [1] A. Kramida, NIST Atomic Spectra Database (ver. 5.9) (2021)
 [2] P. Dubé, Metrologia (2015)
 [3] V. Letchumanan, Phys. Rev. A (2005)
- """
-import numpy as np
-import typing
-import atomic_physics as ap
+"""
 
+import typing
+
+import numpy as np
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=5, S=1 / 2, L=0, J=1 / 2)
@@ -23,7 +25,7 @@ class Sr88(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """88Sr+ atomic structure.
 

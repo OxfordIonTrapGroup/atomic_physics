@@ -1,4 +1,5 @@
 import unittest
+
 import atomic_physics as ap
 from atomic_physics.ions import ca43
 

@@ -1,4 +1,4 @@
-""" 25Mg+
+"""25Mg+
 
 References:
 [1] -   W. M. Itano and D. J. Wineland, Precision measurement of the
@@ -21,11 +21,13 @@ References:
 [8] -   L. Toppozini, Trapped-Mg+ Apparatus for Control and Structure Studies,
         Thesis, McMaster University (2006) http://hdl.handle.net/11375/21342
 """
-import numpy as np
-import typing
-import scipy.constants as consts
-import atomic_physics as ap
 
+import typing
+
+import numpy as np
+import scipy.constants as consts
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=3, S=1 / 2, L=0, J=1 / 2)
@@ -38,7 +40,7 @@ class Mg25(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """25Mg+ atomic structure.
 

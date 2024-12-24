@@ -1,7 +1,10 @@
-import numpy as np
 import unittest
-from .utils import wigner_3j, wigner_6j
+
+import numpy as np
+
 from atomic_physics.ions import ca43
+
+from .utils import wigner_3j, wigner_6j
 
 
 class TestGamma(unittest.TestCase):

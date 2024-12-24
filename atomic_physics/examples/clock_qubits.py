@@ -3,7 +3,6 @@ import numpy as np
 import atomic_physics as ap
 import atomic_physics.ions.ca43 as ca43
 
-
 if __name__ == "__main__":
     # all seems about correct (e.g. agrees with TPH thesis) but expect some
     # numerical inaccuracy, particularly around the second-order field

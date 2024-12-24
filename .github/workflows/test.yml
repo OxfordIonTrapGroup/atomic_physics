@@ -24,7 +24,7 @@ jobs:
         run: poe fmt-test
 
       - name: Check syntax
-        run: poe flake
+        run: poe lint
 
       - name: Run tests
         run: poe test

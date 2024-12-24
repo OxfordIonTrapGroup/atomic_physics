@@ -1,5 +1,7 @@
-import numpy as np
 import typing
+
+import numpy as np
+
 import atomic_physics as ap
 
 
@@ -101,7 +103,7 @@ class Rates:
         self,
         *,
         trans: typing.Optional[ap.Transition] = None,
-        lasers: typing.Optional[typing.List[ap.Laser]] = None
+        lasers: typing.Optional[typing.List[ap.Laser]] = None,
     ):
         """Returns the steady-state vector for *either* a transitions matrix
         or a list of lasers.

@@ -1,5 +1,6 @@
-from atomic_physics.ions import ca43
 import scipy.constants as consts
+
+from atomic_physics.ions import ca43
 
 uB = consts.physical_constants["Bohr magneton"][0]
 

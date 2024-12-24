@@ -1,7 +1,9 @@
-""" Simple rate equations example of 393 shelving in 43Ca+. """
+"""Simple rate equations example of 393 shelving in 43Ca+."""
+
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.linalg import expm
-import matplotlib.pyplot as plt
+
 import atomic_physics as ap
 from atomic_physics.ions import ca43
 

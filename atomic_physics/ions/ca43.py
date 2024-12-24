@@ -1,4 +1,4 @@
-""" 43Ca+
+"""43Ca+
 
 References:
 [1] - F. Arbes, et al., Zeitschrift fur Physik D: Atoms, Molecules and
@@ -9,11 +9,13 @@ References:
 [5] - J. Benhelm, et al., PHYSICAL REVIEW A 75, 032506 (2007)
 [6] - A. Kramida, At. Data Nucl. Data Tables 133-134, 101322 (2020)
 """
-import numpy as np
-import typing
-import scipy.constants as consts
-import atomic_physics as ap
 
+import typing
+
+import numpy as np
+import scipy.constants as consts
+
+import atomic_physics as ap
 
 # level aliases
 ground_level = S12 = ap.Level(n=4, S=1 / 2, L=0, J=1 / 2)
@@ -28,7 +30,7 @@ class Ca43(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """43Ca+ atomic structure.
 
@@ -43,7 +45,8 @@ class Ca43(ap.Atom):
                 Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
             ),
             P12: ap.LevelData(
-                Ahfs=-145.4e6 * consts.h, g_I=(2 / 7) * -1.315348  # [4]  # [3]
+                Ahfs=-145.4e6 * consts.h,
+                g_I=(2 / 7) * -1.315348,  # [4]  # [3]
             ),
             P32: ap.LevelData(
                 Ahfs=-31.4e6 * consts.h,  # [4]

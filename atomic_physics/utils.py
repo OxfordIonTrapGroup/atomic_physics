@@ -1,7 +1,9 @@
-import numpy as np
 from copy import deepcopy
-import scipy.optimize as opt
+
+import numpy as np
 import scipy.constants as consts
+import scipy.optimize as opt
+
 import atomic_physics as ap
 
 _uB = consts.physical_constants["Bohr magneton"][0]

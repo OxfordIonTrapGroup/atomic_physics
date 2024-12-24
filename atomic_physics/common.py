@@ -1,9 +1,9 @@
-import numpy as np
 from dataclasses import dataclass
-import scipy.constants as consts
-import typing
-import atomic_physics as ap
 
+import numpy as np
+import scipy.constants as consts
+
+import atomic_physics as ap
 
 _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
@@ -70,8 +70,8 @@ class LevelData:
 
     def __init__(
         self,
-        g_J: typing.Optional[float] = None,
-        g_I: typing.Optional[float] = None,
+        g_J: float | None = None,
+        g_I: float | None = None,
         Ahfs: float = 0,
         Bhfs: float = 0,
     ):
@@ -122,11 +122,11 @@ class Atom:
     def __init__(
         self,
         *,
-        levels: typing.Dict[Level, LevelData],
-        transitions: typing.Dict[str, Transition],
-        B: typing.Optional[float] = None,
+        levels: dict[Level, LevelData],
+        transitions: dict[str, Transition],
+        B: float | None = None,
         I: float = 0,
-        level_filter: typing.Optional[typing.List[Level]] = None
+        level_filter: list[Level] | None = None,
     ):
         """
         :param B: Magnetic field (T). To change the B-field later, call
@@ -212,9 +212,9 @@ class Atom:
         level: Level,
         M: float,
         *,
-        F: typing.Optional[float] = None,
-        MI: typing.Optional[float] = None,
-        MJ: typing.Optional[float] = None
+        F: float | None = None,
+        MI: float | None = None,
+        MJ: float | None = None,
     ):
         """Returns the index of a state.
 
@@ -269,7 +269,7 @@ class Atom:
         """
         return self.E[upper] - self.E[lower]
 
-    def population(self, state: int, inds: typing.Union[Level, int, slice]):
+    def population(self, state: int, inds: Level | int | slice):
         """Returns the total population in a set of states.
 
         :param state: state vector
@@ -317,8 +317,8 @@ class Atom:
         """Use the transition data to sort the atomic levels in order of
         increasing energy.
         """
-        unsorted_levels: List[str] = []
-        sorted_levels: Dict[Level, float] = {}
+        unsorted_levels: list[str] = []
+        sorted_levels: dict[Level, float] = {}
 
         if len(self.levels) == 1:
             sorted_levels[list(self.levels.keys())[0]] = 0.0
@@ -342,14 +342,14 @@ class Atom:
             else:
                 raise ValueError(
                     "Transition '{}' would lead to a disconnected level"
-                    " structure.".format(trans)
+                    " structure.".format(transition_name)
                 )
             unsorted_levels.remove(transition_name)
 
         if sorted_levels.keys() != self.levels.keys():
             raise ValueError("Disconnected level structure")
 
-        sorted_levels: List[Tuple[Level, float]] = sorted(
+        sorted_levels: list[tuple[Level, float]] = sorted(
             sorted_levels.items(), key=lambda x: x[1]
         )
 

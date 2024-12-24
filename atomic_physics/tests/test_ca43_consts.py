@@ -6,8 +6,8 @@ References:
       DPhil Thesis (2022)
 """
 
-
 import unittest
+
 from atomic_physics.ions import ca43
 from atomic_physics.utils import field_insensitive_point
 

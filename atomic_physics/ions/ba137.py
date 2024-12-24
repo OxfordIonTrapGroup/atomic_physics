@@ -1,4 +1,4 @@
-""" 137Ba+
+"""137Ba+
 
 The transition frequencies are calculated based on the 138Ba+ frequencies
 from [1] and the isotope shifts in the second reference listed next to
@@ -27,9 +27,12 @@ References:
   E. -W. Otten, Zeitschrift für Physik A Atoms and Nuclei volume 318,
   pages 125–129 (1984)
 """
-import numpy as np
+
 import typing
+
+import numpy as np
 import scipy.constants as consts
+
 import atomic_physics as ap
 
 # level aliases
@@ -45,7 +48,7 @@ class Ba137(ap.Atom):
         self,
         *,
         B: typing.Optional[float] = None,
-        level_filter: typing.Optional[typing.List[ap.Level]] = None
+        level_filter: typing.Optional[typing.List[ap.Level]] = None,
     ):
         """137Ba+ atomic structure.
 

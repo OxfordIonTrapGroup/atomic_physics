@@ -1,5 +1,7 @@
 """Test Spin 1/2 nuclei"""
+
 import unittest
+
 from atomic_physics.ions import ca40
 
 
