@@ -48,39 +48,25 @@ class LevelData:
         if self.g_J is None:
             self.g_J = ap.utils.Lande_g(self.level)
 
-        # Move these out of here!
-        self.E = None  # In angular frequency units
-        self._num_states = None
-        self._start_ind = None
-        self._stop_ind = None
-
-    def get_slice(self):
-        """Returns a slice object that selects the states within a given
-        level.
-
-        Internally, we store states in order of increasing energy. This
-        provides a more convenient means of accessing the states within a
-        given level.
-        """
-        return slice(self._start_ind, self._stop_ind)
-
 
 @dataclass(frozen=True)
 class LevelStates:
     """Stores information about the states within a level.
 
     Attributes:
-        self.freq: frequency of the centre-of-gravity transition from the ground-level
+        freq: frequency of the centre-of-gravity transition from the ground-level
             to this level.
-        self.start_ind: index into the state vector of the lowest-lying state within
+        start_ind: index into the state vector of the lowest-lying state within
             this level.
-        self.stop_ind: index into the state vector of the highest-lying state within
+        stop_ind: index into the state vector of the highest-lying state within
             this level.
+        num_states: the number of states within the level.
     """
 
     freq: float
     start_index: int
     stop_index: int
+    num_states: int
 
 
 @dataclass(frozen=True)
@@ -122,7 +108,15 @@ class Laser:
 
 
 class Atom:
-    """Base class for storing atomic structure data."""
+    """Base class for storing atomic structure data.
+
+    Attributes:
+        num_states: the number of states contained within the atom
+        level_states: dictionary mapping :class:`Level`s to :class:`LevelStates`.
+    """
+
+    num_states: int
+    level_states: dict[Level, LevelStates]
 
     def __init__(
         self,
@@ -169,8 +163,59 @@ class Atom:
         self.levels = levels
         self.transitions = transitions
 
+        # use transition data to order levels in terms of increasing energy
+        processed_levels: dict[Level, float] = {}  # level: energy (freq units)
+        unprocessed_transition_names: list[str] = []
+
+        if len(self.levels) == 1:
+            processed_levels[list(self.levels.keys())[0]] = 0.0
+        else:
+            unprocessed_transition_names += list(self.transitions.keys())
+            transition = self.transitions[unprocessed_transition_names.pop()]
+            processed_levels[transition.lower] = 0
+            processed_levels[transition.upper] = transition.freq
+
+        while unprocessed_transition_names:
+            for transition_name in unprocessed_transition_names:
+                transition = self.transitions[transition_name]
+                if transition.lower in processed_levels:
+                    freq = processed_levels[transition.lower] + transition.freq
+                    processed_levels[transition.upper] = freq
+                    break
+                elif transition.upper in processed_levels:
+                    freq = processed_levels[transition.upper] - transition.freq
+                    processed_levels[transition.lower] = freq
+                    break
+            else:
+                raise ValueError(
+                    "Transition '{}' would lead to a disconnected level"
+                    " structure.".format(transition_name)
+                )
+            unprocessed_transition_names.remove(transition_name)
+
+        if processed_levels.keys() != self.levels.keys():
+            raise ValueError("Disconnected level structure")
+
+        sorted_levels: list[tuple[Level, float]] = sorted(
+            processed_levels.items(), key=lambda x: x[1]
+        )
+
+        f0 = sorted_levels[0][1]  # ground-level frequency offset
+        start_index = 0
+        self.level_states: dict[Level:LevelStates] = {}
+        for level, level_freq in sorted_levels:
+            num_states = int(np.rint((2 * self.I + 1) * (2 * level.J + 1)))
+            self.level_states[level] = LevelStates(
+                freq=level_freq - f0,
+                start_index=start_index,
+                stop_index=start_index + num_states,
+                num_states=num_states,
+            )
+            start_index += num_states
+
+        self.num_states = start_index
+
         # ordered in terms of increasing state energies
-        self.num_states = None  # Total number of electronic states
         self.M = None  # Magnetic quantum number of each state
         self.F = None  # F for each state (valid at low field)
         self.MI = None  # MI for each state (only valid at low field)
@@ -193,8 +238,6 @@ class Atom:
         self.MIax = None
         self.MJax = None
 
-        self._sort_levels()  # arrange levels in energy order
-
         if B is not None:
             self.setB(B)
 
@@ -206,7 +249,8 @@ class Atom:
         provides a more convenient means of accessing the states within a
         given level.
         """
-        return self.levels[level].get_slice()
+        states = self.level_states[level]
+        return slice(states.start_index, states.stop_index)
 
     def index(
         self,
@@ -245,16 +289,15 @@ class Atom:
         inds = np.argwhere(inds)
         if len(inds) == 1:
             inds = inds.ravel()[0]
-        return inds + self.levels[level]._start_ind
+        return inds + self.level_states[level].start_index
 
     def level(self, state: int):
         """Returns the level a state lies in."""
-        for level, data in self.levels.items():
-            sl = data.get_slice()
-            # kludge: pending redesign of LevelData (see #38)
-            if state >= min(sl.start, sl.stop) and state < max(sl.start, sl.stop):
+        for level, level_states in self.level_states.items():
+            if state >= level_states.start_index and state < level_states.stop_index:
                 return level
-        raise ValueError("No state with index {}".format(state))
+
+        raise ValueError(f"No state with index {state}")
 
     def delta(self, lower: int, upper: int):
         """Returns the detuning of the transition between a pair of states
@@ -300,7 +343,7 @@ class Atom:
 
         trans = self.transitions[transition]
         omega = trans.freq
-        Gamma = self.GammaJ[self.levels[trans.upper]._start_ind]
+        Gamma = self.GammaJ[self.level_states[trans.upper].start_ind]
         return consts.hbar * (omega**3) * Gamma / (6 * np.pi * (consts.c**2))
 
     def P0(self, transition: Transition, w0: float):
@@ -313,57 +356,6 @@ class Atom:
         """
         I0 = self.I0(transition)
         return 0.5 * np.pi * (w0**2) * I0
-
-    def _sort_levels(self):
-        """Use the transition data to sort the atomic levels in order of
-        increasing energy.
-        """
-        unsorted_levels: list[str] = []
-        sorted_levels: dict[Level, float] = {}
-
-        if len(self.levels) == 1:
-            sorted_levels[list(self.levels.keys())[0]] = 0.0
-        else:
-            unsorted_levels += list(self.transitions.keys())
-            transition = self.transitions[unsorted_levels.pop()]
-            sorted_levels[transition.lower] = 0
-            sorted_levels[transition.upper] = transition.freq
-
-        while unsorted_levels:
-            for transition_name in unsorted_levels:
-                transition = self.transitions[transition_name]
-                if transition.lower in sorted_levels:
-                    freq = sorted_levels[transition.lower] + transition.freq
-                    sorted_levels[transition.upper] = freq
-                    break
-                elif transition.upper in sorted_levels:
-                    freq = sorted_levels[transition.upper] - transition.freq
-                    sorted_levels[transition.lower] = freq
-                    break
-            else:
-                raise ValueError(
-                    "Transition '{}' would lead to a disconnected level"
-                    " structure.".format(transition_name)
-                )
-            unsorted_levels.remove(transition_name)
-
-        if sorted_levels.keys() != self.levels.keys():
-            raise ValueError("Disconnected level structure")
-
-        sorted_levels: list[tuple[Level, float]] = sorted(
-            sorted_levels.items(), key=lambda x: x[1]
-        )
-
-        E0 = sorted_levels[0][1]  # ground-state energy
-        start_ind = 0
-        for level, energy in sorted_levels:
-            data = self.levels[level]
-            data.E = energy - E0
-            data._num_states = int(np.rint((2 * self.I + 1) * (2 * level.J + 1)))
-            data._start_ind = start_ind
-            start_ind = data._stop_ind = start_ind + data._num_states
-
-        self.num_states = start_ind
 
     def setB(self, B: float):
         """Calculate atomic data at a given B-field (Tesla)."""
@@ -414,7 +406,7 @@ class Atom:
                     )
 
             H /= consts.hbar  # work in angular frequency units
-            lev = data.get_slice()
+            level_slice = self.get_slice(level)
             E, V = np.linalg.eig(H)
             inds = np.argsort(E)
             V = V[:, inds]
@@ -429,21 +421,21 @@ class Atom:
                     " to lift the state degeneracy?".format(B)
                 )
 
-            self.E[lev] = E
-            self.V[lev, lev] = V
-            self.M[lev] = np.rint(2 * M) / 2
-            self.MIax[lev] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
-            self.MJax[lev] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
-            self.MI[lev] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
-            self.MJ[lev] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
+            self.E[level_slice] = E
+            self.V[level_slice, level_slice] = V
+            self.M[level_slice] = np.rint(2 * M) / 2
+            self.MIax[level_slice] = np.kron(np.ones(J_dim), np.arange(-I, I + 1))
+            self.MJax[level_slice] = np.kron(np.arange(-J, J + 1), np.ones(I_dim))
+            self.MI[level_slice] = np.rint(2 * np.diag(V.conj().T @ (Iz) @ V)) / 2
+            self.MJ[level_slice] = np.rint(2 * np.diag(V.conj().T @ (Jz) @ V)) / 2
 
             F_list = np.arange(abs(I - J), I + J + 1)
             if self.I != 0 and data.Ahfs < 0:
                 F_list = F_list[::-1]
 
-            for M in set(self.M[lev]):
-                for Fidx, idx in np.ndenumerate(np.where(M == self.M[lev])):
-                    self.F[lev][idx] = F_list[abs(M) <= F_list][Fidx[1]]
+            for M in set(self.M[level_slice]):
+                for Fidx, idx in np.ndenumerate(np.where(M == self.M[level_slice])):
+                    self.F[level_slice][idx] = F_list[abs(M) <= F_list][Fidx[1]]
 
         if self.M1 is not None:
             self.calc_M1()
