@@ -16,7 +16,7 @@ def main():
     stretch = ion.get_index(ca43.ground_level, 4)
 
     rates = ap.rates.Rates(ion)
-    delta = ion.get_delta(stretch, ion.get_index(ca43.P32, +5))
+    delta = ion.get_transition_frequency(stretch, ion.get_index(ca43.P32, +5))
     lasers = [ap.Laser("393", q=+1, I=I, delta=delta)]  # resonant 393 sigma+
     trans = rates.get_transitions(lasers)
 
