@@ -252,7 +252,7 @@ class Atom:
         """
         return self.E[upper] - self.E[lower]
 
-    def population(self, state: np.array, inds: Level | int | slice):
+    def population(self, state: np.ndarray, inds: Level | int | slice):
         """Returns the total population in a set of states.
 
         :param state: state vector
