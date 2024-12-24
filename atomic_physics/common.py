@@ -91,7 +91,7 @@ class LevelData:
         self._start_ind = None
         self._stop_ind = None
 
-    def slice(self):
+    def get_slice(self):
         """Returns a slice object that selects the states within a given
         level.
 
@@ -197,7 +197,7 @@ class Atom:
         if B is not None:
             self.setB(B)
 
-    def slice(self, level: Level):
+    def get_slice(self, level: Level):
         """Returns a slice object that selects the states within a given
         level.
 
@@ -205,7 +205,7 @@ class Atom:
         provides a more convenient means of accessing the states within a
         given level.
         """
-        return self.levels[level].slice()
+        return self.levels[level].get_slice()
 
     def index(
         self,
@@ -227,7 +227,7 @@ class Atom:
         Internally, we store states in order of increasing energy. This
         provides a more convenient means of accessing a state.
         """
-        lev = self.slice(level)
+        lev = self.get_slice(level)
         Mvec = self.M[lev]
         inds = Mvec == M
 
@@ -243,13 +243,13 @@ class Atom:
 
         inds = np.argwhere(inds)
         if len(inds) == 1:
-            inds = int(inds)
+            inds = inds.ravel()[0]
         return inds + self.levels[level]._start_ind
 
     def level(self, state: int):
         """Returns the level a state lies in."""
         for level, data in self.levels.items():
-            sl = data.slice()
+            sl = data.get_slice()
             # kludge: pending redesign of LevelData (see #38)
             if state >= min(sl.start, sl.stop) and state < max(sl.start, sl.stop):
                 return level
@@ -277,7 +277,7 @@ class Atom:
           a state index; or, a slice.
         """
         if isinstance(inds, Level):
-            return np.sum(state[self.slice(inds)])
+            return np.sum(state[self.get_slice(inds)])
         elif not isinstance(inds, int) and not isinstance(inds, slice):
             raise TypeError("inds must be a level, slice or index")
         return np.sum(state[inds])
@@ -413,7 +413,7 @@ class Atom:
                     )
 
             H /= consts.hbar  # work in angular frequency units
-            lev = data.slice()
+            lev = data.get_slice()
             E, V = np.linalg.eig(H)
             inds = np.argsort(E)
             V = V[:, inds]
@@ -485,7 +485,7 @@ class Atom:
                 Jdim_l = int(np.rint(2 * Jl + 1))
                 Jdim = Jdim_u + Jdim_l
 
-                subspace = np.r_[self.slice(lower), self.slice(upper)]
+                subspace = np.r_[self.get_slice(lower), self.get_slice(upper)]
                 subspace = np.ix_(subspace, subspace)
 
                 dJ = Ju - Jl
@@ -553,7 +553,7 @@ class Atom:
         eyeI = np.identity(I_dim)
 
         for level, data in self.levels.items():
-            lev = data.slice()
+            lev = data.get_slice()
             J_dim = np.rint(2.0 * level.J + 1).astype(int)
             dim = J_dim * I_dim
             eyeJ = np.identity(J_dim)

@@ -50,7 +50,7 @@ ground-level ``F=4, M=+4`` "stretched state" to the 3D5/2 level using a 393nm la
    shelved = np.zeros(len(t_ax))
    for idx, t in np.ndenumerate(t_ax):
       Vf = expm(trans * t) @ Vi
-      shelved[idx] = sum(Vf[ion.slice(ca43.shelf)])
+      shelved[idx] = sum(Vf[ion.get_slice(ca43.shelf)])
 
    plt.plot(t_ax * 1e6, shelved)
    plt.ylabel("Shelved Population")

@@ -36,7 +36,7 @@ class TestGamma(unittest.TestCase):
             else:
                 raise ValueError("Unsupported transition order {}".format(order))
 
-            subspace = np.r_[ion.slice(lower), ion.slice(upper)]
+            subspace = np.r_[ion.get_slice(lower), ion.get_slice(upper)]
 
             for l_ind in list(subspace[:l_dim]):
                 for u_ind in list(subspace[l_dim:]):
@@ -88,7 +88,7 @@ class TestGamma(unittest.TestCase):
             else:
                 raise ValueError("Unsupported transition order {}".format(order))
 
-            subspace = np.r_[ion.slice(lower), ion.slice(upper)]
+            subspace = np.r_[ion.get_slice(lower), ion.get_slice(upper)]
 
             for l_ind in list(subspace[:l_dim]):
                 for u_ind in list(subspace[l_dim:]):

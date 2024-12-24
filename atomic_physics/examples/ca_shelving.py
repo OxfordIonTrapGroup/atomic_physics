@@ -25,7 +25,7 @@ def main():
     shelved = np.zeros(len(t_ax))
     for idx, t in np.ndenumerate(t_ax):
         Vf = expm(trans * t) @ Vi
-        shelved[idx] = sum(Vf[ion.slice(ca43.shelf)])
+        shelved[idx] = sum(Vf[ion.get_slice(ca43.shelf)])
 
     plt.plot(t_ax * 1e6, shelved)
     plt.ylabel("Shelved Population")

@@ -32,8 +32,8 @@ class Rates:
 
             lower = self.atom.transitions[transition].lower
             upper = self.atom.transitions[transition].upper
-            lower_states = self.atom.slice(lower)
-            upper_states = self.atom.slice(upper)
+            lower_states = self.atom.get_slice(lower)
+            upper_states = self.atom.get_slice(upper)
             n_lower = self.atom.levels[lower]._num_states
             n_upper = self.atom.levels[upper]._num_states
 

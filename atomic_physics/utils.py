@@ -101,7 +101,7 @@ def ac_zeeman_shift(atom: ap.Atom, state: int, f_RF: float):
       sigma_minus, pi or sigma_plus polarisation [sigma_m, pi, sigma_p]
     """
     level = atom.level(state)
-    states = atom.slice(level)
+    states = atom.get_slice(level)
     state -= states.start
 
     E = atom.E[states]
