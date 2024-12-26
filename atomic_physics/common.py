@@ -26,6 +26,12 @@ class Level:
     J: float
     S: float
 
+State = namedtuple("State", ["level", "F", "M"])
+State.__doc__ = """Convenient holder for storing atomic state data.
+    :param level: the Level object that the state is in.
+    :param F: total angular momentum number.
+    :param M: z-projection of F."""
+
 
 @dataclass
 class LevelData:
@@ -178,6 +184,11 @@ class Atom:
 
         self.levels = levels
         self.transitions = transitions
+        # Store the transitions indexed by the upper and lower levels it connects,
+        # useful fro reverse searching
+        self.reverse_transitions = {
+            (t.lower, t.upper): t for t in self.transitions.values()
+        }
 
         # use transition data to order levels in terms of increasing energy
         processed_levels: dict[Level, float] = {}  # level: energy (freq units)
@@ -488,9 +499,7 @@ class Atom:
         since they are somewhat more convenient to work with. The two are
         related by constants and power of the transition frequencies.
 
-        To do: define what we mean by a matrix element, and how the amplitudes
-        stored in ePole are related to the matrix elements and to the Rabi
-        frequencies.
+        For converting to Rabi frequencies, use the functions in atomic_physics.rabi.
 
         To do: double check the signs of the amplitudes.
         """
