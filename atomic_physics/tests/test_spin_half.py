@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 import scipy.constants as consts
 
-from atomic_physics.common import Level
+from atomic_physics.core import Level
 from atomic_physics.ions import ba133
 
 
@@ -24,20 +24,24 @@ def Lande_g(level: Level):
     return gJ
 
 
-def _gF(F, J, I, gJ):
-    return gJ * (F * (F + 1) + J * (J + 1) - I * (I + 1)) / (2 * F * (F + 1))
+def _gF(F, J, nuclear_spin, gJ):
+    return (
+        gJ
+        * (F * (F + 1) + J * (J + 1) - nuclear_spin * (nuclear_spin + 1))
+        / (2 * F * (F + 1))
+    )
 
 
 class TestSpinHalf(unittest.TestCase):
-    """Test setB() for spin-half nuclei"""
+    """Test for spin-half nuclei"""
 
     def test_hyperfine(self):
         level = ba133.ground_level
-        ion = ba133.Ba133(level_filter=[level])
-        B = 0.1e-4
-        ion.setB(B)
-        E_0_0 = ion.E[ion.get_index(level, 0, F=0)]
-        E_1_0 = ion.E[ion.get_index(level, 0, F=1)]
+        Ba133 = ba133.Ba133.filter_levels(level_filter=(level,))
+        ion = Ba133(0.1e-4)
+
+        E_0_0 = ion.state_energies[ion.get_state_for_F(level, F=0, M_F=0)]
+        E_1_0 = ion.state_energies[ion.get_state_for_F(level, F=1, M_F=0)]
 
         Ahfs = 2 * np.pi * 9925.45355459e6
 
@@ -45,11 +49,12 @@ class TestSpinHalf(unittest.TestCase):
 
     def test_zeeman(self):
         level = ba133.ground_level
-        ion = ba133.Ba133(level_filter=[level])
+        Ba133 = ba133.Ba133.filter_levels(level_filter=(level,))
         B = 10e-4
-        ion.setB(B)
-        E_1_0 = ion.E[ion.get_index(level, 0, F=1)]
-        E_1_1 = ion.E[ion.get_index(level, 1, F=1)]
+        ion = Ba133(B)
+
+        E_1_0 = ion.state_energies[ion.get_state_for_F(level, F=1, M_F=0)]
+        E_1_1 = ion.state_energies[ion.get_state_for_F(level, F=1, M_F=1)]
 
         gJ = Lande_g(level)
         gF = _gF(1, 1 / 2, 1 / 2, gJ)

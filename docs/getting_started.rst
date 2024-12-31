@@ -21,41 +21,61 @@ or add to your poetry project with
 Basic usage
 ~~~~~~~~~~~
 
-As an example, we use the rate equations interface to simulate optical pumping from the
-ground-level ``F=4, M=+4`` "stretched state" to the 3D5/2 level using a 393nm laser.
+The heart of the ``atomic_physics`` package is the :class:`~atomic_physics.core.Atom`,
+which represents a particular atomic species at a given magnetic field.
 
-.. code-block:: python
-   :linenos:
+:class:`~atomic_physics.core.AtomFactory` provides a flexible means of constructing
+:class:`~atomic_physics.core.Atom`\s. A number of 
+:class:`~atomic_physics.core.AtomFactory`\s are available in the :ref:`atoms` and
+:ref:`ions` modules, providing pre-configured atom definitions based on accurate atomic
+physics data.
 
+The :class:`~atomic_physics.rate_equations.Rates` class provides a simple interface
+for performing rate equations simulations.
+
+Example Usage
+~~~~~~~~~~~~~
+
+As an example, we use the rate equations interface to simulate electron shelving in
+43Ca+ - optical pumping from the ground-level ``F=4, M=+4`` "stretched state" to
+the 3D5/2 level using a 393nm laser.
+
+.. testcode::
+
+   """Simple rate equations example of 393 shelving in 43Ca+."""
+
+   import matplotlib.pyplot as plt
    import numpy as np
    from scipy.linalg import expm
-   import matplotlib.pyplot as plt
 
-   from atomic_physics.common import Laser
-   from atomic_physics.rate_equations import Rates
+   from atomic_physics.core import Laser
    from atomic_physics.ions import ca43
-
+   from atomic_physics.rate_equations import Rates
 
    t_ax = np.linspace(0, 100e-6, 100)
+   intensity = 0.02  # 393 intensity
 
-   ion = ca43.Ca43(B=146e-4)
-   stretch = ion.get_index(ca43.ground_level, 4)
+   ion = ca43.Ca43(magnetic_field=146e-4)
+   stretch = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
 
    rates = Rates(ion)
-   delta = ion.get_transition_frequency(stretch, ion.get_index(ca43.P32, +5))
-   lasers = [Laser("393", q=+1, I=0.02, delta=delta)]  # resonant 393 sigma+
-   trans = rates.get_transitions(lasers)
+   delta = ion.get_transition_frequency_for_states(
+       (stretch, ion.get_state_for_F(ca43.P32, F=5, M_F=+5))
+   )
+   lasers = (
+       Laser("393", polarization=+1, intensity=intensity, detuning=delta),
+   )  # resonant 393 sigma+
+   trans = rates.get_transitions_matrix(lasers)
 
    Vi = np.zeros((ion.num_states, 1))  # initial state
    Vi[stretch] = 1  # start in F=4, M=+4
    shelved = np.zeros(len(t_ax))
    for idx, t in np.ndenumerate(t_ax):
-      Vf = expm(trans * t) @ Vi
-      shelved[idx] = sum(Vf[ion.get_slice(ca43.shelf)])
+       Vf = expm(trans * t) @ Vi
+       shelved[idx] = np.sum(Vf[ion.get_slice_for_level(ca43.shelf)])
 
    plt.plot(t_ax * 1e6, shelved)
    plt.ylabel("Shelved Population")
    plt.xlabel("Shelving time (us)")
    plt.grid()
    plt.show()
-

@@ -9,17 +9,16 @@ from .utils import wigner_3j, wigner_6j
 
 class TestGamma(unittest.TestCase):
     def test_LF(self):
-        """Check that, in the low-field, our scattering rates match a more
-        direct calculation."""
-        ion = ca43.Ca43(B=1e-8)
-        ion.calc_Epole()
-        Gamma_ion = ion.Gamma
-        I = ion.I
-        Idim = int(np.rint(2 * I + 1))
+        """Check that, in the low-field, our scattering rates match a more direct
+        calculation.
+        """
+        ion = ca43.Ca43(magnetic_field=1e-8)
+        Gamma_ion = np.abs(ion.get_electric_multipoles()) ** 2
+        Idim = int(np.rint(2 * ion.nuclear_spin + 1))
         Gamma = np.zeros((ion.num_states, ion.num_states))
 
         for name, transition in ion.transitions.items():
-            A = transition.A
+            A = transition.einstein_A
             lower = transition.lower
             upper = transition.upper
             Ju = upper.J
@@ -36,7 +35,9 @@ class TestGamma(unittest.TestCase):
             else:
                 raise ValueError("Unsupported transition order {}".format(order))
 
-            subspace = np.r_[ion.get_slice(lower), ion.get_slice(upper)]
+            subspace = np.r_[
+                ion.get_slice_for_level(lower), ion.get_slice_for_level(upper)
+            ]
 
             for l_ind in list(subspace[:l_dim]):
                 for u_ind in list(subspace[l_dim:]):
@@ -53,25 +54,24 @@ class TestGamma(unittest.TestCase):
                         * (2 * Fl + 1)
                         * (2 * Fu + 1)
                         * (wigner_3j(Fu, order, Fl, -Mu, q, Ml)) ** 2
-                        * (wigner_6j(Ju, I, Fu, Fl, order, Jl) ** 2)
+                        * (wigner_6j(Ju, ion.nuclear_spin, Fu, Fl, order, Jl) ** 2)
                     )
 
             subspace = np.ix_(subspace, subspace)
             scale = np.max(np.max(np.abs(Gamma[subspace])))
             eps = np.max(np.max(np.abs(Gamma[subspace] - Gamma_ion[subspace])))
-            self.assertTrue(eps / scale < 1e-4)
+            self.assertLess(eps / scale, 1e-4)
 
     def test_HF(self):
         """Check that, in the high-field, our scattering rates match a more
         direct calculation."""
-        ion = ca43.Ca43(B=1000)
-        ion.calc_Epole()
-        Gamma_ion = ion.Gamma
-        Idim = int(np.rint(2 * ion.I + 1))
+        ion = ca43.Ca43(magnetic_field=1000)
+        Gamma_ion = np.abs(ion.get_electric_multipoles()) ** 2
+        Idim = int(np.rint(2 * ion.nuclear_spin + 1))
         Gamma = np.zeros((ion.num_states, ion.num_states))
 
         for _, transition in ion.transitions.items():
-            A = transition.A
+            A = transition.einstein_A
             lower = transition.lower
             upper = transition.upper
             Ju = upper.J
@@ -88,14 +88,16 @@ class TestGamma(unittest.TestCase):
             else:
                 raise ValueError("Unsupported transition order {}".format(order))
 
-            subspace = np.r_[ion.get_slice(lower), ion.get_slice(upper)]
+            subspace = np.r_[
+                ion.get_slice_for_level(lower), ion.get_slice_for_level(upper)
+            ]
 
             for l_ind in list(subspace[:l_dim]):
                 for u_ind in list(subspace[l_dim:]):
-                    if ion.MI[l_ind] != ion.MI[u_ind]:
+                    if ion.M_I[l_ind] != ion.M_I[u_ind]:
                         continue
-                    M_l = ion.MJ[l_ind]
-                    M_u = ion.MJ[u_ind]
+                    M_l = ion.M_J[l_ind]
+                    M_u = ion.M_J[u_ind]
                     q = M_u - M_l
                     if q not in range(-order, order + 1):
                         continue
