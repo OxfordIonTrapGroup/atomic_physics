@@ -1,4 +1,4 @@
-r""":math:`^{133}\mathrm{Ba}^+`
+r""":math:`^{138}\mathrm{Ba}^+`
 
 Where no references are given next to the transition frequencies, they
 were calculated based on transition frequencies between other levels.
