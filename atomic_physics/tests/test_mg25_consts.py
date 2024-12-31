@@ -26,15 +26,15 @@ MW_transition_freqs = [
 class TestMg25Consts(unittest.TestCase):
     def test_s12_clock(self):
         """Look for field-insensitive S1/2 3,1 -> S1/2 2,1 transition at 212.8 G"""
-        ion = mg25.Mg25(level_filter=[mg25.S12])
+        Mg25 = mg25.Mg25.filter_levels(level_filter=(mg25.S12,))
+        ion = Mg25(magnetic_field=S12_31_21_clock_field)
 
-        ion.setB(S12_31_21_clock_field)
-        l_index = ion.get_index(mg25.S12, 1, F=3)
-        u_index = ion.get_index(mg25.S12, 1, F=2)
+        l_index = ion.get_state_for_F(mg25.S12, F=3, M_F=+1)
+        u_index = ion.get_state_for_F(mg25.S12, F=2, M_F=+1)
 
         # 212.8 G
         model_field_independent_point = field_insensitive_point(
-            ion, l_index, u_index, B0=S12_31_21_clock_field
+            Mg25, (l_index, u_index), magnetic_field_guess=S12_31_21_clock_field
         )
         self.assertAlmostEqual(
             model_field_independent_point, S12_31_21_clock_field, places=5
@@ -44,21 +44,23 @@ class TestMg25Consts(unittest.TestCase):
         """
         Check microwave transition frequencies in the ground state manifold
         """
-        ion = mg25.Mg25(level_filter=[mg25.S12])
+        Mg25 = mg25.Mg25.filter_levels(level_filter=(mg25.S12,))
 
-        ion.setB(1e-4)
-        l_index = ion.get_index(mg25.S12, 1, F=3)
-        u_index = ion.get_index(mg25.S12, 1, F=2)
+        ion = Mg25(magnetic_field=1e-4)
+        l_index = ion.get_state_for_F(mg25.S12, F=3, M_F=+1)
+        u_index = ion.get_state_for_F(mg25.S12, F=2, M_F=+1)
 
         model_field_independent_point = field_insensitive_point(
-            ion, l_index, u_index, B0=S12_31_21_clock_field
+            Mg25, (l_index, u_index), magnetic_field_guess=S12_31_21_clock_field
         )
-        ion.setB(model_field_independent_point)
+        ion = Mg25(magnetic_field=model_field_independent_point)
 
         for transition in MW_transition_freqs:
-            freq_model = ion.get_transition_frequency(
-                ion.get_index(mg25.S12, F=3, M=transition[0]),
-                ion.get_index(mg25.S12, F=2, M=transition[1]),
+            freq_model = ion.get_transition_frequency_for_states(
+                (
+                    ion.get_state_for_F(mg25.S12, F=3, M_F=transition[0]),
+                    ion.get_state_for_F(mg25.S12, F=2, M_F=transition[1]),
+                ),
             ) / (2 * np.pi * 1e9)
 
             self.assertAlmostEqual(freq_model, transition[2], places=4)

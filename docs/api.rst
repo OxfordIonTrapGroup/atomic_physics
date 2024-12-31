@@ -3,9 +3,9 @@
 atomic-physics API
 ==================
 
-Common
+core
 ~~~~~~
-.. automodule:: atomic_physics.common
+.. automodule:: atomic_physics.core
     :members:
 
 Rate Equations
@@ -23,6 +23,25 @@ Operators
 .. automodule:: atomic_physics.operators
     :members:
 
+Polarization
+~~~~~~~~~~~~
+.. automodule:: atomic_physics.polarization
+    :members:
+
+.. _atoms:
+
+Atoms
+~~~~~
+.. automodule:: atomic_physics.atoms
+    :members:
+
+Two State Atom
+++++++++++++++
+.. automodule:: atomic_physics.atoms.two_state
+    :members:
+
+.. _ions:
+
 Ions
 ~~~~
 .. automodule:: atomic_physics.ions
@@ -38,7 +57,7 @@ Barium 135
 .. automodule:: atomic_physics.ions.ba135
     :members:
 
-Barium 133
+Barium 137
 ++++++++++
 .. automodule:: atomic_physics.ions.ba137
     :members:

@@ -2,7 +2,9 @@
 
 import unittest
 
-from atomic_physics.common import Laser
+import numpy as np
+
+from atomic_physics.core import Laser
 from atomic_physics.ions import ca43
 from atomic_physics.rate_equations import Rates
 
@@ -13,29 +15,48 @@ def _steady_state_population(intensity: float):
 
 
 class TestTSS(unittest.TestCase):
-    """Two-state system tests
+    """Two-state system tests.
 
-    The closed stretch cycling transition is used to make a two state system"""
+    The closed stretch cycling transition is used to make a two state system.
+    """
 
     def test_rates_relations(self):
         """Test the spontaneous rates satisfy relations in net rates
 
-        This relation is used in the steady states tests."""
+        This relation is used in the steady states tests.
+        """
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
-        ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
-        s_idx = ion.get_index(ca43.ground_level, 4)
-        p_idx = ion.get_index(ca43.P32, +5)
+        Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level, ca43.P32))
+        ion = Ca43(magnetic_field=5e-4)
+        s_idx = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
+        p_idx = ion.get_state_for_F(ca43.P32, F=5, M_F=+5)
 
         rates = Rates(ion)
-        delta = ion.get_transition_frequency(s_idx, p_idx)
-        for I in intensity_list:
-            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
-            trans = rates.get_transitions(Lasers)
+        detuning = ion.get_transition_frequency_for_states((s_idx, p_idx))
+        for intensity in intensity_list:
+            Lasers = (
+                Laser("393", polarization=+1, intensity=intensity, detuning=detuning),
+            )  # resonant
+            trans = rates.get_transitions_matrix(Lasers)
 
-            spont = rates.get_spont()
+            spont = rates.get_spont_matrix()
             r = spont[p_idx, p_idx] / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
             self.assertAlmostEqual(r, 1.0, places=7)
+
+    def test_steady_state(self):
+        """Check that the steady-state solution is found correctly."""
+        ion = ca43.Ca43(magnetic_field=5e-4)
+        rates = Rates(ion)
+        lasers = (
+            Laser("397", polarization=+1, intensity=1, detuning=0),
+            Laser("397", polarization=-1, intensity=1, detuning=0),
+            Laser("866", polarization=+1, intensity=1, detuning=0),
+            Laser("866", polarization=-1, intensity=1, detuning=0),
+        )
+        transitions = rates.get_transitions_matrix(lasers)
+        steady_state = rates.get_steady_state_populations(transitions)
+        np.testing.assert_allclose(transitions @ steady_state, 0, atol=1e-8)
 
     def test_steady_state_intensity(self):
         """Test the steady state intensity scaling"""
@@ -43,18 +64,22 @@ class TestTSS(unittest.TestCase):
         # use both integers and floats
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
-        ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
-        s_idx = ion.get_index(ca43.ground_level, 4)
-        p_idx = ion.get_index(ca43.P32, +5)
+        Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level, ca43.P32))
+        ion = Ca43(magnetic_field=5e-4)
+
+        s_idx = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
+        p_idx = ion.get_state_for_F(ca43.P32, F=5, M_F=+5)
 
         rates = Rates(ion)
-        delta = ion.get_transition_frequency(s_idx, p_idx)
+        detuning = ion.get_transition_frequency_for_states((s_idx, p_idx))
 
-        for I in intensity_list:
-            Lasers = [Laser("393", q=+1, I=I, delta=delta)]  # resonant
-            trans = rates.get_transitions(Lasers)
+        for intensity in intensity_list:
+            Lasers = (
+                Laser("393", polarization=+1, intensity=intensity, detuning=detuning),
+            )  # resonant
+            trans = rates.get_transitions_matrix(Lasers)
 
-            Np_ss = _steady_state_population(I)
+            Np_ss = _steady_state_population(intensity)
             # transition rates normalised by A coefficient
             dNp_dt = trans[p_idx, p_idx] * Np_ss + trans[p_idx, s_idx] * (1 - Np_ss)
             dNp_dt = dNp_dt / (trans[p_idx, p_idx] + trans[p_idx, s_idx])
@@ -67,15 +92,19 @@ class TestTSS(unittest.TestCase):
         """Test steady state detuning dependence"""
 
         # assume 1 saturation intensity
-        ion = ca43.Ca43(B=5e-4, level_filter=[ca43.ground_level, ca43.P32])
-        s_idx = ion.get_index(ca43.ground_level, 4)
-        p_idx = ion.get_index(ca43.P32, +5)
+        Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level, ca43.P32))
+        ion = Ca43(magnetic_field=5e-4)
+
+        s_idx = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
+        p_idx = ion.get_state_for_F(ca43.P32, F=5, M_F=+5)
 
         rates = Rates(ion)
-        delta = ion.get_transition_frequency(s_idx, p_idx)
+        detuning = ion.get_transition_frequency_for_states((s_idx, p_idx))
 
-        Lasers = [Laser("393", q=+1, I=1.0, delta=delta)]  # resonant
-        trans = rates.get_transitions(Lasers)
+        Lasers = (
+            Laser("393", polarization=+1, intensity=1.0, detuning=detuning),
+        )  # resonant
+        trans = rates.get_transitions_matrix(Lasers)
         line_width = abs(trans[p_idx, p_idx] + trans[p_idx, s_idx])
 
         # detuning scan relative to linewidth
@@ -84,8 +113,15 @@ class TestTSS(unittest.TestCase):
             I_eff = 1 / (4 * det**2 + 1)
             Np_ss = _steady_state_population(I_eff)
 
-            Lasers = [Laser("393", q=+1, I=1.0, delta=delta + line_width * det)]
-            trans = rates.get_transitions(Lasers)
+            Lasers = (
+                Laser(
+                    "393",
+                    polarization=+1,
+                    intensity=1.0,
+                    detuning=detuning + line_width * det,
+                ),
+            )
+            trans = rates.get_transitions_matrix(Lasers)
 
             # transition rates normalised by A coefficient
             dNp_dt = trans[p_idx, p_idx] * Np_ss + trans[p_idx, s_idx] * (1 - Np_ss)

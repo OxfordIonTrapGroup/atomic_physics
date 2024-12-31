@@ -5,10 +5,9 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-project = "ionics_fits"
-copyright = "2024, Oxford Ionics"
-author = "Oxford Ionics"
-release = "1.3"
+project = "atomic-physics"
+author = "Thomas Harty"
+release = "1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

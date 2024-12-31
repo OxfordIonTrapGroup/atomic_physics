@@ -1,4 +1,4 @@
-"""25Mg+
+r""":math:`^{25}\mathrm{Mg}^+`
 
 References::
 
@@ -27,68 +27,58 @@ References::
 import numpy as np
 import scipy.constants as consts
 
-from atomic_physics.common import Atom, Level, LevelData, Transition
+from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
-# level aliases
-ground_level = S12 = Level(n=3, S=1 / 2, L=0, J=1 / 2)
+S12 = Level(n=3, S=1 / 2, L=0, J=1 / 2)
+r""" The :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` level.
+"""
+
 P12 = Level(n=3, S=1 / 2, L=1, J=1 / 2)
+r""" The :math:`\left|n=3, S=1/2, L=1, J=1/2\right>` level."""
+
 P32 = Level(n=3, S=1 / 2, L=1, J=3 / 2)
+r""" The :math:`\left|n=3, S=1/2, L=1, J=3/2\right>` level."""
+
+ground_level = S12
+r""" Alias for the :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` ground level of
+:math:`^{25}\mathrm{Mg}^+`.
+"""
 
 
-class Mg25(Atom):
-    def __init__(
-        self,
-        *,
-        B: float | None = None,
-        level_filter: list[Level] | None = None,
-    ):
-        """25Mg+ atomic structure.
+level_data = (
+    LevelData(
+        level=ground_level,
+        g_J=2.002,  # [1] (approximate)
+        g_I=(2 / 5) * -0.85545,  # [7]
+        Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
+    ),
+    LevelData(
+        level=P12,
+        Ahfs=102.16e6 * consts.h,  # [6]
+        g_I=(2 / 5) * -0.85545,  # [7]
+    ),
+    LevelData(
+        level=P32,
+        Ahfs=-19.0972e6 * consts.h,  # [8]
+        g_I=(2 / 5) * -0.85545,  # [7]
+        Bhfs=22.3413e6 * consts.h,  # [8]
+    ),
+)
 
-        :param B: B-field (T)
-        :param level_filter: list of Levels to include in the simulation, if
-            None we include all levels.
-        """
-        level_data = [
-            LevelData(
-                level=ground_level,
-                g_J=2.002,  # [1] (approximate)
-                g_I=(2 / 5) * -0.85545,  # [7]
-                Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
-            ),
-            LevelData(
-                level=P12,
-                Ahfs=102.16e6 * consts.h,  # [6]
-                g_I=(2 / 5) * -0.85545,  # [7]
-            ),
-            LevelData(
-                level=P32,
-                Ahfs=-19.0972e6 * consts.h,  # [8]
-                g_I=(2 / 5) * -0.85545,  # [7]
-                Bhfs=22.3413e6 * consts.h,  # [8]
-            ),
-        ]
+transitions = {
+    "280": Transition(
+        lower=S12,
+        upper=P12,
+        einstein_A=5.58e8,  # [4]
+        frequency=1069.339957e12 * 2 * np.pi,  # [3]
+    ),
+    "279": Transition(
+        lower=S12,
+        upper=P32,
+        einstein_A=2.60e8,  # [4]
+        frequency=1072.084547e12 * 2 * np.pi,  # [3] (or 1072084547e6 * 2 * np.pi [2])
+    ),
+}
 
-        transitions = {
-            "280": Transition(
-                lower=S12,
-                upper=P12,
-                A=5.58e8,  # [4]
-                freq=1069.339957e12 * 2 * np.pi,  # [3]
-            ),
-            "279": Transition(
-                lower=S12,
-                upper=P32,
-                A=2.60e8,  # [4]
-                freq=1072.084547e12
-                * 2
-                * np.pi,  # [3] (or 1072084547e6 * 2 * np.pi [2])
-            ),
-        }
-
-        super().__init__(
-            B=B,
-            I=5 / 2,
-            level_data=level_data,
-            transitions=transitions,
-            level_filter=level_filter,
-        )
+Mg25 = AtomFactory(nuclear_spin=5 / 2, level_data=level_data, transitions=transitions)
+r""" :math:`^{25}\mathrm{Mg}^+` atomic structure. """

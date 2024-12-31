@@ -1,3 +1,5 @@
 __pycache__/
 *.egg-info/
 /dist
+docs/_build
+docs/_static
