@@ -322,13 +322,19 @@ class Atom:
             def closest(number, valid_values):
                 return valid_values[np.abs(number - valid_values).argmin()]
 
-            valid_F = np.arange(
-                np.abs(level.J - self.nuclear_spin), level.J + self.nuclear_spin + 1
-            )
             valid_M_I = np.arange(-self.nuclear_spin, self.nuclear_spin + 1)
             valid_M_J = np.arange(-level.J, level.J + 1)
 
-            self.F[level_slice] = list(map(lambda x: closest(x, valid_F), F))
+            F_list = np.arange(
+                abs(self.nuclear_spin - level.J), self.nuclear_spin + level.J + 1
+            )
+            if level_data.Ahfs > 0:
+                F_list = F_list[::-1]
+
+            for M in set(self.M[level_slice]):
+                for Fidx, idx in np.ndenumerate(np.where(M == self.M[level_slice])):
+                    self.F[level_slice][idx] = F_list[abs(M) <= F_list][Fidx[1]]
+
             self.M_I[level_slice] = list(map(lambda x: closest(x, valid_M_I), M_I))
             self.M_J[level_slice] = list(map(lambda x: closest(x, valid_M_J), M_J))
 
@@ -508,7 +514,9 @@ class Atom:
         scattering_rate = total_scattering_rates[stretched_state_index]
 
         omega = transition.frequency
-        return consts.hbar * (omega**3) * scattering_rate / (6 * np.pi * (consts.c**2))
+        return (
+            consts.hbar * (omega**3) * scattering_rate / (6 * np.pi * (consts.c**2))
+        )
 
     def intensity_to_power(
         self, transition: str, waist_radius: float, intensity: float
