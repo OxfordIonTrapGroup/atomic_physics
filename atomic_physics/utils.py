@@ -149,14 +149,16 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
             pol_ind = polarization + 1
             Omega = amplitude_for_pol[pol_ind] * Rnm[state, spectator]
             acz[pol_ind] += (
-                0.5 * Omega**2 * (w_transition / (w_transition**2 - drive.frequency**2))
+                0.5
+                * Omega**2
+                * (w_transition / (w_transition**2 - drive.frequency**2))
             )
 
     return sum(acz)
 
 
 def ac_zeeman_shift_for_transition(
-    atom: Atom, states: tuple[int, int], upper, drive: RFDrive
+    atom: Atom, states: tuple[int, int], drive: RFDrive
 ) -> float:
     """Returns the AC Zeeman shift on a transition resulting from an applied RF field.
 
