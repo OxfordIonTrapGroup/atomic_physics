@@ -170,9 +170,12 @@ def ac_zeeman_shift_for_transition(
     if len(states) != 2:
         raise ValueError(f"Expected 2 state indices, got {len(states)}.")
 
+    upper = min(states)
+    lower = max(states)
+
     return ac_zeeman_shift_for_state(
-        atom=atom, state=states[0], drive=drive
-    ) + ac_zeeman_shift_for_state(atom=atom, state=states[1], drive=drive)
+        atom=atom, state=upper, drive=drive
+    ) - ac_zeeman_shift_for_state(atom=atom, state=lower, drive=drive)
 
 
 def rayleigh_range(transition: Transition, waist_radius: float) -> float:
