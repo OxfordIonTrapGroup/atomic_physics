@@ -156,7 +156,7 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
 
 
 def ac_zeeman_shift_for_transition(
-    atom: Atom, states: tuple[int, int], upper, drive: RFDrive
+    atom: Atom, states: tuple[int, int], drive: RFDrive
 ) -> float:
     """Returns the AC Zeeman shift on a transition resulting from an applied RF field.
 
