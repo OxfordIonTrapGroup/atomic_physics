@@ -305,17 +305,6 @@ class Atom:
 
             self.M[level_slice] = M
 
-            # F, M_I & M_J aren't generally good quantum numbers, but find the closest
-            # value anyway since it's useful in cases where we're "close enough" to
-            # high or low field.
-            Fz = Iz + Jz
-            Fp = Ip + Jp
-            Fm = Im + Jm
-
-            F_2_op = Fz @ Fz + (1 / 2) * (Fp @ Fm + Fm @ Fp)
-            F_2 = np.diag(state_vectors.conj().T @ F_2_op @ state_vectors)  # <F^2>
-
-            F = 0.5 * (np.sqrt(1 + 4 * F_2) - 1)  # <F^2> = f * (f + 1)
             M_I = np.diag(state_vectors.conj().T @ (Iz) @ state_vectors)  # M_I = <Iz>
             M_J = np.diag(state_vectors.conj().T @ (Jz) @ state_vectors)  # M_J = <Jz>
 
