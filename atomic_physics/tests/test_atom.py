@@ -275,3 +275,79 @@ class TestFNumber(unittest.TestCase):
                 ),
                 i + 15,
             )
+
+
+class TestMIMJ(unittest.TestCase):
+    """
+    Test MI and MJ number assignment
+    """
+
+    def test_ba137_ground(self):
+        level = ba137.ground_level
+        Ba137 = ba137.Ba137.filter_levels(level_filter=(level,))
+        ion = Ba137(magnetic_field=1.0)
+
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=2,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=3 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=1 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=0,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-1 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=-1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-3 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=-2,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-3 / 2, M_J=-1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=1,
+                M_F=-1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-1 / 2, M_J=-1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=1,
+                M_F=0,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=1 / 2, M_J=-1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=1,
+                M_F=1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=3 / 2, M_J=-1 / 2),
+        )
