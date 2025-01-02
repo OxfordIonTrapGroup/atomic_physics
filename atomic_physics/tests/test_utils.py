@@ -12,8 +12,8 @@ def ac_zeeman(Omega, w_transition, w_rf):
     return 0.5 * (Omega**2) * (w_transition / (w_transition**2 - w_rf**2))
 
 
-class TestUtils(unittest.TestCase):
-    def test_ac_zeeman_ground_level(self):
+class TestACZeeman(unittest.TestCase):
+    def test_ac_zeeman_ground_level_ca43(self):
         """Check AC Zeeman shift calculations using the clock qubit in the 43Ca+ ground
         level.
         """
