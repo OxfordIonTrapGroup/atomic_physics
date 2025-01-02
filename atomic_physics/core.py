@@ -305,32 +305,29 @@ class Atom:
 
             self.M[level_slice] = M
 
-            # F, M_I & M_J aren't generally good quantum numbers, but find the closest
-            # value anyway since it's useful in cases where we're "close enough" to
-            # high or low field.
-            Fz = Iz + Jz
-            Fp = Ip + Jp
-            Fm = Im + Jm
-
-            F_2_op = Fz @ Fz + (1 / 2) * (Fp @ Fm + Fm @ Fp)
-            F_2 = np.diag(state_vectors.conj().T @ F_2_op @ state_vectors)  # <F^2>
-
-            F = 0.5 * (np.sqrt(1 + 4 * F_2) - 1)  # <F^2> = f * (f + 1)
-            M_I = np.diag(state_vectors.conj().T @ (Iz) @ state_vectors)  # M_I = <Iz>
             M_J = np.diag(state_vectors.conj().T @ (Jz) @ state_vectors)  # M_J = <Jz>
 
             def closest(number, valid_values):
                 return valid_values[np.abs(number - valid_values).argmin()]
 
-            valid_F = np.arange(
-                np.abs(level.J - self.nuclear_spin), level.J + self.nuclear_spin + 1
-            )
-            valid_M_I = np.arange(-self.nuclear_spin, self.nuclear_spin + 1)
             valid_M_J = np.arange(-level.J, level.J + 1)
-
-            self.F[level_slice] = list(map(lambda x: closest(x, valid_F), F))
-            self.M_I[level_slice] = list(map(lambda x: closest(x, valid_M_I), M_I))
             self.M_J[level_slice] = list(map(lambda x: closest(x, valid_M_J), M_J))
+
+            if level_data.Ahfs is not None:
+                F_list = np.arange(
+                    abs(self.nuclear_spin - level.J), self.nuclear_spin + level.J + 1
+                )
+                if level_data.Ahfs > 0:
+                    F_list = F_list[::-1]
+
+                for M in set(self.M[level_slice]):
+                    for Fidx, idx in np.ndenumerate(np.where(M == self.M[level_slice])):
+                        self.F[level_slice][idx] = F_list[abs(M) <= F_list][Fidx[1]]
+                M_I = np.diag(
+                    state_vectors.conj().T @ (Iz) @ state_vectors
+                )  # M_I = <Iz>
+                valid_M_I = np.arange(-self.nuclear_spin, self.nuclear_spin + 1)
+                self.M_I[level_slice] = list(map(lambda x: closest(x, valid_M_I), M_I))
 
     def get_transition_frequency_for_states(
         self, states: tuple[int, int], relative: bool = True
@@ -430,15 +427,12 @@ class Atom:
         :return: the index of the corresponding state.
         """
         inds = np.arange(self.num_states)
-        level_states = self.level_states[level]
+        level_slice = self.get_slice_for_level(level)
 
-        level_states = np.logical_and(
-            level_states.start_index <= inds, inds < level_states.stop_index
-        )
+        level_states = inds[level_slice]
 
-        M_states = np.logical_and(self.M_I[inds] == M_I, self.M_J[inds] == M_J)
-
-        states = np.logical_and(level_states, M_states)
+        MI_MJ_states = np.logical_and(self.M_I[inds] == M_I, self.M_J[inds] == M_J)
+        states = level_states[MI_MJ_states == True]
 
         if len(states) != 1:
             raise ValueError(
