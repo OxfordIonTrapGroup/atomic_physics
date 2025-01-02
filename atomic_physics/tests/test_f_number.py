@@ -1,4 +1,5 @@
 """Test F-number assignment"""
+
 import unittest
 from atomic_physics.ions import ba133, ba137
 

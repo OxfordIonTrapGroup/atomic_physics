@@ -149,9 +149,7 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
             pol_ind = polarization + 1
             Omega = amplitude_for_pol[pol_ind] * Rnm[state, spectator]
             acz[pol_ind] += (
-                0.5
-                * Omega**2
-                * (w_transition / (w_transition**2 - drive.frequency**2))
+                0.5 * Omega**2 * (w_transition / (w_transition**2 - drive.frequency**2))
             )
 
     return sum(acz)
@@ -174,7 +172,7 @@ def ac_zeeman_shift_for_transition(
 
     return ac_zeeman_shift_for_state(
         atom=atom, state=states[0], drive=drive
-    ) + ac_zeeman_shift_for_state(atom=atom, state=states[1], drive=drive)
+    ) - ac_zeeman_shift_for_state(atom=atom, state=states[1], drive=drive)
 
 
 def rayleigh_range(transition: Transition, waist_radius: float) -> float:

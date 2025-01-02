@@ -514,9 +514,7 @@ class Atom:
         scattering_rate = total_scattering_rates[stretched_state_index]
 
         omega = transition.frequency
-        return (
-            consts.hbar * (omega**3) * scattering_rate / (6 * np.pi * (consts.c**2))
-        )
+        return consts.hbar * (omega**3) * scattering_rate / (6 * np.pi * (consts.c**2))
 
     def intensity_to_power(
         self, transition: str, waist_radius: float, intensity: float
