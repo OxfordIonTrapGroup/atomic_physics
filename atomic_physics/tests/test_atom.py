@@ -4,35 +4,22 @@ import numpy as np
 from scipy import constants as consts
 
 from atomic_physics.ions import ca43
-from atomic_physics.utils import d2f_dB2, df_dB, field_insensitive_point
 
 
-class TestCa43(unittest.TestCase):
-    def test_ca43_146G_clock(self):
-        """Check calculations against values in [1] appendix E for the ground-level of
-        43Ca+ at 146G.
+class TestAtom(unittest.TestCase):
+    """Tests for :class:`atomic_physics.core.Atom`.
 
-        This checks: magnetic dipole matrix elements, state expansion coefficients,
-        transition frequencies and sensitivities
-
-        NB if |psi> is an angular momentum eigenstate with eigenvalue M, so is
-        e^(i phi)|psi>. In other words, the expansion coefficients - and hence all
-        matrix elements - are only determined up to an overall phase factor. In appendix
-        E.2 a sign convention was applied when tabulating the expansion coefficients
-        however this sign convention was not followed during the calculation of the
-        matrix elements tabulated in table E.4 - essentially, the sign convention was
-        just applied as a post-processing step when producing E.2, but not anywhere
-        else. As a result, all we can do is compare absolute values of matrix elements,
-        not signs.
-
+    References:
         [1] Thomas Harty DPhil Thesis (2013).
+    """
+
+    def test_state_vectors(self):
+        """
+        Check the calculation for `state_vectors` against values for the ground-level of
+        43Ca+ at 146G using [1] table E.2.
         """
         ion = ca43.Ca43(magnetic_field=146.0942e-4)
         level_slice = ion.get_slice_for_level(ca43.ground_level)
-        uB = consts.physical_constants["Bohr magneton"][0]
-
-        # check the expansion coefficients for the intermediate-field states in terms
-        # of the high-field (MI, MJ) states match table E.2
 
         # M, ((M_J, M_I, coeff_M_J, coeff_M_I))
         expansions = (
@@ -51,14 +38,21 @@ class TestCa43(unittest.TestCase):
         basis_M_I = ion.high_field_M_I[level_slice]
         basis_M_J = ion.high_field_M_J[level_slice]
 
-        for M, (alpha_expansion, beta_expansion) in expansions:
+        matched = np.full((len(expansions), 2), False, dtype=bool)
+        for expansion_idx, (M, (alpha_expansion, beta_expansion)) in enumerate(
+            expansions
+        ):
             indicies = ion.get_states_for_M(level=ca43.S12, M=M)
-            for ind in indicies:
-                state_vector = state_vectors[0:16, ind]
 
-                # There are 2 states with each value of M and each state is a
-                # superposition of 2 combinations of (M_I, M_J) states. We label these
-                # combinations alpha and beta.
+            for ind in indicies:
+                state_vector = state_vectors[:, ind]
+
+                # Each |M> state is a superposition of two high-field states:
+                # alpha*|M_J=-1/2, M_I=M+1/2> + beta*|M_J=+1/2, M_I=M-1/2>
+                # NB if |psi> is an eigenstate then so is -|psi> so the overall sign of
+                # alpha and beta is not uniquely-defined (although the sign of their ratio
+                # is). [1] adopts a convention where alpha is always positive; we do the
+                # same here for the sake of comparison.
 
                 state_ind = np.argwhere(
                     np.logical_and(
@@ -89,90 +83,61 @@ class TestCa43(unittest.TestCase):
                     (alpha_ref, beta_ref),
                     atol=1e-4,
                 )
+                matched[expansion_idx, closest] = True
 
-        # Compare magnetic dipole matrix element, transition frequency and sensitivity
-        # against the values in [1] table E.4
+        # Paranoia check: the above test could theoretically pass with us incorrectly
+        # finding the same expansion coefficients for two states. Check this isn't the
+        # case
+
+        # There is only 1 way of making the stretched state!
+        if any(matched[0, :]):
+            matched[0, :] = True
+        if any(matched[-1, :]):
+            matched[-1, :] = True
+
+        assert np.all(matched)
+
+    def test_magnetic_dipoles(self):
+        """
+        Check the calculation for `state_vectors` for 43Ca+ at 146G against [1] table E.4.
+        """
+        uB = consts.physical_constants["Bohr magneton"][0]
+        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+        level_slice = ion.get_slice_for_level(ca43.ground_level)
+
         magnetic_dipoles = ion.get_magnetic_dipoles()
 
-        values = [
-            (-4, -3, 1.342420, 2.519894),
-            (-3, -3, 0.602802, 2.237093),
-            (-3, -2, 1.195577, 1.940390),
-            (-2, -3, 0.204417, 1.939817),
-            (-2, -2, 0.810866, 1.643113),
-            (-2, -1, 1.040756, 1.330090),
-            (-1, -2, 0.363393, 1.329517),
-            (-1, -1, 0.932839, 1.016493),
-            (-1, 0, 0.876791, 0.684932),
-            (0, -1, 0.528271, 0.684359),
-            (0, 0, 0.993060, 0.352797),
-            (0, +1, 0.702127, 0.0),
-            (+1, 0, 0.702254, -0.000573),
-            (+1, +1, 0.993034, -0.353370),
-            (+1, +2, 0.514410, -0.730728),
-            (+2, +1, 0.887366, -0.731301),
-            (+2, +2, 0.919344, -1.108659),
-            (+2, +3, 0.308504, -1.514736),
-            (+3, +2, 1.085679, -1.515309),
-            (+3, +3, 0.728641, -1.921385),
-            (+4, +3, 1.299654, -2.362039),
-        ]
+        values = (
+            (-4, -3, 1.342420),
+            (-3, -3, 0.602802),
+            (-3, -2, 1.195577),
+            (-2, -3, 0.204417),
+            (-2, -2, 0.810866),
+            (-2, -1, 1.040756),
+            (-1, -2, 0.363393),
+            (-1, -1, 0.932839),
+            (-1, 0, 0.876791),
+            (0, -1, 0.528271),
+            (0, 0, 0.993060),
+            (0, +1, 0.702127),
+            (+1, 0, 0.702254),
+            (+1, +1, 0.993034),
+            (+1, +2, 0.514410),
+            (+2, +1, 0.887366),
+            (+2, +2, 0.919344),
+            (+2, +3, 0.308504),
+            (+3, +2, 1.085679),
+            (+3, +3, 0.728641),
+            (+4, +3, 1.299654),
+        )
 
-        for M4, M3, R_ref, df_dB_ref in values:
+        for M4, M3, R_ref in values:
             u_index = ion.get_state_for_F(ca43.S12, F=3, M_F=M3)
             l_index = ion.get_state_for_F(ca43.S12, F=4, M_F=M4)
 
             np.testing.assert_allclose(
                 np.abs(magnetic_dipoles[u_index, l_index]) / uB, R_ref, atol=1e-6
             )
-
-            np.testing.assert_allclose(
-                df_dB(
-                    atom_factory=ca43.Ca43,
-                    states=(l_index, u_index),
-                    magnetic_field=146.0942e-4,
-                )
-                / (2 * np.pi * 1e10),
-                df_dB_ref,
-                atol=1e-6,
-            )
-
-        np.testing.assert_allclose(
-            field_insensitive_point(
-                atom_factory=ca43.Ca43,
-                states=(
-                    ion.get_state_for_F(ca43.S12, F=4, M_F=0),
-                    ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
-                ),
-                magnetic_field_guess=10e-4,
-            ),
-            146.0942e-4,
-            atol=1e-4,
-        )
-
-        w_clock = ion.get_transition_frequency_for_states(
-            (
-                ion.get_state_for_F(ca43.S12, F=4, M_F=0),
-                ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
-            )
-        )
-        np.testing.assert_allclose(
-            w_clock, 2 * np.pi * 3.199941077e9, atol=2 * np.pi * 0.5
-        )
-
-        np.testing.assert_allclose(
-            d2f_dB2(
-                atom_factory=ca43.Ca43,
-                magnetic_field=146.0942e-4,
-                states=(
-                    ion.get_state_for_F(ca43.S12, F=4, M_F=0),
-                    ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
-                ),
-            )
-            / (2 * np.pi * 1e11),
-            2.416,
-            atol=1e-3,
-        )
 
         # Check all forbidden transitions have 0 matrix element
         # Check that Rnm = (-1)^q Rmn
