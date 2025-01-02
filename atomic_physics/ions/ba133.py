@@ -59,27 +59,32 @@ level_data = (
     LevelData(
         level=ground_level,
         Ahfs=-9925.45355459e6 * consts.h,  # [6]
+        Bhfs=0,
         g_J=2.0024906,  # [5]
         g_I=(2 / 1) * -0.77167,  # [4]
     ),
     LevelData(
         level=P12,
         Ahfs=-1840e6 * consts.h,  # [6]
+        Bhfs=0,
         g_I=(2 / 1) * -0.77167,  # [4]
     ),
     LevelData(
         level=P32,
         Ahfs=-311.5e6 * consts.h,  # [7]
+        Bhfs=0,
         g_I=(2 / 1) * -0.77167,  # [4]
     ),
     LevelData(
         level=D32,
         Ahfs=-468.5e6 * consts.h,  # [6]
+        Bhfs=0,
         g_I=(2 / 1) * -0.77167,  # [4]
     ),
     LevelData(
         level=D52,
         Ahfs=83e6 * consts.h / 3,  # [7]
+        Bhfs=0,
         g_I=(2 / 1) * -0.77167,  # [4]
     ),
 )
