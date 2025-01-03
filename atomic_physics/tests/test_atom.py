@@ -3,7 +3,9 @@ import unittest
 import numpy as np
 from scipy import constants as consts
 
-from atomic_physics.ions import ca43
+from atomic_physics import operators
+from atomic_physics.core import AtomFactory, Level, LevelData
+from atomic_physics.ions import ba133, ba137, ca43
 
 
 class TestAtom(unittest.TestCase):
@@ -158,3 +160,153 @@ class TestAtom(unittest.TestCase):
                 )
 
         np.testing.assert_allclose(np.diag(magnetic_dipoles[level_slice]), 0)
+
+    def test_F_positive_ground(self):
+        """Check we're assigning the right value of F to each state.
+
+        This test looks at the ground level of 137Ba+, which has a positive hyperfine A
+        coefficient.
+        """
+        level = ba137.ground_level
+        Ba137 = ba137.Ba137.filter_levels(level_filter=(level,))
+
+        # Make sure we get the relationships right over a range of fields
+        for magnetic_field in [1e-4, 100e-4, 1000e-4, 1, 10]:
+            ion = Ba137(magnetic_field=magnetic_field)
+
+            # 137Ba+ has I=3/2 so the ground level has F=1 and F=2. A is positive so
+            # F=2 has higher energy.
+
+            # check that states in F=2 have indices 0-4
+            # states with higher M_F have greater energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+2, M_F=M_F) for M_F in range(-2, +3)]
+            )
+            assert all(inds == np.arange(5)[::-1])
+
+            # check that states in F=1 have indices 5-7
+            # states with higher M_F have lower energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+1, M_F=M_F) for M_F in range(-1, +2)]
+            )
+            assert all(inds == np.arange(3) + 5)
+
+    def test_F_negative_ground(self):
+        """Check we're assigning the right value of F to each state.
+
+        This test looks at the ground level of 133Ba+, which has a negative hyperfine A
+        coefficient.
+        """
+        level = ba133.ground_level
+        Ba133 = ba133.Ba133.filter_levels(level_filter=(level,))
+
+        # Make sure we get the relationships right over a range of fields
+        for magnetic_field in [1e-4, 100e-4, 1000e-4, 1, 10]:
+            ion = Ba133(magnetic_field=magnetic_field)
+
+            # 137Ba+ has I=1/2 so the ground level has F=0 and F=1. A is negative so
+            # F=1 has higher energy.
+
+            # check that F=0, mF=0 has index 0
+            self.assertEqual(ion.get_state_for_F(level, F=0, M_F=0), 0)
+
+            # check that states in F=1 have indices 1-3
+            # states with higher M_F have greater energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+1, M_F=M_F) for M_F in range(-1, +2)]
+            )
+            assert all(inds == np.arange(3)[::-1] + 1)
+
+    def test_F_D_level(self):
+        """Check we're assigning the right value of F to each state.
+
+        This test looks at the D level of 137Ba+, which has a positive hyperfine A
+        coefficient and a negative B coefficient.
+        """
+        level = ba137.shelf
+        Ba137 = ba137.Ba137.filter_levels(level_filter=(level,))
+
+        for magnetic_field in [1e-6, 1e-4, 10e-4, 100]:
+            ion = Ba137(magnetic_field=1e-9)
+
+            # 137Ba+ has I=3/2 so the ground level F=1, F=2, F=3, F=4. A is negative and
+            # (just) outweighs B (which is positive) so F=1 has highest energy.
+
+            # check that states in F=1 have indices 0-2
+            # states with higher M_F have greater energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+1, M_F=M_F) for M_F in range(-1, +2)]
+            )
+            assert all(inds == np.arange(3)[::-1])
+
+            # check that states in F=2 have indices 3-7
+            # states with higher M_F have greater energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+2, M_F=M_F) for M_F in range(-2, +3)]
+            )
+            assert all(inds == np.arange(5)[::-1] + 3)
+
+            # check that states in F=3 have indices 8-14
+            # states with higher M_F have greater energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+3, M_F=M_F) for M_F in range(-3, +4)]
+            )
+            assert all(inds == np.arange(7)[::-1] + 8)
+
+            # check that states in F=4 have indices 15-23
+            # states with higher M_F have greater energy
+            inds = np.array(
+                [ion.get_state_for_F(level, F=+4, M_F=M_F) for M_F in range(-4, +5)]
+            )
+            assert all(inds == np.arange(9)[::-1] + 15)
+
+    def test_F_large_quadrupole(self):
+        """Check we're assigning the right value of F to each state.
+
+        This test looks at the case where the nuclear quadrupole term dominates the
+        dipole term.
+        """
+        level = Level(n=1, S=+1 / 2, L=2, J=+5 / 2)
+        nuclear_spin = +3 / 2
+
+        for Ahfs, Bhfs in (
+            (-10e6, +100e6),
+            (+10e6, -100e6),
+            (+10e6, 100e6),
+            (-10e6, -100e6),
+        ):
+            level_data = LevelData(
+                level=level, Ahfs=Ahfs * consts.h, Bhfs=Bhfs * consts.h, g_I=(2 / 3)
+            )
+            factory = AtomFactory(
+                level_data=(level_data,), transitions=tuple(), nuclear_spin=nuclear_spin
+            )
+            # level = ca43.ground_level
+            # factory = ca43.Ca43.filter_levels(level_filter=(level, ))
+            atom = factory(magnetic_field=1e-9)
+
+            # nuclear_spin = atom.nuclear_spin
+
+            # In the low field we should have <F^2> = F(F+1)
+            I_dim = int(np.rint(2 * nuclear_spin + 1))
+            J_dim = int(np.rint(2 * level.J + 1))
+
+            Jp = np.kron(operators.Jp(level.J), np.identity(I_dim))
+            Jm = np.kron(operators.Jm(level.J), np.identity(I_dim))
+            Jz = np.kron(operators.Jz(level.J), np.identity(I_dim))
+
+            Ip = np.kron(np.identity(J_dim), operators.Jp(atom.nuclear_spin))
+            Im = np.kron(np.identity(J_dim), operators.Jm(atom.nuclear_spin))
+            Iz = np.kron(np.identity(J_dim), operators.Jz(atom.nuclear_spin))
+
+            Fz = Iz + Jz
+            Fp = Ip + Jp
+            Fm = Im + Jm
+
+            F_2_op = Fz @ Fz + (1 / 2) * (Fp @ Fm + Fm @ Fp)
+            F_2 = np.diag(
+                atom.state_vectors.conj().T @ F_2_op @ atom.state_vectors
+            )  # <F^2>
+
+            F = 0.5 * (np.sqrt(1 + 4 * F_2) - 1)  # <F^2> = f * (f + 1)
+            np.testing.assert_allclose(atom.F, F, atol=0.1)
