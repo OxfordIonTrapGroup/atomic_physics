@@ -48,11 +48,11 @@ r""" Alias for the :math:`\left|n=3, S=1/2, L=2, J=5/2\right>` "shelf" level of
 
 
 level_data = (
-    LevelData(level=ground_level, g_J=2.00225664),  # [2]
-    LevelData(level=P12),
-    LevelData(level=P32),
-    LevelData(level=D32),
-    LevelData(level=D52, g_J=1.2003340),  # [3]
+    LevelData(level=ground_level, g_J=2.00225664, Ahfs=0, Bhfs=0),  # [2]
+    LevelData(level=P12, Ahfs=0, Bhfs=0),
+    LevelData(level=P32, Ahfs=0, Bhfs=0),
+    LevelData(level=D32, Ahfs=0, Bhfs=0),
+    LevelData(level=D52, g_J=1.2003340, Ahfs=0, Bhfs=0),  # [3]
 )
 
 transitions = {
