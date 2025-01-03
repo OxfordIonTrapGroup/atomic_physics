@@ -420,19 +420,9 @@ class Atom:
         :param M: the value of :math:`M` to look for.
         :return: array of state indices.
         """
-        inds = np.arange(self.num_states)
-        level_states = self.level_states[level]
-
-        level_states = np.logical_and(
-            level_states.start_index <= inds, inds < level_states.stop_index
-        )
-
-        M_states = np.logical_and(
-            level_states,
-            self.M[inds] == M,
-        )
-
-        return np.array(inds[M_states])
+        level_slice = self.get_slice_for_level(level)
+        M_states = np.argwhere(self.M[level_slice] == M).ravel()
+        return M_states + level_slice.start
 
     def get_state_for_F(self, level: Level, F: float, M_F: float) -> int:
         """Returns the index of the state with a given value of :math:`F` and
@@ -446,13 +436,15 @@ class Atom:
         :param M_F: the value of :math:`M_F` to look for.
         :return: the index of the corresponding state.
         """
-        M_inds = self.get_states_for_M(level, M=M_F)
-        F_inds = M_inds[self.F[M_inds] == F]
+        level_slice = self.get_slice_for_level(level)
+        F_states = np.argwhere(
+            np.logical_and(self.M[level_slice] == M_F, self.F[level_slice] == F)
+        ).ravel()
 
-        if len(F_inds) != 1:
+        if len(F_states) != 1:
             raise ValueError(f"No unique state with F={F} found in level {level}")
 
-        return F_inds.ravel()[0]
+        return F_states[0] + level_slice.start
 
     def get_state_for_MI_MJ(self, level: Level, M_I: float, M_J: float) -> int:
         """Returns the index of the state with a given value of :math:`M_I` and
@@ -467,23 +459,17 @@ class Atom:
         :param M_J: the value of :math:`M_J` to look for.
         :return: the index of the corresponding state.
         """
-        inds = np.arange(self.num_states)
-        level_states = self.level_states[level]
+        level_slice = self.get_slice_for_level(level)
+        M_I_M_J_states = np.argwhere(
+            np.logical_and(self.M_I[level_slice] == M_I, self.M_J[level_slice] == M_J)
+        ).ravel()
 
-        level_states = np.logical_and(
-            level_states.start_index <= inds, inds < level_states.stop_index
-        )
-
-        M_states = np.logical_and(self.M_I[inds] == M_I, self.M_J[inds] == M_J)
-
-        states = np.logical_and(level_states, M_states)
-
-        if len(states) != 1:
+        if len(M_I_M_J_states) != 1:
             raise ValueError(
                 f"No unique state with M_I={M_J}, M_J={M_J} found in level {level}"
             )
 
-        return states.ravel()[0]
+        return M_I_M_J_states[0] + level_slice.start
 
     def get_level_for_state(self, state: int) -> Level:
         """Returns the level a state lies in.
