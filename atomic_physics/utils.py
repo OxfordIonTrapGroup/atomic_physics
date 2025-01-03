@@ -148,7 +148,16 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
             )
             pol_ind = polarization + 1
             Omega = amplitude_for_pol[pol_ind] * Rnm[state, spectator]
-            acz[pol_ind] += (
+
+            # A positive AC Zeeman shift means that the upper (higher energy) state
+            # increases in energy, while the lower state decreases in energy
+            sign = (
+                +1
+                if atom.state_energies[state] > atom.state_energies[spectator]
+                else -1
+            )
+
+            acz[pol_ind] += sign * (
                 0.5 * Omega**2 * (w_transition / (w_transition**2 - drive.frequency**2))
             )
 
@@ -156,7 +165,7 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
 
 
 def ac_zeeman_shift_for_transition(
-    atom: Atom, states: tuple[int, int], upper, drive: RFDrive
+    atom: Atom, states: tuple[int, int], drive: RFDrive
 ) -> float:
     """Returns the AC Zeeman shift on a transition resulting from an applied RF field.
 
@@ -170,9 +179,12 @@ def ac_zeeman_shift_for_transition(
     if len(states) != 2:
         raise ValueError(f"Expected 2 state indices, got {len(states)}.")
 
+    upper = min(states)
+    lower = max(states)
+
     return ac_zeeman_shift_for_state(
-        atom=atom, state=states[0], drive=drive
-    ) + ac_zeeman_shift_for_state(atom=atom, state=states[1], drive=drive)
+        atom=atom, state=upper, drive=drive
+    ) - ac_zeeman_shift_for_state(atom=atom, state=lower, drive=drive)
 
 
 def rayleigh_range(transition: Transition, waist_radius: float) -> float:

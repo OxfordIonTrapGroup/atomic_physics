@@ -65,12 +65,14 @@ level_data = (
     LevelData(
         level=ground_level,
         Ahfs=4018.87083384e6 * consts.h,  # [6]
+        Bhfs=0,
         g_J=2.0024906,  # [5]
         g_I=(2 / 3) * 0.93737,  # [4]
     ),
     LevelData(
         level=P12,
         Ahfs=743.7e6 * consts.h,  # [7]
+        Bhfs=0,
         g_I=(2 / 3) * 0.93737,  # [4]
     ),
     LevelData(
