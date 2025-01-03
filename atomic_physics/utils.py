@@ -148,7 +148,16 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
             )
             pol_ind = polarization + 1
             Omega = amplitude_for_pol[pol_ind] * Rnm[state, spectator]
-            acz[pol_ind] += (
+
+            # A positive AC Zeeman shift means that the upper (higher energy) state
+            # increases in energy, while the lower state decreases in energy
+            sign = (
+                +1
+                if atom.state_energies[state] > atom.state_energies[spectator]
+                else -1
+            )
+
+            acz[pol_ind] += sign * (
                 0.5 * Omega**2 * (w_transition / (w_transition**2 - drive.frequency**2))
             )
 
