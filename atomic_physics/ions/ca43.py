@@ -84,16 +84,12 @@ transitions = {
         upper=P12,
         einstein_A=132e6,  # [?]
         frequency=2 * np.pi * 755223443.81e6,  # [6]
-        Ahfs=0,
-        Bhfs=0,
     ),
     "393": Transition(
         lower=S12,
         upper=P32,
         einstein_A=135e6,  # [?]
         frequency=2 * np.pi * 761905691.40e6,  # [6]
-        Ahfs=0,
-        Bhfs=0,
     ),
     "866": Transition(
         lower=D32,
@@ -106,32 +102,24 @@ transitions = {
         upper=P32,
         einstein_A=0.955e6,  # [?]
         frequency=2 * np.pi * 352679020.37e6,  # [6]
-        Ahfs=0,
-        Bhfs=0,
     ),
     "854": Transition(
         lower=D52,
         upper=P32,
         einstein_A=8.48e6,  # [?]
         frequency=2 * np.pi * 350859426.91e6,  # [6]
-        Ahfs=0,
-        Bhfs=0,
     ),
     "729": Transition(
         lower=S12,
         upper=D52,
         einstein_A=0.856,  # [?]
         frequency=411046264.4881 * 2 * np.pi,  # [6]
-        Ahfs=0,
-        Bhfs=0,
     ),
     "733": Transition(
         lower=S12,
         upper=D32,
         einstein_A=0.850,  # [?]
         frequency=409226671.03 * 2 * np.pi,  # [6]
-        Ahfs=0,
-        Bhfs=0,
     ),
 }
 
