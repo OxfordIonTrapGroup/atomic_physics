@@ -310,3 +310,76 @@ class TestAtom(unittest.TestCase):
 
             F = 0.5 * (np.sqrt(1 + 4 * F_2) - 1)  # <F^2> = f * (f + 1)
             np.testing.assert_allclose(atom.F, F, atol=0.1)
+
+    def test_M_I_M_J(self):
+        """Check ordering of M_I and M_J by looking at the ground level of
+        Ba 137.
+        """
+        level = ba137.ground_level
+        Ba137 = ba137.Ba137.filter_levels(level_filter=(level,))
+        ion = Ba137(magnetic_field=1.0)
+
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=2,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=3 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=1 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=0,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-1 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=-1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-3 / 2, M_J=1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=2,
+                M_F=-2,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-3 / 2, M_J=-1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=1,
+                M_F=-1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=-1 / 2, M_J=-1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=1,
+                M_F=0,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=1 / 2, M_J=-1 / 2),
+        )
+        self.assertEqual(
+            ion.get_state_for_F(
+                level,
+                F=1,
+                M_F=1,
+            ),
+            ion.get_state_for_MI_MJ(level, M_I=3 / 2, M_J=-1 / 2),
+        )
