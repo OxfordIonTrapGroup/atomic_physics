@@ -1,6 +1,6 @@
 import unittest
 
-import scipy.constants as ct
+import scipy.constants as consts
 import numpy as np
 from atomic_physics.ions import ca40, ca43, ba137
 from atomic_physics.utils import (
@@ -14,14 +14,18 @@ from atomic_physics.polarization import (
     SIGMA_PLUS_POLARIZATION,
 )
 
-MU_B = ct.physical_constants["Bohr magneton"][0]
-
 
 def ac_zeeman(Omega, w_transition, w_rf):
     return 0.5 * (Omega**2) * (w_transition / (w_transition**2 - w_rf**2))
 
 
 class TestACZeeman(unittest.TestCase):
+    """Tests for `atomic_physics.utils`.
+
+    References:
+        [1] Thomas Harty DPhil Thesis (2013).
+    """
+
     def test_acz_ca40(self):
         """
         Test the AC Zeeman shift for the ground level qubit in a 40Ca+ ion.
@@ -34,12 +38,11 @@ class TestACZeeman(unittest.TestCase):
 
         f = abs(ion.get_transition_frequency_for_states((0, 1), relative=True))
         mu = ion.get_magnetic_dipoles()[0, 1]
-        rabi_freq = mu * B_rf / ct.hbar
+        rabi_freq = mu * B_rf / consts.hbar
         f_mode = 2 * np.pi * 3e6  # assuming 3 MHz motional mode frequency
         f_rf = f + f_mode
 
-        # Calculate the absolute value of the expected shift for each state
-        # following B.48 in TPH's thesis.
+        # Calculate the absolute value of the expected AC Zeeman shift for each state.
         expected_shift_abs = np.abs(ac_zeeman(rabi_freq, f, f_rf))
 
         rf_drive_plus = RFDrive(
@@ -87,7 +90,7 @@ class TestACZeeman(unittest.TestCase):
     def test_acz_sideband_ca43(self):
         """
         Test the AC Zeeman shift for ground level qubits due to motional mode
-        sidebands in a 43Ca+ ion and compare to Chapter 6 in TPH's thesis.
+        sidebands in a 43Ca+ ion and compare to Chapter 6 in [1].
         """
         B_lab = 146e-4  # quantization field
         B_rf = 1e-6  # RF field of 1 uT
@@ -109,8 +112,8 @@ class TestACZeeman(unittest.TestCase):
 
         f_mode = 2 * np.pi * 3e6  # assuming 3 MHz motional mode frequency
 
-        # Qubit pairs in Tables 6.3, 6.4, and 6.5 in TPH's thesis and the expected
-        # shifts in order [bsb_pi, rsb_pi, bsb_sigma, rsb_sigma], respectively.
+        # Qubit pairs in Tables 6.3, 6.4, and 6.5 in [1] and the expected shifts
+        # in order [bsb_pi, rsb_pi, bsb_sigma, rsb_sigma], respectively.
         qubit_pairs_and_shifts = [
             ((4, 0), (3, 0), 2 * np.pi * np.array([2.005, 1.786, -15.344, 16.836])),
             ((4, 0), (3, 1), 2 * np.pi * np.array([0.126, -0.0926, -16.298, 15.864])),
@@ -171,7 +174,7 @@ class TestACZeeman(unittest.TestCase):
     def test_acz_trap_rf_ca43(self):
         """
         Test the AC Zeeman shift for the (4, 0) <-> (3, 1) qubit pair in 43Ca+ at
-        146 G due to a 38.2 MHz trap RF and compare to Table 5.9 in TPH's thesis.
+        146 G due to a 38.2 MHz trap RF and compare to Table 5.9 in [1].
         """
         B_lab = 146e-4  # quantization field
         B_rf = 1e-6  # RF field of 1 uT
