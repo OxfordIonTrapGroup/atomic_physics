@@ -1,11 +1,20 @@
 import unittest
 
+import scipy.constants as ct
 import numpy as np
-
-from atomic_physics import polarization
+from atomic_physics.ions import ca40, ca43, ba137
+from atomic_physics.utils import (
+    ac_zeeman_shift_for_transition,
+    ac_zeeman_shift_for_state,
+)
 from atomic_physics.core import RFDrive
-from atomic_physics.ions import ba137, ca43
-from atomic_physics.utils import ac_zeeman_shift_for_state
+from atomic_physics.polarization import (
+    PI_POLARIZATION,
+    SIGMA_MINUS_POLARIZATION,
+    SIGMA_PLUS_POLARIZATION,
+)
+
+MU_B = ct.physical_constants["Bohr magneton"][0]
 
 
 def ac_zeeman(Omega, w_transition, w_rf):
@@ -13,263 +22,184 @@ def ac_zeeman(Omega, w_transition, w_rf):
 
 
 class TestACZeeman(unittest.TestCase):
-    def test_ac_zeeman_ground_level_ca43(self):
-        """Check AC Zeeman shift calculations using the clock qubit in the 43Ca+ ground
-        level.
+    def test_acz_ca40(self):
         """
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
-
-        # clock transition
-        upper_state_index = ion.get_state_for_F(level=ca43.S12, F=3, M_F=+1)
-        lower_state_index = ion.get_state_for_F(level=ca43.S12, F=4, M_F=+0)
-        w_transition = ion.get_transition_frequency_for_states(
-            states=(upper_state_index, lower_state_index)
-        )
-
-        rf_amplitude = 1e-6
-        w_rf = w_transition + 2 * np.pi * 1e6
-
-        # Manually calculate the shifts for each polarization component
-        #
-        # Start by looking at the shift on the (3, +1) state
-        victim_state_index = upper_state_index
-
-        # pi shift
-        spectator_state_index = ion.get_state_for_F(level=ca43.S12, F=4, M_F=+1)
-        Omega = ion.get_rabi_m1(
-            lower=spectator_state_index,
-            upper=victim_state_index,
-            amplitude=rf_amplitude,
-        )
-        w_spectator = ion.get_transition_frequency_for_states(
-            states=(spectator_state_index, victim_state_index)
-        )
-
-        np.testing.assert_allclose(
-            ac_zeeman(Omega, w_spectator, w_rf),
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.PI_POLARIZATION,
-                ),
-            ),
-        )
-
-        # sigma- shift
-        shift = 0.0
-        for spectator_F, spectator_M in ((4, 2), (3, 0), (3, 2)):
-            spectator_state_index = ion.get_state_for_F(
-                level=ca43.S12, F=spectator_F, M_F=spectator_M
-            )
-            Omega = ion.get_rabi_m1(
-                lower=spectator_state_index,
-                upper=victim_state_index,
-                amplitude=rf_amplitude,
-            )
-            w_spectator = ion.get_transition_frequency_for_states(
-                states=(spectator_state_index, victim_state_index)
-            )
-            shift += ac_zeeman(Omega, w_spectator, w_rf)
-
-        np.testing.assert_allclose(
-            shift,
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.SIGMA_MINUS_POLARIZATION,
-                ),
-            ),
-        )
-
-        # sigma+ shift
-        spectator_state_index = ion.get_state_for_F(level=ca43.S12, F=4, M_F=0)
-        Omega = ion.get_rabi_m1(
-            lower=spectator_state_index,
-            upper=victim_state_index,
-            amplitude=rf_amplitude,
-        )
-        w_spectator = ion.get_transition_frequency_for_states(
-            states=(spectator_state_index, victim_state_index)
-        )
-        shift = ac_zeeman(Omega, w_spectator, w_rf)
-
-        np.testing.assert_allclose(
-            shift,
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.SIGMA_PLUS_POLARIZATION,
-                ),
-            ),
-        )
-
-        # Next look at the shift on the (4, 0) state
-        victim_state_index = lower_state_index
-
-        # pi shift
-        spectator_state_index = ion.get_state_for_F(level=ca43.S12, F=3, M_F=0)
-        Omega = ion.get_rabi_m1(
-            lower=spectator_state_index,
-            upper=victim_state_index,
-            amplitude=rf_amplitude,
-        )
-        w_spectator = ion.get_transition_frequency_for_states(
-            states=(spectator_state_index, victim_state_index)
-        )
-
-        np.testing.assert_allclose(
-            ac_zeeman(Omega, w_spectator, w_rf),
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.PI_POLARIZATION,
-                ),
-            ),
-        )
-
-        # sigma- shift
-        spectator_state_index = ion.get_state_for_F(level=ca43.S12, F=3, M_F=-1)
-        Omega = ion.get_rabi_m1(
-            lower=spectator_state_index,
-            upper=victim_state_index,
-            amplitude=rf_amplitude,
-        )
-        w_spectator = ion.get_transition_frequency_for_states(
-            states=(spectator_state_index, victim_state_index)
-        )
-        shift = ac_zeeman(Omega, w_spectator, w_rf)
-
-        np.testing.assert_allclose(
-            shift,
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.SIGMA_MINUS_POLARIZATION,
-                ),
-            ),
-        )
-
-        # sigma+ shift
-        shift = 0.0
-        for spectator_F, spectator_M in ((3, +1), (4, -1), (4, 1)):
-            spectator_state_index = ion.get_state_for_F(
-                level=ca43.S12, F=spectator_F, M_F=spectator_M
-            )
-            Omega = ion.get_rabi_m1(
-                lower=spectator_state_index,
-                upper=victim_state_index,
-                amplitude=rf_amplitude,
-            )
-            w_spectator = ion.get_transition_frequency_for_states(
-                states=(spectator_state_index, victim_state_index)
-            )
-            shift += ac_zeeman(Omega, w_spectator, w_rf)
-
-        np.testing.assert_allclose(
-            shift,
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.SIGMA_PLUS_POLARIZATION,
-                ),
-            ),
-        )
-
-    def test_ac_zeeman_D_level(self):
-        """Check AC Zeeman shift calculations using a qubit in the metastable excited
-        D5/2 level in 137Ba+.
-
-        This test is a bit more interesting than the ground-level tests because there
-        are more spectator transitions around
+        Test the AC Zeeman shift for the ground level qubit in a 40Ca+ ion.
         """
-        # Choose a low field so there is minimal state mixing and the standard selection
-        # rules essentially apply, otherwise we'd have a lot more transitions to factor
-        # in to our calculation!
-        ion = ba137.Ba137(magnetic_field=0.1e-4)
-        level = ba137.D52
+        B_lab = 10e-4  # quantization field
+        B_rf = 1e-6  # RF field of 1 uT
+        level = ca40.ground_level
+        Ca40 = ca40.Ca40.filter_levels(level_filter=(level,))
+        ion = Ca40(magnetic_field=B_lab)
 
-        # Pick a pretty arbitrary choice of victim state, but one that has a number
-        # of spectators around!
-        victim_state_index = ion.get_state_for_F(level=level, F=3, M_F=+1)
+        f = abs(ion.get_transition_frequency_for_states((0, 1), relative=True))
+        mu = ion.get_magnetic_dipoles()[0, 1]
+        rabi_freq = mu * B_rf / ct.hbar
+        f_mode = 2 * np.pi * 3e6  # assuming 3 MHz motional mode frequency
+        f_rf = f + f_mode
 
-        # Pick a sensible RF frequency by detuning 1MHz blue from a nearby transition
-        ref = ion.get_state_for_F(level=level, F=2, M_F=1)
-        w_rf = ion.get_transition_frequency_for_states((victim_state_index, ref)) * 1.1
+        # Calculate the absolute value of the expected shift for each state
+        # following B.48 in TPH's thesis.
+        expected_shift_abs = np.abs(ac_zeeman(rabi_freq, f, f_rf))
 
-        rf_amplitude = 1e-6
-
-        # First look at pi polarized radiation
-        shift = 0.0
-        for spectator_F, spectator_M in ((4, +1), (2, +1)):
-            spectator_state_index = ion.get_state_for_F(
-                level=level, F=spectator_F, M_F=spectator_M
-            )
-            Omega = ion.get_rabi_m1(
-                lower=spectator_state_index,
-                upper=victim_state_index,
-                amplitude=rf_amplitude,
-            )
-            w_spectator = ion.get_transition_frequency_for_states(
-                states=(spectator_state_index, victim_state_index)
-            )
-            shift += ac_zeeman(Omega, w_spectator, w_rf)
-
-        np.testing.assert_allclose(
-            shift,
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.PI_POLARIZATION,
-                ),
-            ),
+        rf_drive_plus = RFDrive(
+            frequency=f_rf, amplitude=B_rf, polarization=SIGMA_PLUS_POLARIZATION
+        )
+        rf_drive_minus = RFDrive(
+            frequency=f_rf, amplitude=B_rf, polarization=SIGMA_MINUS_POLARIZATION
+        )
+        rf_drive_pi = RFDrive(
+            frequency=f_rf, amplitude=B_rf, polarization=PI_POLARIZATION
         )
 
-        # Now look at sigma+ transitions
-        shift = 0.0
-        for spectator_F, spectator_M in ((2, +2), (3, +2), (3, 0), (4, 0)):
-            spectator_state_index = ion.get_state_for_F(
-                level=level, F=spectator_F, M_F=spectator_M
+        # All pi shifts should be zero since there are no pi spectator transitions.
+        acz_pi_0 = ac_zeeman_shift_for_state(ion, 0, rf_drive_pi)
+        acz_pi_1 = ac_zeeman_shift_for_state(ion, 1, rf_drive_pi)
+        acz_pi_transition = ac_zeeman_shift_for_transition(ion, [0, 1], rf_drive_pi)
+        self.assertEqual([acz_pi_0, acz_pi_1, acz_pi_transition], [0.0, 0.0, 0.0])
+
+        # All sigma minus shifts should be zero since there are no sigma minus
+        # spectator transitions.
+        acz_sigma_m_0 = ac_zeeman_shift_for_state(ion, 0, rf_drive_minus)
+        acz_sigma_m_1 = ac_zeeman_shift_for_state(ion, 1, rf_drive_minus)
+        acz_sigma_m_transition = ac_zeeman_shift_for_transition(
+            ion, [0, 1], rf_drive_minus
+        )
+        self.assertEqual(
+            [acz_sigma_m_0, acz_sigma_m_1, acz_sigma_m_transition], [0.0, 0.0, 0.0]
+        )
+
+        acz_sigma_p_0 = ac_zeeman_shift_for_state(ion, 0, rf_drive_plus)
+        acz_sigma_p_1 = ac_zeeman_shift_for_state(ion, 1, rf_drive_plus)
+        acz_sigma_p_transition = ac_zeeman_shift_for_transition(
+            ion, [0, 1], rf_drive_plus
+        )
+        # The higher energy state moves down in energy by the expected shift and
+        # the lower energy state moves up in energy by the expected shift since
+        # the RF frequency is higher than the transition frequency. The frequency
+        # of the transition decreases by double the expected shift.
+        self.assertAlmostEqual(acz_sigma_p_0, -expected_shift_abs, delta=1e-8)
+        self.assertAlmostEqual(acz_sigma_p_1, expected_shift_abs, delta=1e-8)
+        self.assertAlmostEqual(
+            acz_sigma_p_transition, -2 * expected_shift_abs, delta=1e-8
+        )
+
+    def test_acz_sideband_ca43(self):
+        """
+        Test the AC Zeeman shift for ground level qubits due to motional mode
+        sidebands in a 43Ca+ ion and compare to Chapter 6 in TPH's thesis.
+        """
+        B_lab = 146e-4  # quantization field
+        B_rf = 1e-6  # RF field of 1 uT
+        level = ca43.ground_level
+        Ca43 = ca43.Ca43.filter_levels(level_filter=(level,))
+        ion = Ca43(magnetic_field=B_lab)
+
+        # RF frequency calculated relative to the transition frequency of the
+        # (4, 0) <-> (3, 1) qubit pair.
+        f = abs(
+            ion.get_transition_frequency_for_states(
+                (
+                    ion.get_state_for_F(level, F=4, M_F=0),
+                    ion.get_state_for_F(level, F=3, M_F=+1),
+                ),
+                relative=True,
             )
-            Omega = ion.get_rabi_m1(
-                lower=spectator_state_index,
-                upper=victim_state_index,
-                amplitude=rf_amplitude,
+        )
+
+        f_mode = 2 * np.pi * 3e6  # assuming 3 MHz motional mode frequency
+
+        # Qubit pairs in Tables 6.3, 6.4, and 6.5 in TPH's thesis and the expected
+        # shifts in order [bsb_pi, rsb_pi, bsb_sigma, rsb_sigma], respectively.
+        qubit_pairs_and_shifts = [
+            ((4, 0), (3, 0), 2 * np.pi * np.array([2.005, 1.786, -15.344, 16.836])),
+            ((4, 0), (3, 1), 2 * np.pi * np.array([0.126, -0.0926, -16.298, 15.864])),
+            ((4, 1), (3, 1), 2 * np.pi * np.array([-1.753, -1.971, -16.341, 15.840])),
+        ]
+
+        rf_bsb_pi = RFDrive(
+            frequency=f + f_mode, amplitude=B_rf, polarization=PI_POLARIZATION
+        )
+
+        rf_rsb_pi = RFDrive(
+            frequency=f - f_mode, amplitude=B_rf, polarization=PI_POLARIZATION
+        )
+
+        rf_bsb_sigma = RFDrive(
+            frequency=f + f_mode,
+            amplitude=B_rf,
+            polarization=SIGMA_MINUS_POLARIZATION + SIGMA_PLUS_POLARIZATION,
+        )
+
+        rf_rsb_sigma = RFDrive(
+            frequency=f - f_mode,
+            amplitude=B_rf,
+            polarization=SIGMA_MINUS_POLARIZATION + SIGMA_PLUS_POLARIZATION,
+        )
+
+        for qubit in qubit_pairs_and_shifts:
+            idx0 = ion.get_state_for_F(level, qubit[0][0], qubit[0][1])
+            idx1 = ion.get_state_for_F(level, qubit[1][0], qubit[1][1])
+
+            acz_diff_bsb_pi = ac_zeeman_shift_for_transition(
+                ion, [idx0, idx1], rf_bsb_pi
             )
-            w_spectator = ion.get_transition_frequency_for_states(
-                states=(spectator_state_index, victim_state_index)
+
+            acz_diff_rsb_pi = ac_zeeman_shift_for_transition(
+                ion, [idx0, idx1], rf_rsb_pi
             )
-            shift += ac_zeeman(Omega, w_spectator, w_rf)
+
+            acz_diff_bsb_sigma = ac_zeeman_shift_for_transition(
+                ion, [idx0, idx1], rf_bsb_sigma
+            )
+
+            acz_diff_rsb_sigma = ac_zeeman_shift_for_transition(
+                ion, [idx0, idx1], rf_rsb_sigma
+            )
+
+            np.testing.assert_allclose(
+                [
+                    acz_diff_bsb_pi,
+                    acz_diff_rsb_pi,
+                    acz_diff_bsb_sigma,
+                    acz_diff_rsb_sigma,
+                ],
+                qubit[2],
+                rtol=1e-3,
+            )
+
+    def test_acz_trap_rf_ca43(self):
+        """
+        Test the AC Zeeman shift for the (4, 0) <-> (3, 1) qubit pair in 43Ca+ at
+        146 G due to a 38.2 MHz trap RF and compare to Table 5.9 in TPH's thesis.
+        """
+        B_lab = 146e-4  # quantization field
+        B_rf = 1e-6  # RF field of 1 uT
+        level = ca43.ground_level
+        Ca43 = ca43.Ca43.filter_levels(level_filter=(level,))
+        ion = Ca43(magnetic_field=B_lab)
+        idx_qubit_0 = ion.get_state_for_F(level, F=4, M_F=0)
+        idx_qubit_1 = ion.get_state_for_F(level, F=3, M_F=+1)
+
+        f_rf = 2 * np.pi * 38.2e6  # Trap RF frequency 38.2 MHz
+        rf_pi = RFDrive(frequency=f_rf, amplitude=B_rf, polarization=PI_POLARIZATION)
+
+        rf_sigma = RFDrive(
+            frequency=f_rf,
+            amplitude=B_rf,
+            polarization=SIGMA_MINUS_POLARIZATION + SIGMA_PLUS_POLARIZATION,
+        )
+
+        acz_diff_rf_pi = ac_zeeman_shift_for_transition(
+            ion, [idx_qubit_0, idx_qubit_1], rf_pi
+        )
+
+        acz_diff_rf_sigma = ac_zeeman_shift_for_transition(
+            ion, [idx_qubit_0, idx_qubit_1], rf_sigma
+        )
 
         np.testing.assert_allclose(
-            shift,
-            ac_zeeman_shift_for_state(
-                atom=ion,
-                state=victim_state_index,
-                drive=RFDrive(
-                    frequency=w_rf,
-                    amplitude=rf_amplitude,
-                    polarization=polarization.SIGMA_PLUS_POLARIZATION,
-                ),
-            ),
+            [acz_diff_rf_pi, acz_diff_rf_sigma],
+            2 * np.pi * np.array([0.0604, -0.3976]),
+            rtol=5e-3,
         )
