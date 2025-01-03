@@ -204,7 +204,7 @@ class TestAtom(unittest.TestCase):
         for magnetic_field in [1e-4, 100e-4, 1000e-4, 1, 10]:
             ion = Ba133(magnetic_field=magnetic_field)
 
-            # 137Ba+ has I=1/2 so the ground level has F=0 and F=1. A is negative so
+            # 133Ba+ has I=1/2 so the ground level has F=0 and F=1. A is negative so
             # F=1 has higher energy.
 
             # check that F=0, mF=0 has index 0
