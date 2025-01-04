@@ -33,17 +33,17 @@ class LevelData:
 
     Attributes:
         level: the :class:`Level` this data is for.
-        g_J: G factor. If ``None``, we use the Lande g factor.
-        g_I: Nuclear g factor.
         Ahfs: Nuclear A coefficient.
         Bhfs: Nuclear B (quadrupole) coefficient.
+        g_J: G factor. If ``None``, we use the Lande g factor.
+        g_I: Nuclear g factor.
     """
 
     level: Level
-    Ahfs: float | None = None
-    Bhfs: float | None = None
+    Ahfs: float
+    Bhfs: float
     g_J: float | None = None
-    g_I: float | None = None
+    g_I: float = 0.0
 
     def __post_init__(self):
         if self.g_J is None:
@@ -281,8 +281,9 @@ class Atom:
             state_vectors = state_vectors[:, inds]
             state_energies = state_energies[inds]
 
-            # check that the eigensolver found the angular momentum eigenstates
+            # Find the value of M for each state in the level
             M = np.diag(state_vectors.conj().T @ (Iz + Jz) @ state_vectors)
+            # check that the eigensolver found the angular momentum eigenstates
             if max(abs(M - np.rint(2 * M) / 2)) > 1e-5:
                 raise ValueError(
                     "Error finding angular momentum eigenstates. Is the field too "
@@ -301,7 +302,6 @@ class Atom:
             self.high_field_M_J[level_slice] = np.kron(
                 np.arange(-level.J, level.J + 1), np.ones(I_dim)
             )
-
             self.M[level_slice] = M
 
             # Calculate the values of F (M_I and M_J) which these states would have
@@ -311,13 +311,13 @@ class Atom:
 
             # Start by creating an energy-ordered list of possible F values for
             # the level
-            # List of all possible values of F for the level
             F_max = self.nuclear_spin + level.J
             F_min = np.abs(self.nuclear_spin - level.J)
             level_F = np.arange(F_min, F_max + 1)
 
-            # Figure out the zero-field ordering of levels by F
+            # Figure out the zero-field ordering of states with a given F
             # and order the vector level_F in terms of *decreasing* energy
+            # F^2 = I^2 + J^2 + 2I.J
             I_dot_J = 0.5 * (
                 level_F * (level_F + 1)
                 - self.nuclear_spin * (self.nuclear_spin + 1)
@@ -350,8 +350,7 @@ class Atom:
             level_M_I = self.high_field_M_I[level_slice]
             level_M_J = self.high_field_M_J[level_slice]
             E_M_I_M_J = (
-                level_data.g_J * _uB * self.magnetic_field * level_M_J
-                - level_data.g_J * _uN * self.magnetic_field * level_M_I
+                level_data.g_J * _uB * level_M_J - level_data.g_I * _uN * level_M_I
             )
             M_I_M_J_inds = np.argsort(E_M_I_M_J)[::-1]
             level_M_I = level_M_I[M_I_M_J_inds]
@@ -500,21 +499,6 @@ class Atom:
             f"No transition found between levels {levels[0]} and {levels[1]}"
         )
 
-    def get_population(
-        self, state_vector: np.ndarray, inds: Level | int | slice
-    ) -> float:
-        """Returns the total population in a set of states.
-
-        :param state: state vector
-        :param states: set of states to sum over. This can be any of: a :class:`.Level`;
-          a state index; or, a ``slice``.
-        """
-        if isinstance(inds, Level):
-            return np.sum(state_vector[self.get_slice_for_level(inds)])
-        elif not isinstance(inds, int) and not isinstance(inds, slice):
-            raise TypeError("inds must be a level, slice or index")
-        return np.sum(state_vector[inds])
-
     def get_saturation_intensity(self, transition: str) -> float:
         """Returns the saturation intensity for a transition.
 
@@ -526,7 +510,8 @@ class Atom:
         :return: saturation intensity (W/m^2)
         """
         transition = self.transitions[transition]
-        scattering_rates = np.power(np.abs(self._electric_multipoles), 2)
+        epoles = self.get_electric_multipoles()
+        scattering_rates = np.power(np.abs(epoles), 2)
         total_scattering_rates = np.sum(scattering_rates, 0)
         stretched_state_index = self.level_states[transition.upper].start_index
         scattering_rate = total_scattering_rates[stretched_state_index]
@@ -778,6 +763,8 @@ class AtomFactory:
         if len(self.level_data) == 1:
             processed_levels[next(iter(self.level_data)).level] = 0.0
         else:
+            # pick one level arbitrarily to be energy 0 and then start walking through
+            # the transitions to fill in other levels above and below it.
             unprocessed_transition_names += list(self.transitions.keys())
             transition = self.transitions[unprocessed_transition_names.pop()]
             processed_levels[transition.lower] = 0
