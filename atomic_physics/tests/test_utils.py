@@ -1,17 +1,18 @@
 import unittest
 
-import scipy.constants as consts
 import numpy as np
-from atomic_physics.ions import ca40, ca43, ba137
-from atomic_physics.utils import (
-    ac_zeeman_shift_for_transition,
-    ac_zeeman_shift_for_state,
-)
+import scipy.constants as consts
+
 from atomic_physics.core import RFDrive
+from atomic_physics.ions import ca40, ca43
 from atomic_physics.polarization import (
     PI_POLARIZATION,
     SIGMA_MINUS_POLARIZATION,
     SIGMA_PLUS_POLARIZATION,
+)
+from atomic_physics.utils import (
+    ac_zeeman_shift_for_state,
+    ac_zeeman_shift_for_transition,
 )
 
 
