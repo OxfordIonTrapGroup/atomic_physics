@@ -41,7 +41,7 @@ Bug fixes:
 
 * Calculate derivatives properly in transition sensitivity calculations. Closes
   `#24 <https://github.com/OxfordIonTrapGroup/atomic_physics/issues/24>`_
-* Fix broken AC Zeeman shift calculation. Closes
+* Fix indexing in AC Zeeman shift calculation. Closes
   `#78 <https://github.com/OxfordIonTrapGroup/atomic_physics/issues/78>`_
 
 API refactor:
@@ -69,7 +69,7 @@ API refactor:
   input parameters.
 * ``Atom.level`` has been renamed ``get_level_for_state``
 * added a new ``Atom.get_transition_for_levels`` helper function
-* ``Atom.population`` has been renamed ``get_population``
+* ``Atom.population`` has been removed as it wasn't particularly useful
 * ``Atom.I0`` has been renamed ``Atom.get_saturation_intensity``
 * ``Atom.P0`` has been renamed ``intensity_to_power``
 * ``Laser.q`` has been renamed to ``Laser.polarization``
@@ -92,3 +92,4 @@ API refactor:
   system was relatively easy once one understood it, but only worked for the simple
   case of rate equations. Anticipating doing more complex things like optical bloch
   equations, I've started moving us over to Jones vectors.
+* Add ``operators.expectation_value`` helper method.
