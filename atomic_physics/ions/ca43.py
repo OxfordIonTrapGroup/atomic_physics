@@ -47,13 +47,15 @@ r""" Alias for the :math:`\left|n=3, S=1/2, L=2, J=5/2\right>` "shelf" level of
 level_data = (
     LevelData(
         level=ground_level,
+        Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
+        Bhfs=0,
         g_J=2.00225664,  # [2]
         g_I=(2 / 7) * -1.315348,  # [3]
-        Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
     ),
     LevelData(
         level=P12,
         Ahfs=-145.4e6 * consts.h,
+        Bhfs=0,
         g_I=(2 / 7) * -1.315348,  # [4]  # [3]
     ),
     LevelData(
