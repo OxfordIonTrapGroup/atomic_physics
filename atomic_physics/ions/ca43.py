@@ -74,6 +74,7 @@ level_data = (
         level=D52,
         Ahfs=-3.8931e6 * consts.h,  # [5]
         Bhfs=-4.241e6 * consts.h,  # [5]
+        g_J=1.2003,
         g_I=(2 / 7) * -1.315348,  # [3]
     ),
 )
