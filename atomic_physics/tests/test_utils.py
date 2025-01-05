@@ -13,11 +13,117 @@ from atomic_physics.polarization import (
 from atomic_physics.utils import (
     ac_zeeman_shift_for_state,
     ac_zeeman_shift_for_transition,
+    d2f_dB2,
+    df_dB,
+    field_insensitive_point,
+    rayleigh_range,
 )
 
 
 def ac_zeeman(Omega, w_transition, w_rf):
     return 0.5 * (Omega**2) * (w_transition / (w_transition**2 - w_rf**2))
+
+
+class TestUtils(unittest.TestCase):
+    """Tests for ``atomic_physics.utils``"""
+
+    def test_rayleigh_range(self):
+        waist = 33e-6
+        transition = ca43.transitions["397"]
+        wavelength = consts.c / (transition.frequency / (2 * np.pi))
+
+        np.testing.assert_allclose(
+            np.pi * waist**2 / wavelength,
+            rayleigh_range(ca43.transitions["397"], waist),
+        )
+
+
+rayleigh_range
+
+
+class TestFieldSensitivity(unittest.TestCase):
+    """Tests for field sensitivity helpers.
+
+    References:
+        [1] T Harty DPhil Thesis.
+    """
+
+    def test_df_db(self):
+        """Tests for ``utils.dF_dB``."""
+        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+
+        # [1] table E.4
+        values = [
+            (-4, -3, 2.519894),
+            (-3, -3, 2.237093),
+            (-3, -2, 1.940390),
+            (-2, -3, 1.939817),
+            (-2, -2, 1.643113),
+            (-2, -1, 1.330090),
+            (-1, -2, 1.329517),
+            (-1, -1, 1.016493),
+            (-1, 0, 0.684932),
+            (0, -1, 0.684359),
+            (0, 0, 0.352797),
+            (0, +1, 0.0),
+            (+1, 0, -0.000573),
+            (+1, +1, -0.353370),
+            (+1, +2, -0.730728),
+            (+2, +1, -0.731301),
+            (+2, +2, -1.108659),
+            (+2, +3, -1.514736),
+            (+3, +2, -1.515309),
+            (+3, +3, -1.921385),
+            (+4, +3, -2.362039),
+        ]
+
+        for M4, M3, df_dB_ref in values:
+            l_index = ion.get_state_for_F(level=ca43.ground_level, F=4, M_F=M4)
+            u_index = ion.get_state_for_F(level=ca43.ground_level, F=3, M_F=M3)
+            np.testing.assert_allclose(
+                df_dB(
+                    atom_factory=ca43.Ca43,
+                    states=(l_index, u_index),
+                    magnetic_field=146.0942e-4,
+                )
+                / (2 * np.pi * 1e10),
+                df_dB_ref,
+                atol=1e-6,
+            )
+
+    def test_d2f_db2(self):
+        """Tests for ``utils.d2F_dB2``."""
+        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+
+        np.testing.assert_allclose(
+            d2f_dB2(
+                atom_factory=ca43.Ca43,
+                magnetic_field=146.0942e-4,
+                states=(
+                    ion.get_state_for_F(ca43.S12, F=4, M_F=0),
+                    ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
+                ),
+            )
+            / (2 * np.pi * 1e11),
+            2.416,
+            atol=1e-3,
+        )
+
+    def test_field_insensitive_point(self):
+        """Tests for ``utils.field_insensitive_point``."""
+        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+        np.testing.assert_allclose(
+            field_insensitive_point(
+                atom_factory=ca43.Ca43,
+                states=(
+                    ion.get_state_for_F(ca43.S12, F=4, M_F=0),
+                    ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
+                ),
+                magnetic_field_guess=10e-4,
+            ),
+            146.0942e-4,
+            atol=1e-4,
+        )
 
 
 class TestACZeeman(unittest.TestCase):
