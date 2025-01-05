@@ -70,4 +70,93 @@ class TestAtomFactory(unittest.TestCase):
 
     def test_filtering(self):
         """Test that the level filtering works correctly."""
-        pass
+        levels = (ca43.S12, ca43.D32, ca43.P12, ca43.P32)
+        factory = ca43.Ca43.filter_levels(level_filter=levels)
+        ion = factory(magnetic_field=1.0)
+        assert len(ion.levels) == len(set(ion.levels))
+        assert set(ion.levels) == set(levels)
+
+        levels_sorted = sorted(
+            ion.level_states.items(), key=lambda item: item[1].frequency
+        )
+
+        assert levels_sorted[0][0] == ca43.S12
+        assert levels_sorted[1][0] == ca43.D32
+        assert levels_sorted[2][0] == ca43.P12
+        assert levels_sorted[3][0] == ca43.P32
+
+        assert levels_sorted[0][1].frequency == 0  # S 1/2 is the ground level
+        np.testing.assert_allclose(
+            levels_sorted[3][1].frequency - levels_sorted[1][1].frequency,
+            ion.transitions["866"].frequency,
+            rtol=2e-2,
+        )
+        np.testing.assert_allclose(
+            levels_sorted[1][1].frequency, ion.transitions["733"].frequency, rtol=2e-2
+        )
+        np.testing.assert_allclose(
+            levels_sorted[2][1].frequency, ion.transitions["397"].frequency, rtol=2e-2
+        )
+        np.testing.assert_allclose(
+            levels_sorted[3][1].frequency, ion.transitions["393"].frequency, rtol=2e-2
+        )
+
+        # states should be in reverse energy order
+        assert ion.level_states[ca43.P32].start_index == 0
+        assert (
+            ion.level_states[ca43.P12].start_index
+            == ion.level_states[ca43.P32].stop_index
+        )
+        assert (
+            ion.level_states[ca43.D32].start_index
+            == ion.level_states[ca43.P12].stop_index
+        )
+        assert (
+            ion.level_states[ca43.S12].start_index
+            == ion.level_states[ca43.D32].stop_index
+        )
+
+        levels = (ca43.D32, ca43.P12, ca43.P32)
+
+        factory = factory.filter_levels(level_filter=levels)
+        ion = factory(magnetic_field=1.0)
+
+        assert len(ion.levels) == len(set(ion.levels))
+        assert set(ion.levels) == set(levels)
+
+        levels_sorted = sorted(
+            ion.level_states.items(), key=lambda item: item[1].frequency
+        )
+
+        assert levels_sorted[0][0] == ca43.D32
+        assert levels_sorted[1][0] == ca43.P12
+        assert levels_sorted[2][0] == ca43.P32
+
+        assert levels_sorted[0][1].frequency == 0
+        np.testing.assert_allclose(
+            levels_sorted[1][1].frequency, ion.transitions["866"].frequency, rtol=1e-3
+        )
+        np.testing.assert_allclose(
+            levels_sorted[2][1].frequency, ion.transitions["850"].frequency, rtol=1e-3
+        )
+
+        # states should be in reverse energy order
+        assert ion.level_states[ca43.P32].start_index == 0
+        assert (
+            ion.level_states[ca43.P12].start_index
+            == ion.level_states[ca43.P32].stop_index
+        )
+        assert (
+            ion.level_states[ca43.D32].start_index
+            == ion.level_states[ca43.P12].stop_index
+        )
+
+        levels = (ca43.D32,)
+        factory = factory.filter_levels(level_filter=levels)
+        ion = factory(magnetic_field=1.0)
+
+        assert len(ion.levels) == len(set(ion.levels))
+        assert set(ion.levels) == set(levels)
+
+        assert ion.level_states[ca43.D32].frequency == 0
+        assert ion.level_states[ca43.D32].start_index == 0
