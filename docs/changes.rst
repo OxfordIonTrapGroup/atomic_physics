@@ -43,6 +43,7 @@ Bug fixes:
   `#24 <https://github.com/OxfordIonTrapGroup/atomic_physics/issues/24>`_
 * Fix indexing in AC Zeeman shift calculation. Closes
   `#78 <https://github.com/OxfordIonTrapGroup/atomic_physics/issues/78>`_
+* Fix incorrect transition frequencies for calcium
 
 API refactor:
 
