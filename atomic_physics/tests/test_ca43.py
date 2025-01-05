@@ -1,4 +1,5 @@
 import unittest
+
 import numpy as np
 
 from atomic_physics.ions import ca43
