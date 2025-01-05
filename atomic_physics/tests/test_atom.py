@@ -578,7 +578,7 @@ class TestAtom(unittest.TestCase):
             ("866", 89.798),
             ("850", 97.954),
             ("854", 96.446),
-            # ("729", 9.181e-7), # FIXME #83
+            ("729", 9.181e-7),
         )
         for transition, I_sat_ref in ref:
             I_sat = ion.get_saturation_intensity(transition)
