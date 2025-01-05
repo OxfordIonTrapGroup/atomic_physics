@@ -31,9 +31,9 @@ class TestAtoms(unittest.TestCase):
             # in nanometres so check those match the frequency data
             for transition_name, transition in atom.transitions.items():
                 np.testing.assert_allclose(
-                    transition.frequency / (2 * np.pi),
-                    consts.c / (1e-9 * float(transition_name)),
-                    rtol=1e-2,
+                    consts.c / (transition.frequency / (2 * np.pi)) * 1e9,
+                    float(transition_name),
+                    atol=1,
                 )
 
         # check the pre-defined levels exist
@@ -44,9 +44,7 @@ class TestAtoms(unittest.TestCase):
             (ba138, ba138.Ba138),
             (ca40, ca40.Ca40),
             (ca43, ca43.Ca43),
-            # (mg25, mg25.Mg25),
             (sr88, sr88.Sr88),
-            # (two_state, two_state.TwoStateAtom)
         )
         level_names = ("S12", "P12", "P32", "D32", "D52", "ground_level", "shelf")
         for module, factory in atoms:
