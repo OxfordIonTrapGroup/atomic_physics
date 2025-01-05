@@ -107,19 +107,19 @@ transitions = {
         lower=D52,
         upper=P32,
         einstein_A=8.48e6,  # [?]
-        frequency=2 * np.pi * 350859426.91e6,  # [6]
+        frequency=350859426.91e6 * 2 * np.pi,  # [6]
     ),
     "729": Transition(
         lower=S12,
         upper=D52,
         einstein_A=0.856,  # [?]
-        frequency=411046264.4881 * 2 * np.pi,  # [6]
+        frequency=411046264.4881e6 * 2 * np.pi,  # [6]
     ),
     "733": Transition(
         lower=S12,
         upper=D32,
-        einstein_A=0.850,  # [?]
-        frequency=409226671.03 * 2 * np.pi,  # [6]
+        einstein_A=0.850,  # [?]#
+        frequency=409226671.03e6 * 2 * np.pi,  # [6]
     ),
 }
 
