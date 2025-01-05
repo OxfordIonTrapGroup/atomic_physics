@@ -14,7 +14,7 @@ class TestAtom(unittest.TestCase):
 
     References:
         [1] Thomas Harty DPhil Thesis (2013).
-        [2] David Szwer DPhil Thesis (2009)
+        [2] David Szwer DPhil Thesis (2009).
     """
 
     def test_num_states(self):
@@ -122,6 +122,16 @@ class TestAtom(unittest.TestCase):
 
         assert np.all(matched)
 
+    def test_levels(self):
+        """Check ``levels`` is formed correctly."""
+        ion = ca43.Ca43(magnetic_field=1.0)
+        assert len(set(ion.levels)) == len(ion.levels)
+        assert set(ion.levels) == set(
+            [ca43.S12, ca43.P12, ca43.P32, ca43.D32, ca43.D52]
+        )
+        assert set(ion.levels) == set(ion.level_data.keys())
+        assert set(ion.levels) == set(ion.level_states.keys())
+
     def test_state_energies(self):
         """
         Check the calculation for ``state_energies`` against values for the ground-level
@@ -130,6 +140,15 @@ class TestAtom(unittest.TestCase):
         This also checks the behaviour of ``get_transition_for_levels``.
         """
         ion = ca43.Ca43(magnetic_field=146.0942e-4)
+
+        # check that the mean energy of every level is zero (state energies are defined
+        # relative to the level's centre of gravity)
+        for level in ion.levels:
+            level_slice = ion.get_slice_for_level(level)
+            level_energies = ion.state_energies[level_slice]
+            np.testing.assert_allclose(
+                np.sum(level_energies), 0, atol=max(level_energies) * 1e-9
+            )
 
         # M_4, M_3, frequency
         ref = (

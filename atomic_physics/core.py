@@ -158,6 +158,7 @@ class Atom:
         nuclear_spin: Nuclear spin.
 
         num_states: the total number of states contained within the atom.
+        levels: tuple containing all of the :class:`~.Level`\s within this atom.
         state_energies: vector of energies of each state in the atom. States are ordered
             by *decreasing* energy, with ``state_energies[0]`` corresponding the state with
             highest energy and ``state_energies[-1]`` corresponding to the ground state.
@@ -198,6 +199,7 @@ class Atom:
     nuclear_spin: float
 
     num_states: int = dataclasses.field(init=False)
+    levels: tuple[Level, ...] = dataclasses.field(init=False)
     state_energies: np.ndarray = dataclasses.field(init=False)
     state_vectors: np.ndarray = dataclasses.field(init=False)
     high_field_M_I: np.ndarray = dataclasses.field(init=False)
@@ -217,6 +219,7 @@ class Atom:
         self.num_states = max(
             [states.stop_index for states in self.level_states.values()]
         )
+        self.levels = tuple(self.level_data.keys())
 
         self.state_energies = np.zeros(self.num_states)
         self.state_vectors = np.zeros((self.num_states, self.num_states))
