@@ -38,9 +38,6 @@ class TestUtils(unittest.TestCase):
         )
 
 
-rayleigh_range
-
-
 class TestFieldSensitivity(unittest.TestCase):
     """Tests for field sensitivity helpers.
 
