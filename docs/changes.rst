@@ -93,3 +93,4 @@ API refactor:
   case of rate equations. Anticipating doing more complex things like optical bloch
   equations, I've started moving us over to Jones vectors.
 * Add ``operators.expectation_value`` helper method.
+* Add ``Atom.levels`` field
