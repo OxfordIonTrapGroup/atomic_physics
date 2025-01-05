@@ -1,5 +1,3 @@
-"""Test Spin 1/2 nuclei"""
-
 import unittest
 
 import numpy as np
