@@ -353,7 +353,7 @@ class TestAtom(unittest.TestCase):
                 level=level, Ahfs=Ahfs * consts.h, Bhfs=Bhfs * consts.h, g_I=(2 / 3)
             )
             factory = AtomFactory(
-                level_data=(level_data,), transitions=tuple(), nuclear_spin=nuclear_spin
+                level_data=(level_data,), transitions={}, nuclear_spin=nuclear_spin
             )
             atom = factory(magnetic_field=1e-9)
 
@@ -493,18 +493,19 @@ class TestAtom(unittest.TestCase):
             level_slice = ion.get_slice_for_level(level)
             assert level_slice.stop - level_slice.start == num_states
 
-    def get_level_for_state(self):
+    def test_get_level_for_state(self):
         """Test for ``get_level_for_state``."""
         ion = ca43.Ca43(1)
         for state in range(ion.num_states):
             level = ion.get_level_for_state(state)
-            assert state >= level.start
-            assert state < level.stop
+            level_slice = ion.get_slice_for_level(level)
+            assert state >= level_slice.start
+            assert state < level_slice.stop
 
-    def get_transition_for_levels(self):
+    def test_get_transition_for_levels(self):
         """Test for ``get_transition_for_levels``."""
         ion = ca43.Ca43(1)
-        for transition in ion.transitions:
+        for transition in ion.transitions.values():
             assert (
                 ion.get_transition_for_levels((transition.lower, transition.upper))
                 == transition
