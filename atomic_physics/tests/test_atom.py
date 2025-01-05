@@ -132,6 +132,9 @@ class TestAtom(unittest.TestCase):
         assert set(ion.levels) == set(ion.level_data.keys())
         assert set(ion.levels) == set(ion.level_states.keys())
 
+        for level, data in ion.level_data.items():
+            assert data.level == level
+
     def test_state_energies(self):
         """
         Check the calculation for ``state_energies`` against values for the ground-level
