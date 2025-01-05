@@ -59,7 +59,7 @@ class TestACZeeman(unittest.TestCase):
         # All pi shifts should be zero since there are no pi spectator transitions.
         acz_pi_0 = ac_zeeman_shift_for_state(ion, 0, rf_drive_pi)
         acz_pi_1 = ac_zeeman_shift_for_state(ion, 1, rf_drive_pi)
-        acz_pi_transition = ac_zeeman_shift_for_transition(ion, [0, 1], rf_drive_pi)
+        acz_pi_transition = ac_zeeman_shift_for_transition(ion, (0, 1), rf_drive_pi)
         self.assertEqual([acz_pi_0, acz_pi_1, acz_pi_transition], [0.0, 0.0, 0.0])
 
         # All sigma minus shifts should be zero since there are no sigma minus
@@ -67,7 +67,7 @@ class TestACZeeman(unittest.TestCase):
         acz_sigma_m_0 = ac_zeeman_shift_for_state(ion, 0, rf_drive_minus)
         acz_sigma_m_1 = ac_zeeman_shift_for_state(ion, 1, rf_drive_minus)
         acz_sigma_m_transition = ac_zeeman_shift_for_transition(
-            ion, [0, 1], rf_drive_minus
+            ion, (0, 1), rf_drive_minus
         )
         self.assertEqual(
             [acz_sigma_m_0, acz_sigma_m_1, acz_sigma_m_transition], [0.0, 0.0, 0.0]
@@ -76,7 +76,7 @@ class TestACZeeman(unittest.TestCase):
         acz_sigma_p_0 = ac_zeeman_shift_for_state(ion, 0, rf_drive_plus)
         acz_sigma_p_1 = ac_zeeman_shift_for_state(ion, 1, rf_drive_plus)
         acz_sigma_p_transition = ac_zeeman_shift_for_transition(
-            ion, [0, 1], rf_drive_plus
+            ion, (0, 1), rf_drive_plus
         )
         # The higher energy state moves down in energy by the expected shift and
         # the lower energy state moves up in energy by the expected shift since
@@ -146,19 +146,19 @@ class TestACZeeman(unittest.TestCase):
             idx1 = ion.get_state_for_F(level, qubit[1][0], qubit[1][1])
 
             acz_diff_bsb_pi = ac_zeeman_shift_for_transition(
-                ion, [idx0, idx1], rf_bsb_pi
+                ion, (idx0, idx1), rf_bsb_pi
             )
 
             acz_diff_rsb_pi = ac_zeeman_shift_for_transition(
-                ion, [idx0, idx1], rf_rsb_pi
+                ion, (idx0, idx1), rf_rsb_pi
             )
 
             acz_diff_bsb_sigma = ac_zeeman_shift_for_transition(
-                ion, [idx0, idx1], rf_bsb_sigma
+                ion, (idx0, idx1), rf_bsb_sigma
             )
 
             acz_diff_rsb_sigma = ac_zeeman_shift_for_transition(
-                ion, [idx0, idx1], rf_rsb_sigma
+                ion, (idx0, idx1), rf_rsb_sigma
             )
 
             np.testing.assert_allclose(
@@ -195,11 +195,11 @@ class TestACZeeman(unittest.TestCase):
         )
 
         acz_diff_rf_pi = ac_zeeman_shift_for_transition(
-            ion, [idx_qubit_0, idx_qubit_1], rf_pi
+            ion, (idx_qubit_0, idx_qubit_1), rf_pi
         )
 
         acz_diff_rf_sigma = ac_zeeman_shift_for_transition(
-            ion, [idx_qubit_0, idx_qubit_1], rf_sigma
+            ion, (idx_qubit_0, idx_qubit_1), rf_sigma
         )
 
         np.testing.assert_allclose(
