@@ -194,5 +194,5 @@ def rayleigh_range(transition: Transition, waist_radius: float) -> float:
     :param waist_radius: Gaussian beam waist (:math:`1/e^2` intensity radius in m).
     :return: the Rayleigh range (m).
     """
-    wavelength = consts.c / transition.frequency
+    wavelength = consts.c / (transition.frequency / (2 * np.pi))
     return np.pi * waist_radius**2 / wavelength
