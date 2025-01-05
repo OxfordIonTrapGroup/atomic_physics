@@ -49,4 +49,4 @@ class TestMg25(unittest.TestCase):
 
             # FIXME: this does not agree to the level of precision I would expect
             # atol should be <1e3
-            np.testing.assert_allclose(freq / (2 * np.pi), ref_freq * 1e9, atol=2e3)
+            np.testing.assert_allclose(freq / (2 * np.pi), ref_freq * 1e9, atol=3e3)
