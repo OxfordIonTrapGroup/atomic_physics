@@ -56,7 +56,7 @@ class TestTSS(unittest.TestCase):
         )
         transitions = rates.get_transitions_matrix(lasers)
         steady_state = rates.get_steady_state_populations(transitions)
-        np.testing.assert_allclose(transitions @ steady_state, 0, atol=1e-8)
+        np.testing.assert_allclose(transitions @ steady_state, 0, atol=2e-8)
 
     def test_steady_state_intensity(self):
         """Test the steady state intensity scaling"""

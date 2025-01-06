@@ -271,8 +271,15 @@ class Atom:
                 if level.J > 1 / 2 and self.nuclear_spin > 1 / 2:
                     IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
                     ident = np.identity(I_dim * J_dim)
-                    H += (
-                        level_data.Bhfs
+                    H += level_data.Bhfs * (
+                        (
+                            3 * IdotJ @ (IdotJ + 1/2 * ident)
+                            - ident
+                            * self.nuclear_spin
+                            * (self.nuclear_spin + 1)
+                            * level.J
+                            * (level.J + 1)
+                        )
                         / (
                             2
                             * self.nuclear_spin
@@ -280,15 +287,7 @@ class Atom:
                             * (2 * self.nuclear_spin - 1)
                             * (2 * level.J - 1)
                         )
-                        * (
-                            3 * IdotJ2
-                            + (3 / 2) * IdotJ
-                            - ident
-                            * self.nuclear_spin
-                            * (self.nuclear_spin + 1)
-                            * level.J
-                            * (level.J + 1)
-                        )
+
                     )
 
             H /= consts.hbar  # work in angular frequency units
