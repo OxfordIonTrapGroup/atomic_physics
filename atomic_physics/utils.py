@@ -40,7 +40,7 @@ def d2f_dB2(
     atom_factory: AtomFactory,
     magnetic_field: float,
     states: tuple[int, int],
-    eps: float = 1e-4,
+    eps: float = 1e-6,
 ) -> float:
     r"""Returns the second-order field-sensitivity (:math:`\frac{\mathrm{d}^2f}{\mathrm{d}B^2}`)
     of a transition between two states in the same level at a given magnetic field.
@@ -60,6 +60,7 @@ def field_insensitive_point(
     atom_factory: AtomFactory,
     states: tuple[int, int],
     magnetic_field_guess: float = 1e-4,
+    eps: float = 1e-4,
 ) -> float | None:
     """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
@@ -69,14 +70,19 @@ def field_insensitive_point(
     :param magnetic_field_guess: Initial guess for the magnetic field insensitive point
         (T). This is used both as a seed for the root finding algorithm and as a scale
         factor to help numerical accuracy.
+    :param eps: step size as a fraction of ``magnetic_field_guess`` to use when
+        calculating numerical derivatives.
     :return: the field-independent point (T) or ``None`` if none found.
     """
     res = opt.root(
         lambda magnetic_field: df_dB(
-            atom_factory, magnetic_field * magnetic_field_guess, states
+            atom_factory,
+            max(magnetic_field, 10 * eps) * magnetic_field_guess,
+            states,
+            eps=eps * magnetic_field_guess,
         ),
         x0=1,
-        options={"xtol": 1e-4, "eps": 1e-7},
+        options={"xtol": 1e-4, "eps": eps},
     )
 
     return res.x[0] * magnetic_field_guess if res.success else None
