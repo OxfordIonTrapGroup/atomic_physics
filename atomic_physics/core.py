@@ -3,7 +3,11 @@ import dataclasses
 import numpy as np
 import scipy.constants as consts
 
-from atomic_physics import operators
+from atomic_physics.operators import (
+    AngularMomentumLoweringOp,
+    AngularMomentumProjectionOp,
+    AngularMomentumRaisingOp,
+)
 from atomic_physics.wigner import wigner3j
 
 _uB = consts.physical_constants["Bohr magneton"][0]
@@ -236,18 +240,30 @@ class Atom:
         for level, level_data in self.level_data.items():
             J_dim = np.rint(2.0 * level.J + 1).astype(int)
 
-            Jp = np.kron(operators.Jp(level.J), np.identity(I_dim))
-            Jm = np.kron(operators.Jm(level.J), np.identity(I_dim))
-            Jz = np.kron(operators.Jz(level.J), np.identity(I_dim))
+            Jp = np.kron(
+                -1 / np.sqrt(2) * AngularMomentumRaisingOp(level.J), np.identity(I_dim)
+            )
+            Jm = np.kron(
+                +1 / np.sqrt(2) * AngularMomentumLoweringOp(level.J), np.identity(I_dim)
+            )
+            Jz = np.kron(AngularMomentumProjectionOp(level.J), np.identity(I_dim))
 
-            Ip = np.kron(np.identity(J_dim), operators.Jp(self.nuclear_spin))
-            Im = np.kron(np.identity(J_dim), operators.Jm(self.nuclear_spin))
-            Iz = np.kron(np.identity(J_dim), operators.Jz(self.nuclear_spin))
+            Ip = np.kron(
+                np.identity(J_dim),
+                -1 / np.sqrt(2) * AngularMomentumRaisingOp(self.nuclear_spin),
+            )
+            Im = np.kron(
+                np.identity(J_dim),
+                +1 / np.sqrt(2) * AngularMomentumLoweringOp(self.nuclear_spin),
+            )
+            Iz = np.kron(
+                np.identity(J_dim), AngularMomentumProjectionOp(self.nuclear_spin)
+            )
 
             H = level_data.g_J * _uB * self.magnetic_field * Jz
             if self.nuclear_spin != 0:
                 gI = level_data.g_I
-                IdotJ = Iz @ Jz + (1 / 2) * (Ip @ Jm + Im @ Jp)
+                IdotJ = Iz @ Jz - (Ip @ Jm + Im @ Jp)
 
                 H += -gI * _uN * self.magnetic_field * Iz
                 H += level_data.Ahfs * IdotJ
@@ -688,18 +704,24 @@ class Atom:
             dim = J_dim * I_dim
 
             # magnetic dipole operator in spherical coordinates
-            Jp = np.kron((-1 / np.sqrt(2)) * operators.Jp(level.J), eye_I)
-            Jm = np.kron((+1 / np.sqrt(2)) * operators.Jm(level.J), eye_I)
-            Jz = np.kron(operators.Jz(level.J), eye_I)
+            Jp = np.kron((-1 / np.sqrt(2)) * AngularMomentumRaisingOp(level.J), eye_I)
+            Jm = np.kron((+1 / np.sqrt(2)) * AngularMomentumLoweringOp(level.J), eye_I)
+            Jz = np.kron(AngularMomentumProjectionOp(level.J), eye_I)
 
             up = -data.g_J * _uB * Jp
             um = -data.g_J * _uB * Jm
             uz = -data.g_J * _uB * Jz
 
             if self.nuclear_spin > 0:
-                Ip = np.kron(eye_J, (-1 / np.sqrt(2)) * operators.Jp(self.nuclear_spin))
-                Im = np.kron(eye_J, (+1 / np.sqrt(2)) * operators.Jm(self.nuclear_spin))
-                Iz = np.kron(eye_J, operators.Jz(self.nuclear_spin))
+                Ip = np.kron(
+                    eye_J,
+                    (-1 / np.sqrt(2)) * AngularMomentumRaisingOp(self.nuclear_spin),
+                )
+                Im = np.kron(
+                    eye_J,
+                    (+1 / np.sqrt(2)) * AngularMomentumLoweringOp(self.nuclear_spin),
+                )
+                Iz = np.kron(eye_J, AngularMomentumProjectionOp(self.nuclear_spin))
 
                 up += data.g_I * _uN * Ip
                 um += data.g_I * _uN * Im

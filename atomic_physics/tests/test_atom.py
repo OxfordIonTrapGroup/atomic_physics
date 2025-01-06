@@ -3,10 +3,14 @@ import unittest
 import numpy as np
 from scipy import constants as consts
 
-from atomic_physics import operators
 from atomic_physics.core import AtomFactory, Level, LevelData
 from atomic_physics.ions import ba133, ba137, ca43
-from atomic_physics.operators import expectation_value
+from atomic_physics.operators import (
+    AngularMomentumLoweringOp,
+    AngularMomentumProjectionOp,
+    AngularMomentumRaisingOp,
+    expectation_value,
+)
 
 
 class TestAtom(unittest.TestCase):
@@ -383,21 +387,35 @@ class TestAtom(unittest.TestCase):
             I_dim = int(np.rint(2 * nuclear_spin + 1))
             J_dim = int(np.rint(2 * level.J + 1))
 
-            J_p = -1 / np.sqrt(2) * np.kron(operators.Jp(level.J), np.identity(I_dim))
-            J_m = +1 / np.sqrt(2) * np.kron(operators.Jm(level.J), np.identity(I_dim))
-            J_z = np.kron(operators.Jz(level.J), np.identity(I_dim))
+            J_p = (
+                -1
+                / np.sqrt(2)
+                * np.kron(AngularMomentumRaisingOp(level.J), np.identity(I_dim))
+            )
+            J_m = (
+                +1
+                / np.sqrt(2)
+                * np.kron(AngularMomentumLoweringOp(level.J), np.identity(I_dim))
+            )
+            J_z = np.kron(AngularMomentumProjectionOp(level.J), np.identity(I_dim))
 
             I_p = (
                 -1
                 / np.sqrt(2)
-                * np.kron(np.identity(J_dim), operators.Jp(atom.nuclear_spin))
+                * np.kron(
+                    np.identity(J_dim), AngularMomentumRaisingOp(atom.nuclear_spin)
+                )
             )
             I_m = (
                 +1
                 / np.sqrt(2)
-                * np.kron(np.identity(J_dim), operators.Jm(atom.nuclear_spin))
+                * np.kron(
+                    np.identity(J_dim), AngularMomentumLoweringOp(atom.nuclear_spin)
+                )
             )
-            I_z = np.kron(np.identity(J_dim), operators.Jz(atom.nuclear_spin))
+            I_z = np.kron(
+                np.identity(J_dim), AngularMomentumProjectionOp(atom.nuclear_spin)
+            )
 
             F_z = I_z + J_z
             F_p = I_p + J_p
@@ -488,8 +506,10 @@ class TestAtom(unittest.TestCase):
             I_dim = int(np.rint(2 * ion.nuclear_spin + 1))
             J_dim = int(np.rint(2 * level.J + 1))
 
-            J_z = np.kron(operators.Jz(level.J), np.identity(I_dim))
-            I_z = np.kron(np.identity(J_dim), operators.Jz(ion.nuclear_spin))
+            J_z = np.kron(AngularMomentumProjectionOp(level.J), np.identity(I_dim))
+            I_z = np.kron(
+                np.identity(J_dim), AngularMomentumProjectionOp(ion.nuclear_spin)
+            )
 
             M_J = expectation_value(state_vectors=state_vectors, operator=J_z)
             M_I = expectation_value(state_vectors=state_vectors, operator=I_z)
