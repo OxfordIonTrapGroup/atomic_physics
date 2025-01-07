@@ -586,7 +586,7 @@ class Atom:
             self._calc_magnetic_dipoles()
         return self._magnetic_dipoles
 
-    def get_rabi_m1(self, lower: int, upper: int, amplitude: float) -> float:
+    def get_rabi_rf(self, lower: int, upper: int, amplitude: float) -> float:
         r"""Returns the Rabi frequency for a magnetic dipole transition.
 
         See also :meth:`get_magnetic_dipoles`.

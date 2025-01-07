@@ -314,31 +314,31 @@ class TestACZeeman(unittest.TestCase):
 
         spectator = ion.get_state_for_F(level, F=1, M_F=1)  # state 50
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=2, M_F=1)  # state 57
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=3, M_F=1)  # state 65
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=5, M_F=1)  # state 79
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=6, M_F=1)  # state 87
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
@@ -348,31 +348,31 @@ class TestACZeeman(unittest.TestCase):
 
         spectator = ion.get_state_for_F(level, F=1, M_F=1)  # state 50
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=2, M_F=1)  # state 57
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=4, M_F=1)  # state 70
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=5, M_F=1)  # state 79
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=6, M_F=1)  # state 87
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
@@ -392,37 +392,37 @@ class TestACZeeman(unittest.TestCase):
 
         spectator = ion.get_state_for_F(level, F=2, M_F=2)  # state 51
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=3, M_F=2)  # state 58
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=4, M_F=2)  # state 67
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=4, M_F=0)  # state 71
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=5, M_F=0)  # state 81
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=6, M_F=0)  # state 89
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_lower += sign * ac_zeeman(Omega, w_transition, w_rf)
 
@@ -432,31 +432,31 @@ class TestACZeeman(unittest.TestCase):
 
         spectator = ion.get_state_for_F(level, F=2, M_F=2)  # state 51
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=3, M_F=2)  # state 58
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = -1  # victim is the lower-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=4, M_F=0)  # state 71
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=5, M_F=0)  # state 81
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 
         spectator = ion.get_state_for_F(level, F=6, M_F=0)  # state 89
         w_transition = ion.get_transition_frequency_for_states((victim, spectator))
-        Omega = ion.get_rabi_m1(victim, spectator, 1e-6)
+        Omega = ion.get_rabi_rf(victim, spectator, 1e-6)
         sign = +1  # victim is the higher-energy state in this transition
         shift_upper += sign * ac_zeeman(Omega, w_transition, w_rf)
 

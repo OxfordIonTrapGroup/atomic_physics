@@ -557,15 +557,15 @@ class TestAtom(unittest.TestCase):
                 == transition
             )
 
-    def test_get_rabi_m1(self):
-        """Test for ``get_rabi_m1``."""
+    def test_get_rabi_rf(self):
+        """Test for ``get_rabi_rf``."""
         ion = ca43.Ca43(magnetic_field=146e-4)
         level = ca43.ground_level
         level_slice = ion.get_slice_for_level(level)
         mpoles = ion.get_magnetic_dipoles()
         for ii in range(level_slice.start, level_slice.stop):
             for jj in range(level_slice.start, level_slice.stop):
-                Omega = ion.get_rabi_m1(lower=jj, upper=ii, amplitude=1)
+                Omega = ion.get_rabi_rf(lower=jj, upper=ii, amplitude=1)
                 np.testing.assert_allclose(Omega, mpoles[ii, jj] / consts.hbar)
 
     def test_get_states_for_M(self):
