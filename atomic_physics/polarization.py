@@ -64,7 +64,13 @@ def retarder_jones(phi: float) -> np.ndarray:
     :param phi: the phase shift added by the retarder.
     :returns: the Jones matrix.
     """
-    return np.array([[np.exp(+0.5 * 1j * phi), 0], [0, np.exp(-0.5 * 1j * phi)]])
+    return np.array(
+        [
+            [np.exp(+0.5 * 1j * phi), 0, 0.0],
+            [0, np.exp(-0.5 * 1j * phi), 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
 
 
 def rotate_jones_matrix(input_matrix: np.ndarray, theta: float) -> np.ndarray:
@@ -78,22 +84,30 @@ def rotate_jones_matrix(input_matrix: np.ndarray, theta: float) -> np.ndarray:
     :returns: the rotated Jones matrix.
     """
     R_theta = np.array(
-        [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+        [
+            [np.cos(theta), -np.sin(theta), 0.0],
+            [np.sin(theta), np.cos(theta), 0.0],
+            [0.0, 0.0, 1.0],
+        ]
     )
     R_m_theta = np.array(
-        [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
+        [
+            [np.cos(theta), np.sin(theta), 0.0],
+            [-np.sin(theta), np.cos(theta), 0.0],
+            [0.0, 0.0, 1.0],
+        ]
     )
     return R_theta @ input_matrix @ R_m_theta
 
 
-def half_wave_plate_jones() -> np.ndarray:
+def half_wave_plate() -> np.ndarray:
     r"""Returns the Jones matrix for a field propagating along the z-axis passing
     through a half-wave plate, whose fast axis is aligned along :math:`\hat{\mathbf{x}}`.
     """
     return retarder_jones(phi=np.pi)
 
 
-def quarter_wave_plate_jones() -> np.ndarray:
+def quarter_wave_plate() -> np.ndarray:
     r"""Returns the Jones matrix for a field propagating along the z-axis passing
     through a quarter-wave plate, whose fast axis is aligned along
     :math:`\hat{\mathbf{x}}`.
