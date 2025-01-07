@@ -428,6 +428,19 @@ class Atom:
         states = self.level_states[level]
         return slice(states.start_index, states.stop_index)
 
+    def get_states_for_level(self, level: Level) -> np.ndarray:
+        """Returns an array containing the indices of states which lie within a given
+        level.
+
+        This can be used, for example, to index into a state vector to select only the
+        states which lie within a given level.
+
+        :param level: the level to select.
+        :return: array of indices of states within the level.
+        """
+        states = self.level_states[level]
+        return np.arange(states.start_index, states.stop_index)
+
     def get_states_for_M(self, level: Level, M: float) -> np.ndarray:
         """Returns the indicates of the states within a given level with the specified
         value of :math:`M`.

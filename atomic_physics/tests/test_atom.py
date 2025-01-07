@@ -535,6 +535,25 @@ class TestAtom(unittest.TestCase):
             level_slice = ion.get_slice_for_level(level)
             assert level_slice.stop - level_slice.start == num_states
 
+    def test_get_states_for_level(self):
+        """Test for ``get_states_for_level``."""
+        ion = ca43.Ca43(1)
+
+        # check that all states are included in at exactly one slice
+        all_states = np.full(ion.num_states, False, dtype=bool)
+        for level in ion.level_data.keys():
+            states = ion.get_states_for_level(level)
+            assert not any(all_states[states])
+            all_states[states] = True
+        assert all(all_states)
+
+        # check that each slice has the correct number of elements
+        for level in ion.level_data.keys():
+            num_states = (2 * ion.nuclear_spin + 1) * (2 * level.J + 1)
+            states = ion.get_states_for_level(level)
+            assert len(states) == num_states
+            assert (states[-1] - states[0]) + 1 == num_states
+
     def test_get_level_for_state(self):
         """Test for ``get_level_for_state``."""
         ion = ca43.Ca43(1)
