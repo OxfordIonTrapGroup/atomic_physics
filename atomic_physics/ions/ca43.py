@@ -47,13 +47,15 @@ r""" Alias for the :math:`\left|n=3, S=1/2, L=2, J=5/2\right>` "shelf" level of
 level_data = (
     LevelData(
         level=ground_level,
+        Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
+        Bhfs=0,
         g_J=2.00225664,  # [2]
         g_I=(2 / 7) * -1.315348,  # [3]
-        Ahfs=-3225.60828640e6 * consts.h / 4,  # [1]
     ),
     LevelData(
         level=P12,
         Ahfs=-145.4e6 * consts.h,
+        Bhfs=0,
         g_I=(2 / 7) * -1.315348,  # [4]  # [3]
     ),
     LevelData(
@@ -72,6 +74,7 @@ level_data = (
         level=D52,
         Ahfs=-3.8931e6 * consts.h,  # [5]
         Bhfs=-4.241e6 * consts.h,  # [5]
+        g_J=1.2003,
         g_I=(2 / 7) * -1.315348,  # [3]
     ),
 )
@@ -105,19 +108,19 @@ transitions = {
         lower=D52,
         upper=P32,
         einstein_A=8.48e6,  # [?]
-        frequency=2 * np.pi * 350859426.91e6,  # [6]
+        frequency=350859426.91e6 * 2 * np.pi,  # [6]
     ),
     "729": Transition(
         lower=S12,
         upper=D52,
         einstein_A=0.856,  # [?]
-        frequency=411046264.4881 * 2 * np.pi,  # [6]
+        frequency=411046264.4881e6 * 2 * np.pi,  # [6]
     ),
     "733": Transition(
         lower=S12,
         upper=D32,
-        einstein_A=0.850,  # [?]
-        frequency=409226671.03 * 2 * np.pi,  # [6]
+        einstein_A=0.850,  # [?]#
+        frequency=409226671.03e6 * 2 * np.pi,  # [6]
     ),
 }
 

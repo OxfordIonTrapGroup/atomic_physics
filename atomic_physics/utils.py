@@ -40,7 +40,7 @@ def d2f_dB2(
     atom_factory: AtomFactory,
     magnetic_field: float,
     states: tuple[int, int],
-    eps: float = 1e-4,
+    eps: float = 1e-6,
 ) -> float:
     r"""Returns the second-order field-sensitivity (:math:`\frac{\mathrm{d}^2f}{\mathrm{d}B^2}`)
     of a transition between two states in the same level at a given magnetic field.
@@ -60,6 +60,7 @@ def field_insensitive_point(
     atom_factory: AtomFactory,
     states: tuple[int, int],
     magnetic_field_guess: float = 1e-4,
+    eps: float = 1e-4,
 ) -> float | None:
     """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
@@ -69,14 +70,19 @@ def field_insensitive_point(
     :param magnetic_field_guess: Initial guess for the magnetic field insensitive point
         (T). This is used both as a seed for the root finding algorithm and as a scale
         factor to help numerical accuracy.
+    :param eps: step size as a fraction of ``magnetic_field_guess`` to use when
+        calculating numerical derivatives.
     :return: the field-independent point (T) or ``None`` if none found.
     """
     res = opt.root(
         lambda magnetic_field: df_dB(
-            atom_factory, magnetic_field * magnetic_field_guess, states
+            atom_factory,
+            max(magnetic_field, 10 * eps) * magnetic_field_guess,
+            states,
+            eps=eps * magnetic_field_guess,
         ),
         x0=1,
-        options={"xtol": 1e-4, "eps": 1e-7},
+        options={"xtol": 1e-4, "eps": eps},
     )
 
     return res.x[0] * magnetic_field_guess if res.success else None
@@ -148,7 +154,16 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
             )
             pol_ind = polarization + 1
             Omega = amplitude_for_pol[pol_ind] * Rnm[state, spectator]
-            acz[pol_ind] += (
+
+            # A positive AC Zeeman shift means that the upper (higher energy) state
+            # increases in energy, while the lower state decreases in energy
+            sign = (
+                +1
+                if atom.state_energies[state] > atom.state_energies[spectator]
+                else -1
+            )
+
+            acz[pol_ind] += sign * (
                 0.5 * Omega**2 * (w_transition / (w_transition**2 - drive.frequency**2))
             )
 
@@ -156,7 +171,7 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
 
 
 def ac_zeeman_shift_for_transition(
-    atom: Atom, states: tuple[int, int], upper, drive: RFDrive
+    atom: Atom, states: tuple[int, int], drive: RFDrive
 ) -> float:
     """Returns the AC Zeeman shift on a transition resulting from an applied RF field.
 
@@ -170,9 +185,12 @@ def ac_zeeman_shift_for_transition(
     if len(states) != 2:
         raise ValueError(f"Expected 2 state indices, got {len(states)}.")
 
+    upper = min(states)
+    lower = max(states)
+
     return ac_zeeman_shift_for_state(
-        atom=atom, state=states[0], drive=drive
-    ) + ac_zeeman_shift_for_state(atom=atom, state=states[1], drive=drive)
+        atom=atom, state=upper, drive=drive
+    ) - ac_zeeman_shift_for_state(atom=atom, state=lower, drive=drive)
 
 
 def rayleigh_range(transition: Transition, waist_radius: float) -> float:
@@ -182,5 +200,5 @@ def rayleigh_range(transition: Transition, waist_radius: float) -> float:
     :param waist_radius: Gaussian beam waist (:math:`1/e^2` intensity radius in m).
     :return: the Rayleigh range (m).
     """
-    wavelength = consts.c / transition.frequency
+    wavelength = consts.c / (transition.frequency / (2 * np.pi))
     return np.pi * waist_radius**2 / wavelength

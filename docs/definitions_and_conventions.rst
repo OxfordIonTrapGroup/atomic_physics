@@ -45,23 +45,32 @@ quantum numbers ``n``, ``L``, ``S``, ``J`` and ``I``. These are assumed to be
 ``M`` is a good quantum number at all fields however there is generally more than one
 state with a given combination of ``(n, L, S, J, I, M)``. 
 
-Since do not make any assumptions about the size of the field compared with the
-hyperfine interaction we cannot assume that either (``F``, ``M_F``) or (``M_I``, ``M_J``)
-form a basis of good quantum numbers to uniquely identify states by.
+When the interaction with the external magnetic field is weak compared to the hyperfine
+interaction ``F`` is a good quantum number. When the magnetic field is strong (``M_I``,
+``M_J``) are good quantum numbers.
 
-Instead, we, uniquely identify states by an index into a list of states ordered by
-*decreasing* energy (with index ``0`` being the atom's highest-energy state). This
-convention (as opposed to having index ``0`` be the ground state) ensures that the
-Pauli operators have their conventional meaning and signs - for example with
-:math:`\sigma_+` being the raising operator and transition energies represented by
-:math:`H = \frac{1}{2}\omega\sigma_z`.
+In the intermediate field regime none of ``F``, ``M_I`` or ``M_J`` are good quantum
+numbers. Despite this, there is a general rule that when the energies of states are
+plotted as a function of magnetic field (a Breit-Rabi diagram) the trajectories for
+states within the same level with the same value of ``M`` never cross. As a result,
+despite not being good quantum numbers, either ``F`` or (``M_I``, ``M_J``) can be
+used at arbitrary field to uniquely identify states, with the interpretation "this is
+the value of ``F`` (``M_J`` / ``M_J``) which this state would have if we were to
+adiabatically ramp the magnetic field to zero (infinity)". Note, however, that these
+values do *not* generally correspond to the expectation value of the relevant operators;
+they are not good quantum numbers.
 
-:class:`atomic_physics.core.Atom` provides a number of helper functions to make working
-with state indexes easier. For example, :class:`atomic_physics.core.Atom`
-provides helpers to attempt to find the state index corresponding to a given set of
-``F``, ``M_F`` (``M_I``, ``M_J``) for cases where the field is low (high) enough for
-these to be meaningful. This functionality is implemented by rounding the expectation
-values of the relevant operators to the valid value.
+Since we do not make any assumptions about the size of the field compared with the
+hyperfine interaction we do not use either (``F``, ``M_F``) or (``M_I``, ``M_J``)
+to uniquely identify states by. Instead, we uniquely identify states by an index into a
+list of states ordered by *decreasing* energy (with index ``0`` being the atom's
+highest-energy state). This convention (as opposed to having index ``0`` be the ground
+state) ensures that the Pauli operators have their conventional meaning and signs - for
+example with :math:`\sigma_+` being the raising operator and state energies
+represented by :math:`H = \frac{1}{2}\omega\sigma_z`.
+
+:class:`atomic_physics.core.Atom` provides a number of helper functions to convert both
+(``F``, ``M_F``) and (``M_I``, ``M_J``) into state indices.
 
 The Hamiltonian
 ---------------
@@ -90,8 +99,9 @@ Internally, ``atomic_physics`` often works in the high-field (``M_I``, ``M_J``) 
 where the nuclear and electronic spins are decoupled, which makes calculations easier.
 Note that these states are not generally energy eignestates.
 
-We order the states in this basis by increasing ``M_J`` and ``M_I`` *not* by energy ordering.
-We order our dimensions as :math:`J \tensor I`. The values of ``M_I`` and ``M_J`` for
+We order the states in this basis by increasing ``M_J`` and ``M_I`` (the first state
+corresponds to both ``M_J`` and ``M_I`` being 0) *not* by energy ordering.
+We order our dimensions as :math:`J \otimes I`. The values of ``M_I`` and ``M_J`` for
 each state in this basis are available through :class:`atomic_physics.core.Atom`\'s
 `high_field_M_I` and `high_field_M_J` attributes.
 

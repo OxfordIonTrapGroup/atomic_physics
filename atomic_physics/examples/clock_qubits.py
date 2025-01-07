@@ -20,7 +20,7 @@ for M3 in range(-3, +3 + 1):
                 "4, {} --> 3, {}: {:.6f} GHz @ {:.5f} G ({:.3e} Hz/G^2)".format(
                     M3 - q,
                     M3,
-                    f0 / (2 * np.pi * 1e6),
+                    f0 / (2 * np.pi * 1e9),
                     B0 * 1e4,
                     d2fdB2 / (2 * np.pi) * 1e-8,
                 )

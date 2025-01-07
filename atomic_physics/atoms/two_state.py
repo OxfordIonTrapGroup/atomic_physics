@@ -28,6 +28,8 @@ lower_state = 1
 """Index of the M=-1/2 (lower-energy) state. """
 
 TwoStateAtom = AtomFactory(
-    nuclear_spin=0.0, level_data=(LevelData(level=ground_level),), transitions={}
+    nuclear_spin=0.0,
+    level_data=(LevelData(level=ground_level, Ahfs=0, Bhfs=0),),
+    transitions={},
 )
 """Ideal spin 1/2 atom with two states."""

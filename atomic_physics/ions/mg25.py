@@ -48,20 +48,22 @@ r""" Alias for the :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` ground level of
 level_data = (
     LevelData(
         level=ground_level,
+        Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
+        Bhfs=0,
         g_J=2.002,  # [1] (approximate)
         g_I=(2 / 5) * -0.85545,  # [7]
-        Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
     ),
     LevelData(
         level=P12,
         Ahfs=102.16e6 * consts.h,  # [6]
+        Bhfs=0,
         g_I=(2 / 5) * -0.85545,  # [7]
     ),
     LevelData(
         level=P32,
         Ahfs=-19.0972e6 * consts.h,  # [8]
-        g_I=(2 / 5) * -0.85545,  # [7]
         Bhfs=22.3413e6 * consts.h,  # [8]
+        g_I=(2 / 5) * -0.85545,  # [7]
     ),
 )
 

@@ -3,7 +3,12 @@ import dataclasses
 import numpy as np
 import scipy.constants as consts
 
-from atomic_physics import operators
+from atomic_physics.operators import (
+    AngularMomentumLoweringOp,
+    AngularMomentumProjectionOp,
+    AngularMomentumRaisingOp,
+    expectation_value,
+)
 from atomic_physics.wigner import wigner3j
 
 _uB = consts.physical_constants["Bohr magneton"][0]
@@ -33,17 +38,17 @@ class LevelData:
 
     Attributes:
         level: the :class:`Level` this data is for.
-        g_J: G factor. If ``None``, we use the Lande g factor.
-        g_I: Nuclear g factor.
         Ahfs: Nuclear A coefficient.
         Bhfs: Nuclear B (quadrupole) coefficient.
+        g_J: G factor. If ``None``, we use the Lande g factor.
+        g_I: Nuclear g factor.
     """
 
     level: Level
+    Ahfs: float
+    Bhfs: float
     g_J: float | None = None
-    g_I: float | None = None
-    Ahfs: float | None = None
-    Bhfs: float | None = None
+    g_I: float = 0.0
 
     def __post_init__(self):
         if self.g_J is None:
@@ -158,6 +163,7 @@ class Atom:
         nuclear_spin: Nuclear spin.
 
         num_states: the total number of states contained within the atom.
+        levels: tuple containing all of the :class:`~.Level`\s within this atom.
         state_energies: vector of energies of each state in the atom. States are ordered
             by *decreasing* energy, with ``state_energies[0]`` corresponding the state with
             highest energy and ``state_energies[-1]`` corresponding to the ground state.
@@ -173,17 +179,17 @@ class Atom:
             basis used in ``state_vectors``.
         M: vector of magnetic quantum numbers for each state.
         F: vector of total (electron + nucleus) angular momentum for each state. This is
-            not generally a good quantum number, however provide an estimate using
-            ``<F^2> = f * (f + 1)`` and rounding to the closest valid value. This is
-            useful when the field is sufficiently low.
-        M_I: vector of nuclear magnetic quantum numbers for each state. This is not
-            generally a good quantum number, however provide an estimate using
-            ``<Iz> = M_I`` and rounding to the closest valid value. This is useful when
-            the field is sufficiently high.
-        M_J: vector of electron magnetic quantum numbers for each state. This is not
-            generally a good quantum number, however provide an estimate using
-            ``<Jz> = M_J`` and rounding to the closest valid value. This is useful when
-            the field is sufficiently high.
+            not generally a good quantum number and should be read as "this is the
+            value of ``F`` we would get if we started in this state and adiabatically
+            ramped the magnetic field to 0".
+        M_I: vector of nuclear magnetic quantum numbers for each state. This is
+            not generally a good quantum number and should be read as "this is the
+            value of ``M_I`` we would get if we started in this state and adiabatically
+            ramped the magnetic field to infinity".
+        M_J: vector of electron magnetic quantum numbers for each state. This is
+            not generally a good quantum number and should be read as "this is the
+            value of ``M_J`` we would get if we started in this state and adiabatically
+            ramped the magnetic field to infinity".
         _electric_multipoles: electric multiple matrix (scattering amplitudes between
             states). See :meth:`get_electric_multipoles`. To keep construction fast,
             we calculate this lazily when needed.
@@ -198,6 +204,7 @@ class Atom:
     nuclear_spin: float
 
     num_states: int = dataclasses.field(init=False)
+    levels: tuple[Level, ...] = dataclasses.field(init=False)
     state_energies: np.ndarray = dataclasses.field(init=False)
     state_vectors: np.ndarray = dataclasses.field(init=False)
     high_field_M_I: np.ndarray = dataclasses.field(init=False)
@@ -217,6 +224,7 @@ class Atom:
         self.num_states = max(
             [states.stop_index for states in self.level_states.values()]
         )
+        self.levels = tuple(self.level_data.keys())
 
         self.state_energies = np.zeros(self.num_states)
         self.state_vectors = np.zeros((self.num_states, self.num_states))
@@ -233,43 +241,51 @@ class Atom:
         for level, level_data in self.level_data.items():
             J_dim = np.rint(2.0 * level.J + 1).astype(int)
 
-            Jp = np.kron(operators.Jp(level.J), np.identity(I_dim))
-            Jm = np.kron(operators.Jm(level.J), np.identity(I_dim))
-            Jz = np.kron(operators.Jz(level.J), np.identity(I_dim))
+            Jp = np.kron(
+                -1 / np.sqrt(2) * AngularMomentumRaisingOp(level.J), np.identity(I_dim)
+            )
+            Jm = np.kron(
+                +1 / np.sqrt(2) * AngularMomentumLoweringOp(level.J), np.identity(I_dim)
+            )
+            Jz = np.kron(AngularMomentumProjectionOp(level.J), np.identity(I_dim))
 
-            Ip = np.kron(np.identity(J_dim), operators.Jp(self.nuclear_spin))
-            Im = np.kron(np.identity(J_dim), operators.Jm(self.nuclear_spin))
-            Iz = np.kron(np.identity(J_dim), operators.Jz(self.nuclear_spin))
+            Ip = np.kron(
+                np.identity(J_dim),
+                -1 / np.sqrt(2) * AngularMomentumRaisingOp(self.nuclear_spin),
+            )
+            Im = np.kron(
+                np.identity(J_dim),
+                +1 / np.sqrt(2) * AngularMomentumLoweringOp(self.nuclear_spin),
+            )
+            Iz = np.kron(
+                np.identity(J_dim), AngularMomentumProjectionOp(self.nuclear_spin)
+            )
 
             H = level_data.g_J * _uB * self.magnetic_field * Jz
-
             if self.nuclear_spin != 0:
                 gI = level_data.g_I
-                IdotJ = Iz @ Jz + (1 / 2) * (Ip @ Jm + Im @ Jp)
+                IdotJ = Iz @ Jz - (Ip @ Jm + Im @ Jp)
 
                 H += -gI * _uN * self.magnetic_field * Iz
                 H += level_data.Ahfs * IdotJ
 
                 if level.J > 1 / 2 and self.nuclear_spin > 1 / 2:
-                    IdotJ2 = np.linalg.matrix_power(IdotJ, 2)
                     ident = np.identity(I_dim * J_dim)
-                    H += (
-                        level_data.Bhfs
+                    H += level_data.Bhfs * (
+                        (
+                            3 * IdotJ @ (IdotJ + 1 / 2 * ident)
+                            - ident
+                            * self.nuclear_spin
+                            * (self.nuclear_spin + 1)
+                            * level.J
+                            * (level.J + 1)
+                        )
                         / (
                             2
                             * self.nuclear_spin
                             * level.J
                             * (2 * self.nuclear_spin - 1)
                             * (2 * level.J - 1)
-                        )
-                        * (
-                            3 * IdotJ2
-                            + (3 / 2) * IdotJ
-                            - ident
-                            * self.nuclear_spin
-                            * (self.nuclear_spin + 1)
-                            * level.J
-                            * (level.J + 1)
                         )
                     )
 
@@ -282,8 +298,9 @@ class Atom:
             state_vectors = state_vectors[:, inds]
             state_energies = state_energies[inds]
 
+            # Find the value of M for each state in the level
+            M = expectation_value(state_vectors, Iz + Jz)
             # check that the eigensolver found the angular momentum eigenstates
-            M = np.diag(state_vectors.conj().T @ (Iz + Jz) @ state_vectors)
             if max(abs(M - np.rint(2 * M) / 2)) > 1e-5:
                 raise ValueError(
                     "Error finding angular momentum eigenstates. Is the field too "
@@ -302,35 +319,72 @@ class Atom:
             self.high_field_M_J[level_slice] = np.kron(
                 np.arange(-level.J, level.J + 1), np.ones(I_dim)
             )
-
             self.M[level_slice] = M
 
-            # F, M_I & M_J aren't generally good quantum numbers, but find the closest
-            # value anyway since it's useful in cases where we're "close enough" to
-            # high or low field.
-            Fz = Iz + Jz
-            Fp = Ip + Jp
-            Fm = Im + Jm
+            # Calculate the values of F (M_I and M_J) which these states would have
+            # in the low (high) field limit. NB states within the same level with
+            # the same value of M can never have the same energy so this labelling
+            # is unambiguous and unique.
 
-            F_2_op = Fz @ Fz + (1 / 2) * (Fp @ Fm + Fm @ Fp)
-            F_2 = np.diag(state_vectors.conj().T @ F_2_op @ state_vectors)  # <F^2>
+            # Start by creating an energy-ordered list of possible F values for
+            # the level
+            F_max = self.nuclear_spin + level.J
+            F_min = np.abs(self.nuclear_spin - level.J)
+            level_F = np.arange(F_min, F_max + 1)
 
-            F = 0.5 * (np.sqrt(1 + 4 * F_2) - 1)  # <F^2> = f * (f + 1)
-            M_I = np.diag(state_vectors.conj().T @ (Iz) @ state_vectors)  # M_I = <Iz>
-            M_J = np.diag(state_vectors.conj().T @ (Jz) @ state_vectors)  # M_J = <Jz>
-
-            def closest(number, valid_values):
-                return valid_values[np.abs(number - valid_values).argmin()]
-
-            valid_F = np.arange(
-                np.abs(level.J - self.nuclear_spin), level.J + self.nuclear_spin + 1
+            # Figure out the zero-field ordering of states with a given F
+            # and order the vector level_F in terms of *decreasing* energy
+            # F^2 = I^2 + J^2 + 2I.J
+            I_dot_J = 0.5 * (
+                level_F * (level_F + 1)
+                - self.nuclear_spin * (self.nuclear_spin + 1)
+                - level.J * (level.J + 1)
             )
-            valid_M_I = np.arange(-self.nuclear_spin, self.nuclear_spin + 1)
-            valid_M_J = np.arange(-level.J, level.J + 1)
+            E_F = level_data.Ahfs * I_dot_J
 
-            self.F[level_slice] = list(map(lambda x: closest(x, valid_F), F))
-            self.M_I[level_slice] = list(map(lambda x: closest(x, valid_M_I), M_I))
-            self.M_J[level_slice] = list(map(lambda x: closest(x, valid_M_J), M_J))
+            if level.J > 1 / 2 and self.nuclear_spin > 1 / 2:
+                E_F += (
+                    level_data.Bhfs
+                    * (
+                        3 * I_dot_J**2
+                        + 3 / 2 * I_dot_J
+                        + self.nuclear_spin
+                        * (self.nuclear_spin + 1)
+                        * level.J
+                        * (level.J + 1)
+                    )
+                    / (
+                        2
+                        * self.nuclear_spin
+                        * level.J
+                        * (2 * self.nuclear_spin - 1)
+                        * (2 * level.J - 1)
+                    )
+                )
+            level_F = level_F[np.argsort(E_F)][::-1]
+
+            # Now, create energy-ordered lists of M_I and M_J
+            level_M_I = self.high_field_M_I[level_slice]
+            level_M_J = self.high_field_M_J[level_slice]
+            E_M_I_M_J = (
+                level_data.g_J * _uB * level_M_J - level_data.g_I * _uN * level_M_I
+            )
+            M_I_M_J_inds = np.argsort(E_M_I_M_J)[::-1]
+            level_M_I = level_M_I[M_I_M_J_inds]
+            level_M_J = level_M_J[M_I_M_J_inds]
+
+            for M in np.arange(-F_max, F_max + 1):
+                # Array of all states with this level with this value of M
+                # ordered from highest to lowest energy
+                M_indicies = np.argwhere(M == self.M[level_slice]).ravel()
+
+                F_for_M = level_F[level_F >= np.abs(M)]  # F < M_F
+                M_I_for_M = level_M_I[level_M_I + level_M_J == M]
+                M_J_for_M = level_M_J[level_M_I + level_M_J == M]
+
+                self.F[level_slice][M_indicies] = F_for_M
+                self.M_I[level_slice][M_indicies] = M_I_for_M
+                self.M_J[level_slice][M_indicies] = M_J_for_M
 
     def get_transition_frequency_for_states(
         self, states: tuple[int, int], relative: bool = True
@@ -374,6 +428,19 @@ class Atom:
         states = self.level_states[level]
         return slice(states.start_index, states.stop_index)
 
+    def get_states_for_level(self, level: Level) -> np.ndarray:
+        """Returns an array containing the indices of states which lie within a given
+        level.
+
+        This can be used, for example, to index into a state vector to select only the
+        states which lie within a given level.
+
+        :param level: the level to select.
+        :return: array of indices of states within the level.
+        """
+        states = self.level_states[level]
+        return np.arange(states.start_index, states.stop_index)
+
     def get_states_for_M(self, level: Level, M: float) -> np.ndarray:
         """Returns the indicates of the states within a given level with the specified
         value of :math:`M`.
@@ -382,19 +449,9 @@ class Atom:
         :param M: the value of :math:`M` to look for.
         :return: array of state indices.
         """
-        inds = np.arange(self.num_states)
-        level_states = self.level_states[level]
-
-        level_states = np.logical_and(
-            level_states.start_index <= inds, inds < level_states.stop_index
-        )
-
-        M_states = np.logical_and(
-            level_states,
-            self.M[inds] == M,
-        )
-
-        return np.array(inds[M_states])
+        level_slice = self.get_slice_for_level(level)
+        M_states = np.argwhere(self.M[level_slice] == M).ravel()
+        return M_states + level_slice.start
 
     def get_state_for_F(self, level: Level, F: float, M_F: float) -> int:
         """Returns the index of the state with a given value of :math:`F` and
@@ -408,13 +465,15 @@ class Atom:
         :param M_F: the value of :math:`M_F` to look for.
         :return: the index of the corresponding state.
         """
-        M_inds = self.get_states_for_M(level, M=M_F)
-        F_inds = M_inds[self.F[M_inds] == F]
+        level_slice = self.get_slice_for_level(level)
+        F_states = np.argwhere(
+            np.logical_and(self.M[level_slice] == M_F, self.F[level_slice] == F)
+        ).ravel()
 
-        if len(F_inds) != 1:
+        if len(F_states) != 1:
             raise ValueError(f"No unique state with F={F} found in level {level}")
 
-        return F_inds.ravel()[0]
+        return F_states[0] + level_slice.start
 
     def get_state_for_MI_MJ(self, level: Level, M_I: float, M_J: float) -> int:
         """Returns the index of the state with a given value of :math:`M_I` and
@@ -429,23 +488,17 @@ class Atom:
         :param M_J: the value of :math:`M_J` to look for.
         :return: the index of the corresponding state.
         """
-        inds = np.arange(self.num_states)
-        level_states = self.level_states[level]
+        level_slice = self.get_slice_for_level(level)
+        M_I_M_J_states = np.argwhere(
+            np.logical_and(self.M_I[level_slice] == M_I, self.M_J[level_slice] == M_J)
+        ).ravel()
 
-        level_states = np.logical_and(
-            level_states.start_index <= inds, inds < level_states.stop_index
-        )
-
-        M_states = np.logical_and(self.M_I[inds] == M_I, self.M_J[inds] == M_J)
-
-        states = np.logical_and(level_states, M_states)
-
-        if len(states) != 1:
+        if len(M_I_M_J_states) != 1:
             raise ValueError(
                 f"No unique state with M_I={M_J}, M_J={M_J} found in level {level}"
             )
 
-        return states.ravel()[0]
+        return M_I_M_J_states[0] + level_slice.start
 
     def get_level_for_state(self, state: int) -> Level:
         """Returns the level a state lies in.
@@ -476,21 +529,6 @@ class Atom:
             f"No transition found between levels {levels[0]} and {levels[1]}"
         )
 
-    def get_population(
-        self, state_vector: np.ndarray, inds: Level | int | slice
-    ) -> float:
-        """Returns the total population in a set of states.
-
-        :param state: state vector
-        :param states: set of states to sum over. This can be any of: a :class:`.Level`;
-          a state index; or, a ``slice``.
-        """
-        if isinstance(inds, Level):
-            return np.sum(state_vector[self.get_slice_for_level(inds)])
-        elif not isinstance(inds, int) and not isinstance(inds, slice):
-            raise TypeError("inds must be a level, slice or index")
-        return np.sum(state_vector[inds])
-
     def get_saturation_intensity(self, transition: str) -> float:
         """Returns the saturation intensity for a transition.
 
@@ -502,7 +540,8 @@ class Atom:
         :return: saturation intensity (W/m^2)
         """
         transition = self.transitions[transition]
-        scattering_rates = np.power(np.abs(self._electric_multipoles), 2)
+        epoles = self.get_electric_multipoles()
+        scattering_rates = np.power(np.abs(epoles), 2)
         total_scattering_rates = np.sum(scattering_rates, 0)
         stretched_state_index = self.level_states[transition.upper].start_index
         scattering_rate = total_scattering_rates[stretched_state_index]
@@ -560,7 +599,7 @@ class Atom:
             self._calc_magnetic_dipoles()
         return self._magnetic_dipoles
 
-    def get_rabi_m1(self, lower: int, upper: int, amplitude: float) -> float:
+    def get_rabi_rf(self, lower: int, upper: int, amplitude: float) -> float:
         r"""Returns the Rabi frequency for a magnetic dipole transition.
 
         See also :meth:`get_magnetic_dipoles`.
@@ -676,18 +715,24 @@ class Atom:
             dim = J_dim * I_dim
 
             # magnetic dipole operator in spherical coordinates
-            Jp = np.kron((-1 / np.sqrt(2)) * operators.Jp(level.J), eye_I)
-            Jm = np.kron((+1 / np.sqrt(2)) * operators.Jm(level.J), eye_I)
-            Jz = np.kron(operators.Jz(level.J), eye_I)
+            Jp = np.kron((-1 / np.sqrt(2)) * AngularMomentumRaisingOp(level.J), eye_I)
+            Jm = np.kron((+1 / np.sqrt(2)) * AngularMomentumLoweringOp(level.J), eye_I)
+            Jz = np.kron(AngularMomentumProjectionOp(level.J), eye_I)
 
             up = -data.g_J * _uB * Jp
             um = -data.g_J * _uB * Jm
             uz = -data.g_J * _uB * Jz
 
             if self.nuclear_spin > 0:
-                Ip = np.kron(eye_J, (-1 / np.sqrt(2)) * operators.Jp(self.nuclear_spin))
-                Im = np.kron(eye_J, (+1 / np.sqrt(2)) * operators.Jm(self.nuclear_spin))
-                Iz = np.kron(eye_J, operators.Jz(self.nuclear_spin))
+                Ip = np.kron(
+                    eye_J,
+                    (-1 / np.sqrt(2)) * AngularMomentumRaisingOp(self.nuclear_spin),
+                )
+                Im = np.kron(
+                    eye_J,
+                    (+1 / np.sqrt(2)) * AngularMomentumLoweringOp(self.nuclear_spin),
+                )
+                Iz = np.kron(eye_J, AngularMomentumProjectionOp(self.nuclear_spin))
 
                 up += data.g_I * _uN * Ip
                 um += data.g_I * _uN * Im
@@ -754,6 +799,8 @@ class AtomFactory:
         if len(self.level_data) == 1:
             processed_levels[next(iter(self.level_data)).level] = 0.0
         else:
+            # pick one level arbitrarily to be energy 0 and then start walking through
+            # the transitions to fill in other levels above and below it.
             unprocessed_transition_names += list(self.transitions.keys())
             transition = self.transitions[unprocessed_transition_names.pop()]
             processed_levels[transition.lower] = 0
