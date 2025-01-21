@@ -3,7 +3,7 @@
 Change Log
 ==========
 
-v1.1
+v2.0
 ~~~~
 
 This version gives the ``atomic_physics`` API a much needed tidy up.
@@ -11,11 +11,6 @@ This version gives the ``atomic_physics`` API a much needed tidy up.
 A major design goal for the tidy up was to make things more obvious for the user. This
 comes at the expense of some function names now being quite a bit more verbose, but
 that feels like a worthwhile price to pay for clarity!
-
-NB I was a bit
-sloppy and forgot to change the version number before making some of these changes so
-some breaking changes ended up leaking into the v1.0.3 release. If this causes problems
-open an issue and I'll go back and sort that out.
 
 Misc:
 

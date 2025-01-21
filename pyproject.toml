@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "atomic_physics"
-version = "1.0.3"
-description = "Nascent toolkit for calculating state energies, transition matrix elements, rate equations, obe solver, etc"
+version = "2.0.0"
+description = "Lightweight python library for calculations based on atomic structure"
 authors = ["hartytp <thomas.peter.harty@gmail.com>"]
 
 [tool.poetry.dependencies]
