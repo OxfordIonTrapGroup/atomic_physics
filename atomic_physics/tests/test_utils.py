@@ -108,14 +108,15 @@ class TestFieldSensitivity(unittest.TestCase):
 
     def test_field_insensitive_point(self):
         """Tests for ``utils.field_insensitive_point``."""
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
         np.testing.assert_allclose(
             field_insensitive_point(
                 atom_factory=ca43.Ca43,
-                states=(
-                    ion.get_state_for_F(ca43.S12, F=4, M_F=0),
-                    ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
-                ),
+                level_0=ca43.S12,
+                F_0=4,
+                M_F_0=0,
+                level_1=ca43.S12,
+                F_1=3,
+                M_F_1=+1,
                 magnetic_field_guess=10e-4,
             ),
             146.0942e-4,
