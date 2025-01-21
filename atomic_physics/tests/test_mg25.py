@@ -19,13 +19,15 @@ class TestMg25(unittest.TestCase):
         212.8 G to [1].
         """
         Mg25 = mg25.Mg25.filter_levels(level_filter=(mg25.S12,))
-        ion = Mg25(magnetic_field=212.8e-4)
-
-        l_index = ion.get_state_for_F(mg25.S12, F=3, M_F=+1)
-        u_index = ion.get_state_for_F(mg25.S12, F=2, M_F=+1)
-
         B0 = field_insensitive_point(
-            Mg25, (l_index, u_index), magnetic_field_guess=212.8e-4
+            Mg25,
+            level_0=mg25.S12,
+            F_0=3,
+            M_F_0=+1,
+            level_1=mg25.S12,
+            F_1=2,
+            M_F_1=+1,
+            magnetic_field_guess=212.8e-4,
         )
         np.testing.assert_allclose(B0, 212.8e-4, atol=1e-5)
 

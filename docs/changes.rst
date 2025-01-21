@@ -96,3 +96,4 @@ API refactor:
 * Add ``operators.expectation_value`` helper method.
 * Add ``Atom.levels`` field.
 * Add new ``Atom.get_states_for_level`` method.
+* ``utils.field_insensitive_point`` now works with values of ``F`` and ``M_F`` instead of state indices.

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.constants as consts
 import scipy.optimize as opt
 
-from atomic_physics.core import Atom, AtomFactory, RFDrive, Transition
+from atomic_physics.core import Atom, AtomFactory, Level, RFDrive, Transition
 from atomic_physics.polarization import (
     cartesian_to_spherical,
     dM_for_transition,
@@ -58,15 +58,28 @@ def d2f_dB2(
 
 def field_insensitive_point(
     atom_factory: AtomFactory,
-    states: tuple[int, int],
+    level_0: Level,
+    F_0: float,
+    M_F_0: float,
+    level_1: Level,
+    F_1: float,
+    M_F_1: float,
     magnetic_field_guess: float = 1e-4,
     eps: float = 1e-4,
 ) -> float | None:
     """Returns the magnetic field at which the frequency of a transition
     between two states in the same level becomes first-order field independent.
 
+    Since the energy ordering of states can change with magnetic field, we label states
+    by ``F`` and ``M_F`` instead of using state indices.
+
     :param atom_factory: factory class for the atom of interest.
-    :param states: tuple of indices involved in this transition.
+    :param level_0: level the first state involved in the transition lies in.
+    :param F_0: value of ``F`` for the first state involved in the transition.
+    :param M_F_0: value of ``M_F`` for the first state involved in the transition.
+    :param level_1: level the second state involved in the transition lies in.
+    :param F_1: value of ``F`` for the second state involved in the transition.
+    :param M_F_1: value of ``M_F`` for the second state involved in the transition.
     :param magnetic_field_guess: Initial guess for the magnetic field insensitive point
         (T). This is used both as a seed for the root finding algorithm and as a scale
         factor to help numerical accuracy.
@@ -74,13 +87,24 @@ def field_insensitive_point(
         calculating numerical derivatives.
     :return: the field-independent point (T) or ``None`` if none found.
     """
-    res = opt.root(
-        lambda magnetic_field: df_dB(
+
+    def opt_fun(x):
+        magnetic_field = max(x, 10 * eps) * magnetic_field_guess
+        atom = atom_factory(magnetic_field=magnetic_field)
+        states = (
+            atom.get_state_for_F(level=level_0, F=F_0, M_F=M_F_0),
+            atom.get_state_for_F(level=level_1, F=F_1, M_F=M_F_1),
+        )
+
+        return df_dB(
             atom_factory,
-            max(magnetic_field, 10 * eps) * magnetic_field_guess,
+            magnetic_field,
             states,
             eps=eps * magnetic_field_guess,
-        ),
+        )
+
+    res = opt.root(
+        opt_fun,
         x0=1,
         options={"xtol": 1e-4, "eps": eps},
     )
