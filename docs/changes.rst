@@ -3,7 +3,7 @@
 Change Log
 ==========
 
-v1.1
+v2.0.0
 ~~~~
 
 This version gives the ``atomic_physics`` API a much needed tidy up.
