@@ -411,9 +411,13 @@ class Atom:
         if relative:
             return f_rel
 
-        transition = self.get_transition_for_levels(
-            levels=(self.get_level_for_state(lower), self.get_level_for_state(upper))
-        )
+        lower_level = self.get_level_for_state(lower)
+        upper_level = self.get_level_for_state(upper)
+
+        if lower_level == upper_level:
+            return f_rel
+
+        transition = self.get_transition_for_levels(levels=(lower_level, upper_level))
         f_abs = f_rel + transition.frequency
 
         return f_abs
