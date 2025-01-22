@@ -199,6 +199,15 @@ class TestAtom(unittest.TestCase):
                 atol=1,
             )
 
+            np.testing.assert_allclose(
+                ion.get_transition_frequency_for_states(
+                    states=(F_4_ind, F_3_ind), relative=False
+                )
+                / (2 * np.pi),
+                ref_frequency * 1e9,
+                atol=1,
+            )
+
     def test_magnetic_dipoles(self):
         """
         Check the calculation for `state_vectors` for 43Ca+ at 146G against [1] table E.4.
