@@ -787,12 +787,14 @@ class AtomFactory:
         level_data: tuple of atomic structure data for each level in the atom
         transitions: tuple of transitions between levels
         nuclear_spin: the atom's nuclear spin
+        num_states: the number of states within the atom
     """
 
     level_data: tuple[LevelData, ...]
     transitions: dict[str, Transition]
     nuclear_spin: float
     level_states: dict[Level, LevelStates] = dataclasses.field(init=False)
+    num_states: int = dataclasses.field(init=False)
 
     def __post_init__(self):
         # Use transition data to find the absolute energy of each level and sort them
@@ -853,7 +855,8 @@ class AtomFactory:
             )
             start_index += num_states
 
-        super().__setattr__("level_states", level_states)
+        self.level_states = level_states
+        self.num_states = max([states.stop_index for states in level_states.values()])
 
     def __call__(self, magnetic_field: float) -> Atom:
         """Constructs an :class:`Atom`.
