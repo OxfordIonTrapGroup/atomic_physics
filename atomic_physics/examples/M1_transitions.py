@@ -5,9 +5,7 @@ from atomic_physics.ions.ca43 import Ca43
 uB = consts.physical_constants["Bohr magneton"][0]
 
 
-ion = Ca43.filter_levels(level_filter=(Ca43.ground_level,))(
-    magnetic_field=146.0942e-4
-)
+ion = Ca43.filter_levels(level_filter=(Ca43.ground_level,))(magnetic_field=146.0942e-4)
 
 R = ion.get_magnetic_dipoles() / uB
 
