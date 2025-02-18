@@ -31,7 +31,7 @@ class Sr88Factory(AtomFactory):
     S12: Level = Level(n=5, S=1 / 2, L=0, J=1 / 2)
     P12: Level = Level(n=5, S=1 / 2, L=1, J=1 / 2)
     P32: Level = Level(n=5, S=1 / 2, L=1, J=3 / 2)
-    D32: Level = Level(n=5, S=1 / 2, L=2, J=3 / 2)
+    D32: Level = Level(n=4, S=1 / 2, L=2, J=3 / 2)
     D52: Level = Level(n=4, S=1 / 2, L=2, J=5 / 2)
 
     ground_level: Level = S12
