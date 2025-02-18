@@ -19,10 +19,10 @@ def field_for_frequency(frequency: float) -> float:
 
 
 class TwoStateAtomFactory(AtomFactory):
-    r"""``AtomFactory`` ideal spin 1/2 atoms.
+    r"""``AtomFactory`` for ideal spin 1/2 atoms.
 
     Attributes:
-        ground_level: the only level within the :class:`TwoStateAtom`.
+        ground_level: the only level within the :class:`TwoStateAtomFactory`.
         upper_state: index of the M=+1/2 (higher-energy) state.
         lower_state: index of the M=-1/2 (lower-energy) state.
     """
