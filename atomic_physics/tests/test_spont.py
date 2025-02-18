@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from atomic_physics.ions import ca43
+from atomic_physics.ions.ca43 import Ca43
 
 from .utils import wigner_3j, wigner_6j
 
@@ -12,7 +12,7 @@ class TestGamma(unittest.TestCase):
         """Check that, in the low-field, our scattering rates match a more direct
         calculation.
         """
-        ion = ca43.Ca43(magnetic_field=1e-8)
+        ion = Ca43(magnetic_field=1e-8)
         Gamma_ion = np.abs(ion.get_electric_multipoles()) ** 2
         Idim = int(np.rint(2 * ion.nuclear_spin + 1))
         Gamma = np.zeros((ion.num_states, ion.num_states))
@@ -65,7 +65,7 @@ class TestGamma(unittest.TestCase):
     def test_HF(self):
         """Check that, in the high-field, our scattering rates match a more
         direct calculation."""
-        ion = ca43.Ca43(magnetic_field=1000)
+        ion = Ca43(magnetic_field=1000)
         Gamma_ion = np.abs(ion.get_electric_multipoles()) ** 2
         Idim = int(np.rint(2 * ion.nuclear_spin + 1))
         Gamma = np.zeros((ion.num_states, ion.num_states))

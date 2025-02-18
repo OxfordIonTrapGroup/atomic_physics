@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 from atomic_physics.core import Laser
-from atomic_physics.ions import ca43
+from atomic_physics.ions.ca43 import Ca43
 from atomic_physics.rate_equations import Rates
 
 
@@ -27,10 +27,10 @@ class TestTSS(unittest.TestCase):
         """
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
-        Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level, ca43.P32))
-        ion = Ca43(magnetic_field=5e-4)
-        s_idx = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
-        p_idx = ion.get_state_for_F(ca43.P32, F=5, M_F=+5)
+        factory = Ca43.filter_levels(level_filter=(Ca43.ground_level, Ca43.P32))
+        ion = factory(magnetic_field=5e-4)
+        s_idx = ion.get_state_for_F(Ca43.ground_level, F=4, M_F=+4)
+        p_idx = ion.get_state_for_F(Ca43.P32, F=5, M_F=+5)
 
         rates = Rates(ion)
         detuning = ion.get_transition_frequency_for_states((s_idx, p_idx))
@@ -46,7 +46,7 @@ class TestTSS(unittest.TestCase):
 
     def test_steady_state(self):
         """Check that the steady-state solution is found correctly."""
-        ion = ca43.Ca43(magnetic_field=5e-4)
+        ion = Ca43(magnetic_field=5e-4)
         rates = Rates(ion)
         lasers = (
             Laser("397", polarization=+1, intensity=1, detuning=0),
@@ -64,11 +64,11 @@ class TestTSS(unittest.TestCase):
         # use both integers and floats
         intensity_list = [1e-3, 1e-1, 0.3, 1, 1.0, 2, 10.0, 1.2e4]
 
-        Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level, ca43.P32))
-        ion = Ca43(magnetic_field=5e-4)
+        factory = Ca43.filter_levels(level_filter=(Ca43.ground_level, Ca43.P32))
+        ion = factory(magnetic_field=5e-4)
 
-        s_idx = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
-        p_idx = ion.get_state_for_F(ca43.P32, F=5, M_F=+5)
+        s_idx = ion.get_state_for_F(Ca43.ground_level, F=4, M_F=+4)
+        p_idx = ion.get_state_for_F(Ca43.P32, F=5, M_F=+5)
 
         rates = Rates(ion)
         detuning = ion.get_transition_frequency_for_states((s_idx, p_idx))
@@ -92,11 +92,11 @@ class TestTSS(unittest.TestCase):
         """Test steady state detuning dependence"""
 
         # assume 1 saturation intensity
-        Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level, ca43.P32))
-        ion = Ca43(magnetic_field=5e-4)
+        factory = Ca43.filter_levels(level_filter=(Ca43.ground_level, Ca43.P32))
+        ion = factory(magnetic_field=5e-4)
 
-        s_idx = ion.get_state_for_F(ca43.ground_level, F=4, M_F=+4)
-        p_idx = ion.get_state_for_F(ca43.P32, F=5, M_F=+5)
+        s_idx = ion.get_state_for_F(Ca43.ground_level, F=4, M_F=+4)
+        p_idx = ion.get_state_for_F(Ca43.P32, F=5, M_F=+5)
 
         rates = Rates(ion)
         detuning = ion.get_transition_frequency_for_states((s_idx, p_idx))

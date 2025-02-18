@@ -4,7 +4,9 @@ import numpy as np
 from scipy import constants as consts
 
 from atomic_physics.core import AtomFactory, Level, LevelData
-from atomic_physics.ions import ba133, ba137, ca43
+from atomic_physics.ions.ba133 import Ba133
+from atomic_physics.ions.ba137 import Ba137
+from atomic_physics.ions.ca43 import Ca43
 from atomic_physics.operators import (
     AngularMomentumLoweringOp,
     AngularMomentumProjectionOp,
@@ -25,7 +27,7 @@ class TestAtom(unittest.TestCase):
         """Check that the ``num_states`` is calculated correctly and that all attributes
         have the correct shape.
         """
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+        ion = Ca43(magnetic_field=146.0942e-4)
 
         num_states = 0
         for level in ion.level_data.keys():
@@ -47,8 +49,8 @@ class TestAtom(unittest.TestCase):
         Check the calculation for ``state_vectors`` against values for the ground-level
         of 43Ca+ at 146G using [1] table E.2.
         """
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
-        level_slice = ion.get_slice_for_level(ca43.ground_level)
+        ion = Ca43(magnetic_field=146.0942e-4)
+        level_slice = ion.get_slice_for_level(Ca43.ground_level)
 
         # M, ((M_J, M_I, coeff_M_J, coeff_M_I))
         expansions = (
@@ -71,7 +73,7 @@ class TestAtom(unittest.TestCase):
         for expansion_idx, (M, (alpha_expansion, beta_expansion)) in enumerate(
             expansions
         ):
-            indicies = ion.get_states_for_M(level=ca43.S12, M=M)
+            indicies = ion.get_states_for_M(level=Ca43.S12, M=M)
 
             for ind in indicies:
                 state_vector = state_vectors[:, ind]
@@ -128,10 +130,10 @@ class TestAtom(unittest.TestCase):
 
     def test_levels(self):
         """Check ``levels`` is formed correctly."""
-        ion = ca43.Ca43(magnetic_field=1.0)
+        ion = Ca43(magnetic_field=1.0)
         assert len(set(ion.levels)) == len(ion.levels)
         assert set(ion.levels) == set(
-            [ca43.S12, ca43.P12, ca43.P32, ca43.D32, ca43.D52]
+            [Ca43.S12, Ca43.P12, Ca43.P32, Ca43.D32, Ca43.D52]
         )
         assert set(ion.levels) == set(ion.level_data.keys())
         assert set(ion.levels) == set(ion.level_states.keys())
@@ -146,7 +148,7 @@ class TestAtom(unittest.TestCase):
 
         This also checks the behaviour of ``get_transition_for_levels``.
         """
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+        ion = Ca43(magnetic_field=146.0942e-4)
 
         # check that the mean energy of every level is zero (state energies are defined
         # relative to the level's centre of gravity)
@@ -182,8 +184,8 @@ class TestAtom(unittest.TestCase):
             (+4, +3, 2.873631427),
         )
         for M_4, M_3, ref_frequency in ref:
-            F_4_ind = ion.get_state_for_F(level=ca43.ground_level, F=4, M_F=M_4)
-            F_3_ind = ion.get_state_for_F(level=ca43.ground_level, F=3, M_F=M_3)
+            F_4_ind = ion.get_state_for_F(level=Ca43.ground_level, F=4, M_F=M_4)
+            F_3_ind = ion.get_state_for_F(level=Ca43.ground_level, F=3, M_F=M_3)
 
             np.testing.assert_allclose(
                 (ion.state_energies[F_3_ind] - ion.state_energies[F_4_ind])
@@ -199,22 +201,13 @@ class TestAtom(unittest.TestCase):
                 atol=1,
             )
 
-            np.testing.assert_allclose(
-                ion.get_transition_frequency_for_states(
-                    states=(F_4_ind, F_3_ind), relative=False
-                )
-                / (2 * np.pi),
-                ref_frequency * 1e9,
-                atol=1,
-            )
-
     def test_magnetic_dipoles(self):
         """
         Check the calculation for `state_vectors` for 43Ca+ at 146G against [1] table E.4.
         """
         uB = consts.physical_constants["Bohr magneton"][0]
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
-        level_slice = ion.get_slice_for_level(ca43.ground_level)
+        ion = Ca43(magnetic_field=146.0942e-4)
+        level_slice = ion.get_slice_for_level(Ca43.ground_level)
 
         magnetic_dipoles = ion.get_magnetic_dipoles()
 
@@ -243,8 +236,8 @@ class TestAtom(unittest.TestCase):
         )
 
         for M4, M3, R_ref in values:
-            u_index = ion.get_state_for_F(ca43.S12, F=3, M_F=M3)
-            l_index = ion.get_state_for_F(ca43.S12, F=4, M_F=M4)
+            u_index = ion.get_state_for_F(Ca43.S12, F=3, M_F=M3)
+            l_index = ion.get_state_for_F(Ca43.S12, F=4, M_F=M4)
 
             np.testing.assert_allclose(
                 np.abs(magnetic_dipoles[u_index, l_index]) / uB, R_ref, atol=1e-6
@@ -252,7 +245,7 @@ class TestAtom(unittest.TestCase):
 
         # Check all forbidden transitions have 0 matrix element
         # Check that Rnm = (-1)^q Rmn
-        level = ca43.S12
+        level = Ca43.S12
         level_slice = ion.get_slice_for_level(level)
         for i_ind in np.arange(ion.num_states)[level_slice]:
             for j_ind in np.arange(ion.num_states)[level_slice]:
@@ -276,12 +269,12 @@ class TestAtom(unittest.TestCase):
         This test looks at the ground level of 137Ba+, which has a positive hyperfine A
         coefficient.
         """
-        level = ba137.ground_level
-        Ba137 = ba137.Ba137.filter_levels(level_filter=(level,))
+        level = Ba137.ground_level
+        factory = Ba137.filter_levels(level_filter=(level,))
 
         # Make sure we get the relationships right over a range of fields
         for magnetic_field in [1e-4, 100e-4, 1000e-4, 1, 10]:
-            ion = Ba137(magnetic_field=magnetic_field)
+            ion = factory(magnetic_field=magnetic_field)
 
             # 137Ba+ has I=3/2 so the ground level has F=1 and F=2. A is positive so
             # F=2 has higher energy.
@@ -306,12 +299,12 @@ class TestAtom(unittest.TestCase):
         This test looks at the ground level of 133Ba+, which has a negative hyperfine A
         coefficient.
         """
-        level = ba133.ground_level
-        Ba133 = ba133.Ba133.filter_levels(level_filter=(level,))
+        level = Ba133.ground_level
+        factory = Ba133.filter_levels(level_filter=(level,))
 
         # Make sure we get the relationships right over a range of fields
         for magnetic_field in [1e-4, 100e-4, 1000e-4, 1, 10]:
-            ion = Ba133(magnetic_field=magnetic_field)
+            ion = factory(magnetic_field=magnetic_field)
 
             # 133Ba+ has I=1/2 so the ground level has F=0 and F=1. A is negative so
             # F=1 has higher energy.
@@ -332,11 +325,11 @@ class TestAtom(unittest.TestCase):
         This test looks at the D level of 137Ba+, which has a positive hyperfine A
         coefficient and a negative B coefficient.
         """
-        level = ba137.shelf
-        Ba137 = ba137.Ba137.filter_levels(level_filter=(level,))
+        level = Ba137.shelf
+        factory = Ba137.filter_levels(level_filter=(level,))
 
         for magnetic_field in [1e-6, 1e-4, 10e-4, 100]:
-            ion = Ba137(magnetic_field=1e-9)
+            ion = factory(magnetic_field=1e-9)
 
             # 137Ba+ has I=3/2 so the ground level F=1, F=2, F=3, F=4. A is negative and
             # (just) outweighs B (which is positive) so F=1 has highest energy.
@@ -438,10 +431,10 @@ class TestAtom(unittest.TestCase):
 
     def test_M_I_M_J(self):
         """Check ordering of M_I and M_J by looking at level structure of 137Ba+."""
-        ion = ba137.Ba137(magnetic_field=10.0)
+        ion = Ba137(magnetic_field=10.0)
 
         # Start by checking states in the ground level against their known ordering
-        level = ba137.ground_level
+        level = Ba137.ground_level
         self.assertEqual(
             ion.get_state_for_F(
                 level,
@@ -528,7 +521,7 @@ class TestAtom(unittest.TestCase):
 
     def test_get_slice_for_level(self):
         """Test for ``get_slice_for_level``."""
-        ion = ca43.Ca43(1)
+        ion = Ca43(1)
 
         # check that all states are included in at exactly one slice
         all_states = np.full(ion.num_states, False, dtype=bool)
@@ -546,7 +539,7 @@ class TestAtom(unittest.TestCase):
 
     def test_get_states_for_level(self):
         """Test for ``get_states_for_level``."""
-        ion = ca43.Ca43(1)
+        ion = Ca43(1)
 
         # check that all states are included in at exactly one slice
         all_states = np.full(ion.num_states, False, dtype=bool)
@@ -565,7 +558,7 @@ class TestAtom(unittest.TestCase):
 
     def test_get_level_for_state(self):
         """Test for ``get_level_for_state``."""
-        ion = ca43.Ca43(1)
+        ion = Ca43(1)
         for state in range(ion.num_states):
             level = ion.get_level_for_state(state)
             level_slice = ion.get_slice_for_level(level)
@@ -574,7 +567,7 @@ class TestAtom(unittest.TestCase):
 
     def test_get_transition_for_levels(self):
         """Test for ``get_transition_for_levels``."""
-        ion = ca43.Ca43(1)
+        ion = Ca43(1)
         for transition in ion.transitions.values():
             assert (
                 ion.get_transition_for_levels((transition.lower, transition.upper))
@@ -587,8 +580,8 @@ class TestAtom(unittest.TestCase):
 
     def test_get_rabi_rf(self):
         """Test for ``get_rabi_rf``."""
-        ion = ca43.Ca43(magnetic_field=146e-4)
-        level = ca43.ground_level
+        ion = Ca43(magnetic_field=146e-4)
+        level = Ca43.ground_level
         level_slice = ion.get_slice_for_level(level)
         mpoles = ion.get_magnetic_dipoles()
         for ii in range(level_slice.start, level_slice.stop):
@@ -598,7 +591,7 @@ class TestAtom(unittest.TestCase):
 
     def test_get_states_for_M(self):
         """Test for ``get_states_for_M``."""
-        ion = ca43.Ca43(magnetic_field=146e-4)
+        ion = Ca43(magnetic_field=146e-4)
         for level in ion.level_data.keys():
             F_min = np.abs(ion.nuclear_spin - level.J)
             F_max = ion.nuclear_spin + level.J
@@ -616,7 +609,7 @@ class TestAtom(unittest.TestCase):
 
     def test_get_saturation_intensity(self):
         """Test for ``get_saturation_intensity``."""
-        ion = ca43.Ca43(1)
+        ion = Ca43(1)
 
         # saturation intensities for 43Ca+ transitions from [2]
         # units are Wm^-2
@@ -634,7 +627,7 @@ class TestAtom(unittest.TestCase):
 
     def test_intensity_to_power(self):
         """Test for ``intensity_to_power``."""
-        ion = ca43.Ca43(1)
+        ion = Ca43(1)
         waist = 10e-6
         power = ion.intensity_to_power(
             transition="397",

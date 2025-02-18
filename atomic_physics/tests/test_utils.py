@@ -4,7 +4,8 @@ import numpy as np
 import scipy.constants as consts
 
 from atomic_physics.core import RFDrive
-from atomic_physics.ions import ca40, ca43
+from atomic_physics.ions.ca40 import Ca40
+from atomic_physics.ions.ca43 import Ca43
 from atomic_physics.polarization import (
     PI_POLARIZATION,
     SIGMA_MINUS_POLARIZATION,
@@ -29,12 +30,12 @@ class TestUtils(unittest.TestCase):
 
     def test_rayleigh_range(self):
         waist = 33e-6
-        transition = ca43.transitions["397"]
+        transition = Ca43.transitions["397"]
         wavelength = consts.c / (transition.frequency / (2 * np.pi))
 
         np.testing.assert_allclose(
             np.pi * waist**2 / wavelength,
-            rayleigh_range(ca43.transitions["397"], waist),
+            rayleigh_range(Ca43.transitions["397"], waist),
         )
 
 
@@ -47,7 +48,7 @@ class TestFieldSensitivity(unittest.TestCase):
 
     def test_df_db(self):
         """Tests for ``utils.dF_dB``."""
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+        ion = Ca43(magnetic_field=146.0942e-4)
 
         # [1] table E.4
         values = [
@@ -75,11 +76,11 @@ class TestFieldSensitivity(unittest.TestCase):
         ]
 
         for M4, M3, df_dB_ref in values:
-            l_index = ion.get_state_for_F(level=ca43.ground_level, F=4, M_F=M4)
-            u_index = ion.get_state_for_F(level=ca43.ground_level, F=3, M_F=M3)
+            l_index = ion.get_state_for_F(level=Ca43.ground_level, F=4, M_F=M4)
+            u_index = ion.get_state_for_F(level=Ca43.ground_level, F=3, M_F=M3)
             np.testing.assert_allclose(
                 df_dB(
-                    atom_factory=ca43.Ca43,
+                    atom_factory=Ca43,
                     states=(l_index, u_index),
                     magnetic_field=146.0942e-4,
                 )
@@ -90,15 +91,15 @@ class TestFieldSensitivity(unittest.TestCase):
 
     def test_d2f_db2(self):
         """Tests for ``utils.d2F_dB2``."""
-        ion = ca43.Ca43(magnetic_field=146.0942e-4)
+        ion = Ca43(magnetic_field=146.0942e-4)
 
         np.testing.assert_allclose(
             d2f_dB2(
-                atom_factory=ca43.Ca43,
+                atom_factory=Ca43,
                 magnetic_field=146.0942e-4,
                 states=(
-                    ion.get_state_for_F(ca43.S12, F=4, M_F=0),
-                    ion.get_state_for_F(ca43.S12, F=3, M_F=+1),
+                    ion.get_state_for_F(Ca43.S12, F=4, M_F=0),
+                    ion.get_state_for_F(Ca43.S12, F=3, M_F=+1),
                 ),
             )
             / (2 * np.pi * 1e11),
@@ -110,11 +111,11 @@ class TestFieldSensitivity(unittest.TestCase):
         """Tests for ``utils.field_insensitive_point``."""
         np.testing.assert_allclose(
             field_insensitive_point(
-                atom_factory=ca43.Ca43,
-                level_0=ca43.S12,
+                atom_factory=Ca43,
+                level_0=Ca43.S12,
                 F_0=4,
                 M_F_0=0,
-                level_1=ca43.S12,
+                level_1=Ca43.S12,
                 F_1=3,
                 M_F_1=+1,
                 magnetic_field_guess=10e-4,
@@ -136,7 +137,7 @@ class TestACZeeman(unittest.TestCase):
         Test the AC Zeeman shift for the ground level qubit in a 40Ca+ ion.
         """
         B_rf = 1e-6  # RF field of 1 uT
-        ion = ca40.Ca40.filter_levels(level_filter=(ca40.ground_level,))(
+        ion = Ca40.filter_levels(level_filter=(Ca40.ground_level,))(
             magnetic_field=10e-4
         )
 
@@ -199,9 +200,9 @@ class TestACZeeman(unittest.TestCase):
         [1] Chapter 6.
         """
         B_rf = 1e-6  # RF field of 1 uT
-        level = ca43.ground_level
-        Ca43 = ca43.Ca43.filter_levels(level_filter=(level,))
-        ion = Ca43(magnetic_field=146.0942e-4)
+        level = Ca43.ground_level
+        factory = Ca43.filter_levels(level_filter=(level,))
+        ion = factory(magnetic_field=146.0942e-4)
 
         # RF frequency calculated relative to the transition frequency of the
         # (4, 0) <-> (3, 1) qubit pair.
@@ -260,8 +261,8 @@ class TestACZeeman(unittest.TestCase):
         """Compare AC Zeeman shifts in the ground-level of 43Ca+ at 146G to values from
         [1] table 5.9.
         """
-        level = ca43.ground_level
-        ion = ca43.Ca43.filter_levels(level_filter=(level,))(magnetic_field=146.0942e-4)
+        level = Ca43.ground_level
+        ion = Ca43.filter_levels(level_filter=(level,))(magnetic_field=146.0942e-4)
         idx_qubit_0 = ion.get_state_for_F(level, F=4, M_F=0)
         idx_qubit_1 = ion.get_state_for_F(level, F=3, M_F=+1)
 
@@ -297,8 +298,8 @@ class TestACZeeman(unittest.TestCase):
         mixing) to ensure there is lots going on in these calculations to provide
         a good stress test of the code.
         """
-        level = ca43.D52
-        ion = ca43.Ca43(magnetic_field=10e-4)
+        level = Ca43.D52
+        ion = Ca43(magnetic_field=10e-4)
 
         upper = ion.get_state_for_F(level, F=3, M_F=1)  # state 65
         lower = ion.get_state_for_F(level, F=4, M_F=+1)  # state 70

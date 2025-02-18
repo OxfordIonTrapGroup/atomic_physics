@@ -12,92 +12,89 @@ import numpy as np
 
 from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
-# level aliases
-ground_level = S12 = Level
-P12 = Level
-P32 = Level
-D32 = Level
-shelf = D52 = Level
+
+class Sr88Factory(AtomFactory):
+    r"""``AtomFactory`` for :math:`^{88}\mathrm{Sr}^+`.
+
+    Attributes:
+        S12: the :math:`\left|n=5, S=1/2, L=0, J=1/2\right>` level.
+        P12: the :math:`\left|n=5, S=1/2, L=1, J=1/2\right>` level.
+        P32: the :math:`\left|n=5, S=1/2, L=1, J=3/2\right>` level.
+        D32: the :math:`\left|n=4, S=1/2, L=2, J=3/2\right>` level.
+        D52: the :math:`\left|n=4, S=1/2, L=2, J=5/2\right>` level.
+
+        ground_level: alias for the :math:`\left|n=5, S=1/2, L=0, J=1/2\right>` ground
+            level.
+        shelf: alias for the :math:`\left|n=4, S=1/2, L=2, J=5/2\right>` "shelf" level.
+    """
+
+    S12: Level = Level(n=5, S=1 / 2, L=0, J=1 / 2)
+    P12: Level = Level(n=5, S=1 / 2, L=1, J=1 / 2)
+    P32: Level = Level(n=5, S=1 / 2, L=1, J=3 / 2)
+    D32: Level = Level(n=5, S=1 / 2, L=2, J=3 / 2)
+    D52: Level = Level(n=4, S=1 / 2, L=2, J=5 / 2)
+
+    ground_level: Level = S12
+    shelf: Level = D52
+
+    def __init__(self):
+        level_data = (
+            LevelData(level=self.S12, Ahfs=0, Bhfs=0),
+            LevelData(level=self.P12, Ahfs=0, Bhfs=0),
+            LevelData(level=self.P32, Ahfs=0, Bhfs=0),
+            LevelData(level=self.D32, Ahfs=0, Bhfs=0),
+            LevelData(level=self.D52, Ahfs=0, Bhfs=0),
+        )
+
+        transitions = {
+            "422": Transition(
+                lower=self.S12,
+                upper=self.P12,
+                einstein_A=127.9e6,  # [1]
+                frequency=2 * np.pi * 711162972859365.0,  # [1]
+            ),
+            "408": Transition(
+                lower=self.S12,
+                upper=self.P32,
+                einstein_A=141e6,  # [1]
+                frequency=2 * np.pi * 735197363032326.0,  # [1]
+            ),
+            "1092": Transition(
+                lower=self.D32,
+                upper=self.P12,
+                einstein_A=7.46e6,  # [1]
+                frequency=2 * np.pi * 274664149123480.0,  # [1]
+            ),
+            "1004": Transition(
+                lower=self.D32,
+                upper=self.P32,
+                einstein_A=1.0e6,  # [1]
+                frequency=2 * np.pi * 298697611773804.0,  # [1]
+            ),
+            "1033": Transition(
+                lower=self.D52,
+                upper=self.P32,
+                einstein_A=8.7e6,  # [1]
+                frequency=2 * np.pi * 290290973185754.0,  # [1]
+            ),
+            "674": Transition(
+                lower=self.S12,
+                upper=self.D52,
+                einstein_A=2.55885,  # [3]
+                frequency=2 * np.pi * 444779044095485.27,  # [2]
+            ),
+            "687": Transition(
+                lower=self.S12,
+                upper=self.D32,
+                einstein_A=2.299,  # [1]
+                frequency=2 * np.pi * 436495331872197.0,  # [1]
+            ),
+        }
+
+        super().__init__(
+            nuclear_spin=0.0, level_data=level_data, transitions=transitions
+        )
 
 
-S12 = Level(n=5, S=1 / 2, L=0, J=1 / 2)
-r""" The :math:`\left|n=5, S=1/2, L=0, J=1/2\right>` level.
-"""
-
-P12 = Level(n=5, S=1 / 2, L=1, J=1 / 2)
-r""" The :math:`\left|n=5, S=1/2, L=1, J=1/2\right>` level."""
-
-P32 = Level(n=5, S=1 / 2, L=1, J=3 / 2)
-r""" The :math:`\left|n=5, S=1/2, L=1, J=3/2\right>` level."""
-
-D32 = Level(n=5, S=1 / 2, L=2, J=3 / 2)
-r""" The :math:`\left|n=4, S=1/2, L=2, J=3/2\right>` level."""
-
-D52 = Level(n=4, S=1 / 2, L=2, J=5 / 2)
-r""" The :math:`\left|n=4, S=1/2, L=2, J=5/2\right>` level."""
-
-ground_level = S12
-r""" Alias for the :math:`\left|n=5, S=1/2, L=0, J=1/2\right>` ground level of
-:math:`^{88}\mathrm{Sr}^+`.
-"""
-
-shelf = D52
-r""" Alias for the :math:`\left|n=4, S=1/2, L=2, J=5/2\right>` "shelf" level of
-:math:`^{88}\mathrm{Sr}^+`.
-"""
-
-level_data = (
-    LevelData(level=ground_level, Ahfs=0, Bhfs=0),
-    LevelData(level=P12, Ahfs=0, Bhfs=0),
-    LevelData(level=P32, Ahfs=0, Bhfs=0),
-    LevelData(level=D32, Ahfs=0, Bhfs=0),
-    LevelData(level=D52, Ahfs=0, Bhfs=0),
-)
-
-transitions = {
-    "422": Transition(
-        lower=S12,
-        upper=P12,
-        einstein_A=127.9e6,  # [1]
-        frequency=2 * np.pi * 711162972859365.0,  # [1]
-    ),
-    "408": Transition(
-        lower=S12,
-        upper=P32,
-        einstein_A=141e6,  # [1]
-        frequency=2 * np.pi * 735197363032326.0,  # [1]
-    ),
-    "1092": Transition(
-        lower=D32,
-        upper=P12,
-        einstein_A=7.46e6,  # [1]
-        frequency=2 * np.pi * 274664149123480.0,  # [1]
-    ),
-    "1004": Transition(
-        lower=D32,
-        upper=P32,
-        einstein_A=1.0e6,  # [1]
-        frequency=2 * np.pi * 298697611773804.0,  # [1]
-    ),
-    "1033": Transition(
-        lower=D52,
-        upper=P32,
-        einstein_A=8.7e6,  # [1]
-        frequency=2 * np.pi * 290290973185754.0,  # [1]
-    ),
-    "674": Transition(
-        lower=S12,
-        upper=D52,
-        einstein_A=2.55885,  # [3]
-        frequency=2 * np.pi * 444779044095485.27,  # [2]
-    ),
-    "687": Transition(
-        lower=S12,
-        upper=D32,
-        einstein_A=2.299,  # [1]
-        frequency=2 * np.pi * 436495331872197.0,  # [1]
-    ),
-}
-
-Sr88 = AtomFactory(nuclear_spin=0, level_data=level_data, transitions=transitions)
+Sr88 = Sr88Factory()
 r""" :math:`^{88}\mathrm{Sr}^+` atomic structure. """

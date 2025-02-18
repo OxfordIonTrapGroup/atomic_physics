@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from atomic_physics.ions import ca43
+from atomic_physics.ions.ca43 import Ca43
 from atomic_physics.polarization import (
     PI_POLARIZATION,
     SIGMA_MINUS_POLARIZATION,
@@ -51,13 +51,13 @@ class TestPolarization(unittest.TestCase):
 
     def test_dM_for_transition(self):
         """Check ``dM_for_transition``."""
-        ion = ca43.Ca43(magnetic_field=146e-4)
+        ion = Ca43(magnetic_field=146e-4)
 
         dM = dM_for_transition(
             atom=ion,
             states=(
-                ion.get_state_for_F(level=ca43.D52, F=3, M_F=+1),
-                ion.get_state_for_F(level=ca43.D52, F=4, M_F=+1),
+                ion.get_state_for_F(level=Ca43.D52, F=3, M_F=+1),
+                ion.get_state_for_F(level=Ca43.D52, F=4, M_F=+1),
             ),
         )
         assert np.isclose(dM, 0)
@@ -65,8 +65,8 @@ class TestPolarization(unittest.TestCase):
         dM = dM_for_transition(
             atom=ion,
             states=(
-                ion.get_state_for_F(level=ca43.D52, F=3, M_F=0),  # state 67
-                ion.get_state_for_F(level=ca43.D52, F=4, M_F=+1),  # state 74
+                ion.get_state_for_F(level=Ca43.D52, F=3, M_F=0),  # state 67
+                ion.get_state_for_F(level=Ca43.D52, F=4, M_F=+1),  # state 74
             ),
         )
         assert np.isclose(dM, -1)
@@ -74,8 +74,8 @@ class TestPolarization(unittest.TestCase):
         dM = dM_for_transition(
             atom=ion,
             states=(
-                ion.get_state_for_F(level=ca43.D52, F=4, M_F=+1),  # state 74
-                ion.get_state_for_F(level=ca43.D52, F=3, M_F=0),  # state 67
+                ion.get_state_for_F(level=Ca43.D52, F=4, M_F=+1),  # state 74
+                ion.get_state_for_F(level=Ca43.D52, F=3, M_F=0),  # state 67
             ),
         )
         assert np.isclose(dM, -1)
