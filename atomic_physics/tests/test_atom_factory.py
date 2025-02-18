@@ -8,6 +8,13 @@ from atomic_physics.ions.ca43 import Ca43
 class TestAtomFactory(unittest.TestCase):
     """Tests for :class:`atomic_physics.core.AtomFactory`."""
 
+    def test_num_states(self):
+        ion = Ca43(magnetic_field=146.0942e-4)
+        num_states = 0
+        for level in ion.level_data.keys():
+            num_states += (2 * ion.nuclear_spin + 1) * (2 * level.J + 1)
+        assert num_states == Ca43.num_states
+
     def test_sorting(self):
         """
         Test that the atom factory sorts the levels into energy ordering correctly.
