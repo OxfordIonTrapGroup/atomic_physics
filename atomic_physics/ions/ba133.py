@@ -31,7 +31,7 @@ from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
 
 class Ba133Factory(AtomFactory):
-    r"""``AtomFactory`` for :math:`^{133}\mathrm{Ba}^+`.
+    r""":class:`~atomic_physics.core.AtomFactory` for :math:`^{133}\mathrm{Ba}^+`.
 
     Attributes:
         S12: the :math:`\left|n=6, S=1/2, L=0, J=1/2\right>` level.

@@ -31,7 +31,7 @@ from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
 
 class Mg25Factory(AtomFactory):
-    r"""``AtomFactory`` for :math:`^{25}\mathrm{Mg}^+`.
+    r""":class:`~atomic_physics.core.AtomFactory` for :math:`^{25}\mathrm{Mg}^+`.
 
     Attributes:
         S12: the :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` level.

@@ -14,7 +14,7 @@ from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
 
 class Sr88Factory(AtomFactory):
-    r"""``AtomFactory`` for :math:`^{88}\mathrm{Sr}^+`.
+    r""":class:`~atomic_physics.core.AtomFactory` for :math:`^{88}\mathrm{Sr}^+`.
 
     Attributes:
         S12: the :math:`\left|n=5, S=1/2, L=0, J=1/2\right>` level.

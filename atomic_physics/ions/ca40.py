@@ -21,7 +21,7 @@ shelf = D52 = Level
 
 
 class Ca40Factory(AtomFactory):
-    r"""``AtomFactory`` for :math:`^{40}\mathrm{Ca}^+`.
+    r""":class:`~atomic_physics.core.AtomFactory` for :math:`^{40}\mathrm{Ca}^+`.
 
     Attributes:
         S12: the :math:`\left|n=4, S=1/2, L=0, J=1/2\right>` level.
