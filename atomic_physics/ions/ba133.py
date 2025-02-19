@@ -29,110 +29,114 @@ import scipy.constants as consts
 
 from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
-S12 = Level(n=6, S=1 / 2, L=0, J=1 / 2)
-r""" The :math:`\left|n=6, S=1/2, L=0, J=1/2\right>` level.
-"""
 
-P12 = Level(n=6, S=1 / 2, L=1, J=1 / 2)
-r""" The :math:`\left|n=6, S=1/2, L=1, J=1/2\right>` level."""
+class Ba133Factory(AtomFactory):
+    r""":class:`~atomic_physics.core.AtomFactory` for :math:`^{133}\mathrm{Ba}^+`.
 
-P32 = Level(n=6, S=1 / 2, L=1, J=3 / 2)
-r""" The :math:`\left|n=6, S=1/2, L=1, J=3/2\right>` level."""
+    Attributes:
+        S12: the :math:`\left|n=6, S=1/2, L=0, J=1/2\right>` level.
+        P12: the :math:`\left|n=6, S=1/2, L=1, J=1/2\right>` level.
+        P32: the :math:`\left|n=6, S=1/2, L=1, J=3/2\right>` level.
+        D32: the :math:`\left|n=5, S=1/2, L=2, J=3/2\right>` level.
+        D52: the :math:`\left|n=5, S=1/2, L=2, J=5/2\right>` level.
+        ground_level: alias for the :math:`\left|n=6, S=1/2, L=0, J=1/2\right>` ground
+            level.
+        shelf: alias for the :math:`\left|n=5, S=1/2, L=2, J=5/2\right>` "shelf" level.
+    """
 
-D32 = Level(n=5, S=1 / 2, L=2, J=3 / 2)
-r""" The :math:`\left|n=5, S=1/2, L=2, J=3/2\right>` level."""
+    S12: Level = Level(n=6, S=1 / 2, L=0, J=1 / 2)
+    P12: Level = Level(n=6, S=1 / 2, L=1, J=1 / 2)
+    P32: Level = Level(n=6, S=1 / 2, L=1, J=3 / 2)
+    D32: Level = Level(n=5, S=1 / 2, L=2, J=3 / 2)
+    D52: Level = Level(n=5, S=1 / 2, L=2, J=5 / 2)
 
-D52 = Level(n=5, S=1 / 2, L=2, J=5 / 2)
-r""" The :math:`\left|n=5, S=1/2, L=2, J=5/2\right>` level."""
+    ground_level: Level = S12
+    shelf: Level = D52
 
-ground_level = S12
-r""" Alias for the :math:`\left|n=6, S=1/2, L=0, J=1/2\right>` ground level of
-:math:`^{133}\mathrm{Ba}^+`.
-"""
+    def __init__(self):
+        level_data = (
+            LevelData(
+                level=self.ground_level,
+                Ahfs=-9925.45355459e6 * consts.h,  # [6]
+                Bhfs=0,
+                g_J=2.0024906,  # [5]
+                g_I=(2 / 1) * -0.77167,  # [4]
+            ),
+            LevelData(
+                level=self.P12,
+                Ahfs=-1840e6 * consts.h,  # [6]
+                Bhfs=0,
+                g_I=(2 / 1) * -0.77167,  # [4]
+            ),
+            LevelData(
+                level=self.P32,
+                Ahfs=-311.5e6 * consts.h,  # [7]
+                Bhfs=0,
+                g_I=(2 / 1) * -0.77167,  # [4]
+            ),
+            LevelData(
+                level=self.D32,
+                Ahfs=-468.5e6 * consts.h,  # [6]
+                Bhfs=0,
+                g_I=(2 / 1) * -0.77167,  # [4]
+            ),
+            LevelData(
+                level=self.D52,
+                Ahfs=83e6 * consts.h / 3,  # [7]
+                Bhfs=0,
+                g_I=(2 / 1) * -0.77167,  # [4]
+            ),
+        )
 
-shelf = D52
-r""" Alias for the :math:`\left|n=5, S=1/2, L=2, J=5/2\right>` "shelf" level of
-:math:`^{133}\mathrm{Ba}^+`.
-"""
+        transitions = {
+            "493": Transition(
+                lower=self.S12,
+                upper=self.P12,
+                einstein_A=9.53e7,  # [1]
+                frequency=2 * np.pi * 607426317511066.9,  # [1], [6]
+            ),
+            "455": Transition(
+                lower=self.S12,
+                upper=self.P32,
+                einstein_A=1.11e8,  # [1]
+                frequency=2 * np.pi * 658116515417261.1,  # [1], [7]
+            ),
+            "650": Transition(
+                lower=self.D32,
+                upper=self.P12,
+                einstein_A=3.1e7,  # [1]
+                frequency=2 * np.pi * 461311910410070.25,  # [1], [6]
+            ),
+            "585": Transition(
+                lower=self.D32,
+                upper=self.P32,
+                einstein_A=6.0e6,  # [1]
+                frequency=2 * np.pi * 512002108316264.5,
+            ),
+            "614": Transition(
+                lower=self.D52,
+                upper=self.P32,
+                einstein_A=4.12e7,  # [1]
+                frequency=2 * np.pi * 487990081496558.56,  # [1], [7]
+            ),
+            "1762": Transition(
+                lower=self.S12,
+                upper=self.D52,
+                einstein_A=1 / 30.14,  # [2]
+                frequency=2 * np.pi * 170126433920702.56,
+            ),
+            "2051": Transition(
+                lower=self.S12,
+                upper=self.D32,
+                einstein_A=12.5e-3,  # [3]
+                frequency=2 * np.pi * 146114407100996.62,
+            ),
+        }
 
-level_data = (
-    LevelData(
-        level=ground_level,
-        Ahfs=-9925.45355459e6 * consts.h,  # [6]
-        Bhfs=0,
-        g_J=2.0024906,  # [5]
-        g_I=(2 / 1) * -0.77167,  # [4]
-    ),
-    LevelData(
-        level=P12,
-        Ahfs=-1840e6 * consts.h,  # [6]
-        Bhfs=0,
-        g_I=(2 / 1) * -0.77167,  # [4]
-    ),
-    LevelData(
-        level=P32,
-        Ahfs=-311.5e6 * consts.h,  # [7]
-        Bhfs=0,
-        g_I=(2 / 1) * -0.77167,  # [4]
-    ),
-    LevelData(
-        level=D32,
-        Ahfs=-468.5e6 * consts.h,  # [6]
-        Bhfs=0,
-        g_I=(2 / 1) * -0.77167,  # [4]
-    ),
-    LevelData(
-        level=D52,
-        Ahfs=83e6 * consts.h / 3,  # [7]
-        Bhfs=0,
-        g_I=(2 / 1) * -0.77167,  # [4]
-    ),
-)
+        super().__init__(
+            nuclear_spin=1 / 2, level_data=level_data, transitions=transitions
+        )
 
-transitions = {
-    "493": Transition(
-        lower=S12,
-        upper=P12,
-        einstein_A=9.53e7,  # [1]
-        frequency=2 * np.pi * 607426317511066.9,  # [1], [6]
-    ),
-    "455": Transition(
-        lower=S12,
-        upper=P32,
-        einstein_A=1.11e8,  # [1]
-        frequency=2 * np.pi * 658116515417261.1,  # [1], [7]
-    ),
-    "650": Transition(
-        lower=D32,
-        upper=P12,
-        einstein_A=3.1e7,  # [1]
-        frequency=2 * np.pi * 461311910410070.25,  # [1], [6]
-    ),
-    "585": Transition(
-        lower=D32,
-        upper=P32,
-        einstein_A=6.0e6,  # [1]
-        frequency=2 * np.pi * 512002108316264.5,
-    ),
-    "614": Transition(
-        lower=D52,
-        upper=P32,
-        einstein_A=4.12e7,  # [1]
-        frequency=2 * np.pi * 487990081496558.56,  # [1], [7]
-    ),
-    "1762": Transition(
-        lower=S12,
-        upper=D52,
-        einstein_A=1 / 30.14,  # [2]
-        frequency=2 * np.pi * 170126433920702.56,
-    ),
-    "2051": Transition(
-        lower=S12,
-        upper=D32,
-        einstein_A=12.5e-3,  # [3]
-        frequency=2 * np.pi * 146114407100996.62,
-    ),
-}
 
-Ba133 = AtomFactory(nuclear_spin=1 / 2, level_data=level_data, transitions=transitions)
+Ba133 = Ba133Factory()
 r""" :math:`^{133}\mathrm{Ba}^+` atomic structure. """

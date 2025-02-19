@@ -18,18 +18,26 @@ def field_for_frequency(frequency: float) -> float:
     return B
 
 
-ground_level = Level(n=0, S=1 / 2, L=0, J=1 / 2)
-"""The only level within the :class:`TwoStateAtom`."""
+class TwoStateAtomFactory(AtomFactory):
+    r""":class:`~atomic_physics.core.AtomFactory` for ideal spin 1/2 atoms.
 
-upper_state = 0
-"""Index of the M=+1/2 (higher-energy) state. """
+    Attributes:
+        ground_level: the only level within the :class:`TwoStateAtomFactory`.
+        upper_state: index of the M=+1/2 (higher-energy) state.
+        lower_state: index of the M=-1/2 (lower-energy) state.
+    """
 
-lower_state = 1
-"""Index of the M=-1/2 (lower-energy) state. """
+    ground_level: Level = Level(n=0, S=1 / 2, L=0, J=1 / 2)
+    upper_state = 0
+    lower_state = 1
 
-TwoStateAtom = AtomFactory(
-    nuclear_spin=0.0,
-    level_data=(LevelData(level=ground_level, Ahfs=0, Bhfs=0),),
-    transitions={},
-)
+    def __init__(self):
+        super().__init__(
+            nuclear_spin=0.0,
+            level_data=(LevelData(level=self.ground_level, Ahfs=0, Bhfs=0),),
+            transitions={},
+        )
+
+
+TwoStateAtom = TwoStateAtomFactory()
 """Ideal spin 1/2 atom with two states."""

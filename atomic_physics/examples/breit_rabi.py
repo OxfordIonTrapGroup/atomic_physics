@@ -3,9 +3,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from atomic_physics.ions import ca43
+from atomic_physics.ions.ca43 import Ca43
 
-Ca43 = ca43.Ca43.filter_levels(level_filter=(ca43.ground_level,))
+factory = Ca43.filter_levels(level_filter=(Ca43.ground_level,))
 idim = int(np.rint(2 * Ca43.nuclear_spin + 1))
 jdim = int(np.rint(2 * 1 / 2 + 1))
 
@@ -13,7 +13,7 @@ field_ax = np.arange(0.01, 30000, 200)  # B fields (Gauss)
 energies = np.zeros((len(field_ax), idim * jdim))
 
 for idx, magnetic_field in enumerate(field_ax):
-    ion = Ca43(magnetic_field * 1e-4)
+    ion = factory(magnetic_field * 1e-4)
     energies[idx, :] = ion.state_energies
 
 plt.figure()

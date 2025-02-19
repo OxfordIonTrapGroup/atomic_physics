@@ -129,22 +129,22 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
         import numpy as np
 
         from atomic_physics.core import RFDrive
-        from atomic_physics.ions.ca40 import Ca40, ground_level
+        from atomic_physics.ions.ca40 import Ca40
         from atomic_physics.polarization import SIGMA_PLUS_POLARIZATION
         from atomic_physics.utils import ac_zeeman_shift_for_state
 
         ion = Ca40(magnetic_field=10e-4)
         w_transition = ion.get_transition_frequency_for_states(
             states=(
-                ion.get_states_for_M(level=ground_level, M=+1 / 2),
-                ion.get_states_for_M(level=ground_level, M=-1 / 2),
+                ion.get_states_for_M(level=Ca40.ground_level, M=+1 / 2),
+                ion.get_states_for_M(level=Ca40.ground_level, M=-1 / 2),
             )
         )
         w_rf = w_transition + 1e6 * 2 * np.pi  # RF is 1 MHz blue of the transition
 
         ac_zeeman_shift_for_state(
             atom=ion,
-            state=ion.get_states_for_M(level=ground_level, M=+1 / 2),
+            state=ion.get_states_for_M(level=Ca40.ground_level, M=+1 / 2),
             drive=RFDrive(frequency=w_rf, amplitude=1e-6, polarization=SIGMA_PLUS_POLARIZATION),
         )
 

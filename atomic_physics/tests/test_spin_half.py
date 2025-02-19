@@ -6,7 +6,7 @@ import numpy as np
 import scipy.constants as consts
 
 from atomic_physics.core import Level
-from atomic_physics.ions import ba133
+from atomic_physics.ions.ba133 import Ba133
 
 
 def Lande_g(level: Level):
@@ -36,9 +36,9 @@ class TestSpinHalf(unittest.TestCase):
     """Test for spin-half nuclei"""
 
     def test_hyperfine(self):
-        level = ba133.ground_level
-        Ba133 = ba133.Ba133.filter_levels(level_filter=(level,))
-        ion = Ba133(0.1e-4)
+        level = Ba133.ground_level
+        factory = Ba133.filter_levels(level_filter=(level,))
+        ion = factory(0.1e-4)
 
         E_0_0 = ion.state_energies[ion.get_state_for_F(level, F=0, M_F=0)]
         E_1_0 = ion.state_energies[ion.get_state_for_F(level, F=1, M_F=0)]
@@ -48,10 +48,10 @@ class TestSpinHalf(unittest.TestCase):
         self.assertAlmostEqual(abs(E_0_0 - E_1_0) / 1e6, Ahfs / 1e6, 4)
 
     def test_zeeman(self):
-        level = ba133.ground_level
-        Ba133 = ba133.Ba133.filter_levels(level_filter=(level,))
+        level = Ba133.ground_level
+        factory = Ba133.filter_levels(level_filter=(level,))
         B = 10e-4
-        ion = Ba133(B)
+        ion = factory(B)
 
         E_1_0 = ion.state_energies[ion.get_state_for_F(level, F=1, M_F=0)]
         E_1_1 = ion.state_energies[ion.get_state_for_F(level, F=1, M_F=1)]

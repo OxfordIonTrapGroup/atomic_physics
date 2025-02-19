@@ -29,58 +29,68 @@ import scipy.constants as consts
 
 from atomic_physics.core import AtomFactory, Level, LevelData, Transition
 
-S12 = Level(n=3, S=1 / 2, L=0, J=1 / 2)
-r""" The :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` level.
-"""
 
-P12 = Level(n=3, S=1 / 2, L=1, J=1 / 2)
-r""" The :math:`\left|n=3, S=1/2, L=1, J=1/2\right>` level."""
+class Mg25Factory(AtomFactory):
+    r""":class:`~atomic_physics.core.AtomFactory` for :math:`^{25}\mathrm{Mg}^+`.
 
-P32 = Level(n=3, S=1 / 2, L=1, J=3 / 2)
-r""" The :math:`\left|n=3, S=1/2, L=1, J=3/2\right>` level."""
+    Attributes:
+        S12: the :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` level.
+        P12: the :math:`\left|n=3, S=1/2, L=1, J=1/2\right>` level.
+        P32: the :math:`\left|n=3, S=1/2, L=1, J=3/2\right>` level.
+        ground_level: alias for the :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` ground
+            level.
+    """
 
-ground_level = S12
-r""" Alias for the :math:`\left|n=3, S=1/2, L=0, J=1/2\right>` ground level of
-:math:`^{25}\mathrm{Mg}^+`.
-"""
+    S12: Level = Level(n=3, S=1 / 2, L=0, J=1 / 2)
+    P12: Level = Level(n=3, S=1 / 2, L=1, J=1 / 2)
+    P32: Level = Level(n=3, S=1 / 2, L=1, J=3 / 2)
+
+    ground_level: Level = S12
+
+    def __init__(self):
+        level_data = (
+            LevelData(
+                level=self.S12,
+                Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
+                Bhfs=0,
+                g_J=2.002,  # [1] (approximate)
+                g_I=(2 / 5) * -0.85545,  # [7]
+            ),
+            LevelData(
+                level=self.P12,
+                Ahfs=102.16e6 * consts.h,  # [6]
+                Bhfs=0,
+                g_I=(2 / 5) * -0.85545,  # [7]
+            ),
+            LevelData(
+                level=self.P32,
+                Ahfs=-19.0972e6 * consts.h,  # [8]
+                Bhfs=22.3413e6 * consts.h,  # [8]
+                g_I=(2 / 5) * -0.85545,  # [7]
+            ),
+        )
+
+        transitions = {
+            "280": Transition(
+                lower=self.S12,
+                upper=self.P12,
+                einstein_A=5.58e8,  # [4]
+                frequency=1069.339957e12 * 2 * np.pi,  # [3]
+            ),
+            "279": Transition(
+                lower=self.S12,
+                upper=self.P32,
+                einstein_A=2.60e8,  # [4]
+                frequency=1072.084547e12
+                * 2
+                * np.pi,  # [3] (or 1072084547e6 * 2 * np.pi [2])
+            ),
+        }
+
+        super().__init__(
+            nuclear_spin=5 / 2, level_data=level_data, transitions=transitions
+        )
 
 
-level_data = (
-    LevelData(
-        level=ground_level,
-        Ahfs=-596.2542487e6 * consts.h,  # [5] (or —596.254376(54)e6 [1])
-        Bhfs=0,
-        g_J=2.002,  # [1] (approximate)
-        g_I=(2 / 5) * -0.85545,  # [7]
-    ),
-    LevelData(
-        level=P12,
-        Ahfs=102.16e6 * consts.h,  # [6]
-        Bhfs=0,
-        g_I=(2 / 5) * -0.85545,  # [7]
-    ),
-    LevelData(
-        level=P32,
-        Ahfs=-19.0972e6 * consts.h,  # [8]
-        Bhfs=22.3413e6 * consts.h,  # [8]
-        g_I=(2 / 5) * -0.85545,  # [7]
-    ),
-)
-
-transitions = {
-    "280": Transition(
-        lower=S12,
-        upper=P12,
-        einstein_A=5.58e8,  # [4]
-        frequency=1069.339957e12 * 2 * np.pi,  # [3]
-    ),
-    "279": Transition(
-        lower=S12,
-        upper=P32,
-        einstein_A=2.60e8,  # [4]
-        frequency=1072.084547e12 * 2 * np.pi,  # [3] (or 1072084547e6 * 2 * np.pi [2])
-    ),
-}
-
-Mg25 = AtomFactory(nuclear_spin=5 / 2, level_data=level_data, transitions=transitions)
+Mg25 = Mg25Factory()
 r""" :math:`^{25}\mathrm{Mg}^+` atomic structure. """

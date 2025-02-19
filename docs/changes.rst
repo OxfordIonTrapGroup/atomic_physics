@@ -3,6 +3,11 @@
 Change Log
 ==========
 
+v2.0.3
+~~~~~~
+
+Refactor of how we define ions and atoms. We now define a subclass of ``AtomFactory`` for each atom / ion definition. Pre-defined levels are now attributes of these classes. This change is partly motivated by making it easier to write species-agnostic code (makes it easier to write things like ``factory.S12`` rather than having to access module-level attributes as well as the factory object).
+
 v2.0
 ~~~~
 
