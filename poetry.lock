@@ -277,6 +277,22 @@ files = [
 ]
 
 [[package]]
+name = "filelock"
+version = "3.17.0"
+description = "A platform independent file lock."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "filelock-3.17.0-py3-none-any.whl", hash = "sha256:533dc2f7ba78dc2f0f531fc6c4940addf7b70a481e269a5a3b93be94ffbe8338"},
+    {file = "filelock-3.17.0.tar.gz", hash = "sha256:ee4e77401ef576ebb38cd7f13b9b28893194acc20a8e68e18730ba9c0e54660e"},
+]
+
+[package.extras]
+docs = ["furo (>=2024.8.6)", "sphinx (>=8.1.3)", "sphinx-autodoc-typehints (>=3)"]
+testing = ["covdefaults (>=2.3)", "coverage (>=7.6.10)", "diff-cover (>=9.2.1)", "pytest (>=8.3.4)", "pytest-asyncio (>=0.25.2)", "pytest-cov (>=6)", "pytest-mock (>=3.14)", "pytest-timeout (>=2.3.1)", "virtualenv (>=20.28.1)"]
+typing = ["typing-extensions (>=4.12.2)"]
+
+[[package]]
 name = "fonttools"
 version = "4.55.3"
 description = "Tools to manipulate font files"
@@ -415,6 +431,35 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "juliacall"
+version = "0.9.24"
+description = "Julia and Python in seamless harmony"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "juliacall-0.9.24-py3-none-any.whl", hash = "sha256:f1d7b718228c477aeba770290647f3b2d0052f683da891b4e9f88c1e1da0a394"},
+    {file = "juliacall-0.9.24.tar.gz", hash = "sha256:31bed223489b535e4e8db46bfff4596350c24f757b9c2d17296c07397f75948b"},
+]
+
+[package.dependencies]
+juliapkg = ">=0.1.8,<0.2.0"
+
+[[package]]
+name = "juliapkg"
+version = "0.1.16"
+description = "Julia version manager and package manager"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "juliapkg-0.1.16-py3-none-any.whl", hash = "sha256:def06f89ec1f27e290b6b4ad856290a8fdcfe257f002fbe1becdf3ba0ad4579c"},
+    {file = "juliapkg-0.1.16.tar.gz", hash = "sha256:f26cc314f2a3194428bf7492270b1c371194ce288806ffbac5baa0eb9468a120"},
+]
+
+[package.dependencies]
+filelock = ">=3.16,<4.0"
+semver = ">=3.0,<4.0"
 
 [[package]]
 name = "kiwisolver"
@@ -1249,6 +1294,17 @@ doc = ["intersphinx_registry", "jupyterlite-pyodide-kernel", "jupyterlite-sphinx
 test = ["Cython", "array-api-strict (>=2.0,<2.1.1)", "asv", "gmpy2", "hypothesis (>=6.30)", "meson", "mpmath", "ninja", "pooch", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
 
 [[package]]
+name = "semver"
+version = "3.0.4"
+description = "Python helper for Semantic Versioning (https://semver.org)"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "semver-3.0.4-py3-none-any.whl", hash = "sha256:9c824d87ba7f7ab4a1890799cec8596f15c1241cb473404ea1cb0c55e4b04746"},
+    {file = "semver-3.0.4.tar.gz", hash = "sha256:afc7d8c584a5ed0a11033af086e8af226a9c0b206f313e0301f8dd7b6b589602"},
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1534,4 +1590,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10,<3.11"
-content-hash = "60e6036135246a16aea1297d2983f9973e48ffe5787d1cace0fd906ce423a873"
+content-hash = "4eddf3e20aaa5da569b07babb7712d380ca201780eb25c81e1080934c6b01a80"

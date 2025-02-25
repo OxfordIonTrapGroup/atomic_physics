@@ -8,6 +8,7 @@ authors = ["hartytp <thomas.peter.harty@gmail.com>"]
 python = "^3.10,<3.11"
 numpy = "^1.22.0"
 scipy = "^1.7.3"
+juliacall = "^0.9.24"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
