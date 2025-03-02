@@ -138,7 +138,8 @@ class RFDrive:
         amplitude: amplitude of the field (T).
         polarization: Jones vector describing the magnetic field's polarization. Note
             that the phase of the driving field is encoded in the (complex-valued)
-            components of the Jones vector. See :ref:`polarizations` for details.
+            components of the Jones vector. See :ref:`polarizations` for details. For
+            example: ``polarization = np.exp(1j * phi) * SIGMA_PLUS_POLARIZATION``.
     """
 
     frequency: float
