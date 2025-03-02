@@ -136,14 +136,14 @@ class RFDrive:
     Attributes:
         frequency: frequency of the RF drive (rad/s).
         amplitude: amplitude of the field (T).
-        polarization: Jones vector describing the magnetic field's polarization.
-        phase: phase (radians) of the RF signal.
+        polarization: Jones vector describing the magnetic field's polarization. Note
+            that the phase of the driving field is encoded in the (complex-valued)
+            components of the Jones vector. See :ref:`polarizations` for details.
     """
 
     frequency: float
     amplitude: float
     polarization: np.ndarray
-    phase: float = 0
 
     def __post_init__(self):
         if self.polarization.shape != (3,):
