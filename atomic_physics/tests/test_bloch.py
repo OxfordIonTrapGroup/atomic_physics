@@ -14,7 +14,7 @@ atom = TwoStateAtom(b)
 
 bloch = Bloch(atom)
 
-H = bloch.H_for_rf_drive(
+H = bloch.hamiltonian_for_rf_drive(
     level=TwoStateAtom.ground_level,
     drive=RFDrive(
         frequency=f0 - delta, amplitude=10e-6, polarization=SIGMA_PLUS_POLARIZATION
