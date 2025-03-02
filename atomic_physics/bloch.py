@@ -68,12 +68,19 @@ class Bloch:
         :return: the Hamiltonian. This is a ``JuliaCall`` wrapper around a
             ``QuantumOptics.jl`` ``TimeDependentSum`` object.
         """
-        R = self.atom.get_magnetic_dipoles()
-        M_j, M_i = np.meshgrid(self.atom.M, self.atom.M)
+        level_slice = self.atom.get_slice_for_level(level)
+
+        R = self.atom.get_magnetic_dipoles()[level_slice, level_slice]
+
+        M = self.atom.M[level_slice]
+        M_j, M_i = np.meshgrid(M, M)
         dMs = M_i - M_j  # dMs[i, j] = M[i] - M[j]
 
-        # build an upper-triangular Rabi frequency matrix
-        rabi_matrix = np.zeros(R.shape, dtype=np.complex128)
+        rabi_matrix = np.zeros(
+            (self.atom.num_states, self.atom.num_states), dtype=np.complex128
+        )
+        level_rabis = rabi_matrix[level_slice, level_slice]
+
         for dM, pol in [
             (+1.0, SIGMA_PLUS_POLARIZATION),
             (-1.0, SIGMA_MINUS_POLARIZATION),
@@ -88,11 +95,17 @@ class Bloch:
             # pol_inds[lower, upper] = False
             # pol_inds[idx, idx] = False
             pol_inds = np.triu(dMs == dM)
-            rabi_matrix[pol_inds] = amplitude * R[pol_inds] / consts.hbar
+            level_rabis[pol_inds] = amplitude * R[pol_inds] / consts.hbar
 
-        E_j, E_i = np.meshgrid(self.atom.state_energies, self.atom.state_energies)
+        detuning_matrix = np.zeros(
+            (self.atom.num_states, self.atom.num_states), dtype=np.float64
+        )
+        state_energies = self.atom.state_energies[level_slice]
+        E_j, E_i = np.meshgrid(state_energies, state_energies)
         transition_frequency = E_i - E_j  # freq[upper, lower] = E[upper] - E[lower]
-        detuning_matrix = drive.frequency - transition_frequency
+        detuning_matrix[level_slice, level_slice] = (
+            drive.frequency - transition_frequency
+        )
 
         return jl.make_hamiltonian(
             self.atom.num_states,
