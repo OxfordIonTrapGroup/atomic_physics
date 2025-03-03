@@ -54,9 +54,7 @@ class Bloch:
         self.atom: Atom = atom
         self.basis: juliacall.AnyValue = jl.NLevelBasis(self.atom.num_states)
 
-    def hamiltonian_for_rf_drive(
-        self, level: Level, drive: RFDrive
-    ) -> juliacall.AnyValue:
+    def hamiltonian_for_rf_drive(self, level: Level, drive: RFDrive):
         """Returns the (time-dependent) Hamiltonian describing the interaction between
         the atom and an RF drive.
 
@@ -113,7 +111,7 @@ class Bloch:
             jl.Matrix[jl.Float64](detuning_matrix),
         )
 
-    def make_ket(self, state_vector: np.array) -> juliacall.AnyValue:
+    def make_ket(self, state_vector: np.array):
         """Converts a numpy array representation of a state vector into a ``JuliaCall``
         wrapper around a ``QuantumOptics.jl`` ``Ket`` object.
 
