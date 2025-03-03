@@ -1,0 +1,10 @@
+name = "bloch"
+uuid = "3d405f7b-b15d-4d60-8118-c88eccfa2a37"
+authors = ["Thomas Harty <thomas.peter.harty@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+QuantumOptics = "6e0679c1-51ea-5a7c-ac74-d61b76210b0c"
+
+[compat]
+QuantumOptics = "1.2.2"

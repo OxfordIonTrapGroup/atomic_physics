@@ -3,6 +3,13 @@
 Change Log
 ==========
 
+v2.1
+~~~~
+
+* ``Atom.intensity_to_power`` was renamed to ``Atom.get_intensity_for_power`` for consistency with other methods.
+* ``Atom.get_rabi_rf`` now takes a tuple of state indices because it does not actually care which is the lower and which is the upper.
+* new ``Atom.get_amplitude_for_rabi_rf`` method
+
 v2.0.3
 ~~~~~~
 
@@ -72,7 +79,7 @@ API refactor:
 * added a new ``Atom.get_transition_for_levels`` helper function
 * ``Atom.population`` has been removed as it wasn't particularly useful
 * ``Atom.I0`` has been renamed ``Atom.get_saturation_intensity``
-* ``Atom.P0`` has been renamed ``intensity_to_power``
+* ``Atom.P0`` has been renamed ``get_intensity_for_power``
 * ``Laser.q`` has been renamed to ``Laser.polarization``
 * ``Laser.I`` has been renamed to ``Laser.intensity``
 * ``Atom.B`` has been renamed to ``Atom.magnetic_field``

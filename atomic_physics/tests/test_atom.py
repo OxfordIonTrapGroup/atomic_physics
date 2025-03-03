@@ -586,8 +586,8 @@ class TestAtom(unittest.TestCase):
         mpoles = ion.get_magnetic_dipoles()
         for ii in range(level_slice.start, level_slice.stop):
             for jj in range(level_slice.start, level_slice.stop):
-                Omega = ion.get_rabi_rf(lower=jj, upper=ii, amplitude=1)
-                np.testing.assert_allclose(Omega, mpoles[ii, jj] / consts.hbar)
+                rabi = ion.get_rabi_rf(states=(jj, ii), amplitude=1)
+                np.testing.assert_allclose(rabi, np.abs(mpoles[ii, jj]) / consts.hbar)
 
     def test_get_states_for_M(self):
         """Test for ``get_states_for_M``."""
@@ -625,11 +625,11 @@ class TestAtom(unittest.TestCase):
             I_sat = ion.get_saturation_intensity(transition)
             np.testing.assert_allclose(I_sat, I_sat_ref, 1e-2)
 
-    def test_intensity_to_power(self):
-        """Test for ``intensity_to_power``."""
+    def test_get_intensity_for_power(self):
+        """Test for ``get_intensity_for_power``."""
         ion = Ca43(1)
         waist = 10e-6
-        power = ion.intensity_to_power(
+        power = ion.get_intensity_for_power(
             transition="397",
             waist_radius=waist,
             intensity=1,

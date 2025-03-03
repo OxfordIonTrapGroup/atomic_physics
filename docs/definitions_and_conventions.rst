@@ -105,6 +105,8 @@ We order our dimensions as :math:`J \otimes I`. The values of ``M_I`` and ``M_J`
 each state in this basis are available through :class:`atomic_physics.core.Atom`\'s
 `high_field_M_I` and `high_field_M_J` attributes.
 
+.. _polarizations:
+
 Polarizations
 =============
 
@@ -113,6 +115,16 @@ amplitudes of the relevant field (electric / magnetic, depending on the transiti
 Cartesian coordinates. The field
 :math:`\mathbf{A}(t)` is represented by the Jones vector :math:`\mathbf{A}` where
 :math:`\mathbf{A}(t) = \Re\left[e^{-iwt} \mathbf{A}\right]`.
+
+The Jones vector :math:`\mathbf{A}` can be written in terms of real-valued amplitudes and phases for each Cartesian component:
+
+.. math::
+
+    \mathbf{A} = \left(\begin{matrix}
+    A_x e^{i\phi_x}\\
+    A_y e^{i\phi_y}\\
+    A_z e^{i\phi_z}
+    \end{matrix}\right)
 
 
 Axes

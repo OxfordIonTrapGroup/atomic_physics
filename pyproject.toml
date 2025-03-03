@@ -8,6 +8,10 @@ authors = ["hartytp <thomas.peter.harty@gmail.com>"]
 python = "^3.10,<3.11"
 numpy = "^1.22.0"
 scipy = "^1.7.3"
+juliacall = {version = "^0.9.24", optional=true}
+
+[tool.poetry.extras]
+bloch = ["juliacall"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -26,10 +30,19 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
 test = "pytest -Werror"
-fmt-test = "ruff format --check ."
-fmt = "ruff format"
 lint = "ruff check"
+
+fmt-test-py = "ruff format --check ."
+fmt-py = "ruff format"
+
+fmt-jl.script = "atomic_physics.julia_tools:fmt"
+fmt-test-jl.script = "atomic_physics.julia_tools:fmt_test"
+
+fmt = ["fmt-py", "fmt-jl"]
+fmt-test = ["fmt-test-py", "fmt-test-jl"]
+
 types = { script = "run_pytype:main" }
+
 docs = { cwd = "./docs", cmd = "make html doctest" }
 docs-clean = { cwd = "./docs", cmd = "make clean" }
 

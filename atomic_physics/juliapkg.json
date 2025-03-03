@@ -1,0 +1,7 @@
+{
+    "packages": {
+        "QuantumOptics": {"uuid": "6e0679c1-51ea-5a7c-ac74-d61b76210b0c"},
+        "JuliaFormatter": {"uuid": "98e50ef6-434e-11e9-1051-2b60c6c9e899"},
+        "bloch": {"path": ".", "subdir": "bloch", "uuid": "3d405f7b-b15d-4d60-8118-c88eccfa2a37", "dev": true}
+    }
+}
