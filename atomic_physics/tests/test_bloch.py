@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from atomic_physics.atoms.two_state import TwoStateAtom, field_for_frequency
-from atomic_physics.bloch import _HAS_JULIA, Bloch
+from atomic_physics.bloch import HAS_JULIA, Bloch
 from atomic_physics.core import RFDrive
 from atomic_physics.polarization import SIGMA_PLUS_POLARIZATION
 
@@ -12,7 +12,7 @@ class TestBloch(unittest.TestCase):
     """Tests for optical Bloch equations solver."""
 
     def setUp(self):
-        if not _HAS_JULIA:
+        if not HAS_JULIA:
             self.skipTest("JuliaCall not installed")
 
     def test_rf_two_state(self):
