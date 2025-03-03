@@ -14,10 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build Julia Package
-        uses: julia-actions/setup-julia@v2
-        uses: julia-actions/cache@v2
-        uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
         with:
           project: atomic_physics/bloch
 
