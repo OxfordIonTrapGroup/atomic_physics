@@ -625,11 +625,11 @@ class TestAtom(unittest.TestCase):
             I_sat = ion.get_saturation_intensity(transition)
             np.testing.assert_allclose(I_sat, I_sat_ref, 1e-2)
 
-    def test_intensity_for_power(self):
-        """Test for ``intensity_for_power``."""
+    def test_get_intensity_for_power(self):
+        """Test for ``get_intensity_for_power``."""
         ion = Ca43(1)
         waist = 10e-6
-        power = ion.intensity_for_power(
+        power = ion.get_intensity_for_power(
             transition="397",
             waist_radius=waist,
             intensity=1,
