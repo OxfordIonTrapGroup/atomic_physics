@@ -1362,6 +1362,16 @@ lint = ["docutils-stubs", "flake8 (>=3.5.0)", "flake8-simplify", "isort", "mypy 
 test = ["cython", "filelock", "html5lib", "pytest (>=4.6)"]
 
 [[package]]
+name = "sphinx-julia"
+version = "0.1"
+description = "Sphinx extensions for Julia"
+optional = false
+python-versions = "*"
+files = [
+    {file = "Sphinx-Julia-0.1.tar.gz", hash = "sha256:c881cd4d79fb15d1db49a71d2c220abd32a9313b1d46054200827e59567e1705"},
+]
+
+[[package]]
 name = "sphinx-mdinclude"
 version = "0.5.4"
 description = "Markdown extension for Sphinx"
@@ -1594,4 +1604,4 @@ bloch = ["juliacall"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10,<3.11"
-content-hash = "be383af955ce7a3bf41db613aac45ad986732054b3cc03358077e8e7e3cdd697"
+content-hash = "ec0b70e56ac03e7026c3459b2be10a8292e4aed0ab1a4d981e3cdd12549d9058"
