@@ -556,7 +556,7 @@ class Atom:
         omega = transition.frequency
         return consts.hbar * (omega**3) * scattering_rate / (6 * np.pi * (consts.c**2))
 
-    def intensity_for_power(
+    def get_intensity_for_power(
         self, transition: str, waist_radius: float, intensity: float
     ) -> float:
         """Returns the power needed to achieve a given intensity.
