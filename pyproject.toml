@@ -9,7 +9,6 @@ python = "^3.10,<3.11"
 numpy = "^1.22.0"
 scipy = "^1.7.3"
 juliacall = {version = "^0.9.24", optional=true}
-sphinx-julia = "^0.1"
 
 [tool.poetry.extras]
 bloch = ["juliacall"]
