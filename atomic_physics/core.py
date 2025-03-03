@@ -556,7 +556,7 @@ class Atom:
         omega = transition.frequency
         return consts.hbar * (omega**3) * scattering_rate / (6 * np.pi * (consts.c**2))
 
-    def intensity_to_power(
+    def intensity_for_power(
         self, transition: str, waist_radius: float, intensity: float
     ) -> float:
         """Returns the power needed to achieve a given intensity.
@@ -606,22 +606,38 @@ class Atom:
             self._calc_magnetic_dipoles()
         return self._magnetic_dipoles
 
-    def get_rabi_rf(self, lower: int, upper: int, amplitude: float) -> float:
+    def get_rabi_rf(self, states: tuple[int, int], amplitude: float) -> float:
         r"""Returns the Rabi frequency for a magnetic dipole transition.
 
         See also :meth:`get_magnetic_dipoles`.
 
-        :param lower: index of the state with lower energy involved in the transition.
-        :param upper: index of the state with higher energy involved in the transition.
+        :param states: tuple of indices for the two states involved in the transition.
         :param amplitude: amplitude of the component of the driving magnetic field (
             spherical basis) which couples to this transition (Tesla).
         :return: the Rabi frequency. We retain phase information, so this can be either
             positive or negative. We define the Rabi frequency so that
-            :math:`t_{\pi} = \pi / |\Omega|`
+            :math:`t_{\pi} = \pi / |\rabi|`
         """
-        R = self.get_magnetic_dipoles()[upper, lower]
-        Omega = amplitude * R / consts.hbar
-        return Omega
+        R = np.abs(self.get_magnetic_dipoles()[states])
+        rabi = amplitude * R / consts.hbar
+        return rabi
+
+    def get_amplitude_for_rabi_rf(self, states: tuple[int, int], rabi: float) -> float:
+        r"""Returns the magnetic field amplitude required to produce a given Rabi
+        frequency on a give transition.
+
+        See also :meth:`get_magnetic_dipoles`.
+
+        :param states: tuple of indices for the two states involved in the transition.
+        :param amplitude: amplitude of the component of the driving magnetic field (
+            spherical basis) which couples to this transition (Tesla).
+        :return: the Rabi frequency. We retain phase information, so this can be either
+            positive or negative. We define the Rabi frequency so that
+            :math:`t_{\pi} = \pi / |\rabi|`
+        """
+        R = np.abs(self.get_magnetic_dipoles()[states])
+        amplitude = rabi * consts.hbar / R
+        return amplitude
 
     def _calc_electric_multipoles(self):
         if self._electric_multipoles is not None:
