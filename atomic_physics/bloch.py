@@ -1,4 +1,3 @@
-import juliacall
 import numpy as np
 import scipy.constants as consts
 
@@ -9,36 +8,45 @@ from atomic_physics.polarization import (
     SIGMA_PLUS_POLARIZATION,
 )
 
-jl = juliacall.newmodule("Bloch")
-jl.seval(
-    """
-    using QuantumOptics
-    using PythonCall
+try:
+    import juliacall
 
-    function make_hamiltonian(
-        num_states::Int64,
-        rabi_matrix::Matrix{ComplexF64},
-        detuning_matrix::Matrix{Float64}
-    )
-        basis = NLevelBasis(num_states)
+    _HAS_JULIA = True
+except ModuleNotFoundError:
+    _HAS_JULIA = False
+    # pytype: skip-file
 
-        elements = findall(x -> x != 0., rabi_matrix)
-        hamiltonians = Vector{QuantumOpticsBase.TimeDependentSum}(undef, length(elements))
+if _HAS_JULIA:
+    jl = juliacall.newmodule("Bloch")
+    jl.seval(
+        """
+        using QuantumOptics
+        using PythonCall
 
-        for (hamiltonian_index, state_index) in enumerate(elements)
-            rabi = rabi_matrix[state_index]
-            detuning = detuning_matrix[state_index]
+        function make_hamiltonian(
+            num_states::Int64,
+            rabi_matrix::Matrix{ComplexF64},
+            detuning_matrix::Matrix{Float64}
+        )
+            basis = NLevelBasis(num_states)
 
-            sigma_plus = transition(basis, state_index[1], state_index[2])
+            elements = findall(x -> x != 0., rabi_matrix)
+            hamiltonians = Vector{QuantumOpticsBase.TimeDependentSum}(undef, length(elements))
 
-            hamiltonian_static = 1 / 2 * rabi * sigma_plus
-            hamiltonian_half = TimeDependentSum((t->exp(-1im*detuning*t))=>hamiltonian_static)
-            hamiltonians[hamiltonian_index] = hamiltonian_half + dagger(hamiltonian_half)
+            for (hamiltonian_index, state_index) in enumerate(elements)
+                rabi = rabi_matrix[state_index]
+                detuning = detuning_matrix[state_index]
+
+                sigma_plus = transition(basis, state_index[1], state_index[2])
+
+                hamiltonian_static = 1 / 2 * rabi * sigma_plus
+                hamiltonian_half = TimeDependentSum((t->exp(-1im*detuning*t))=>hamiltonian_static)
+                hamiltonians[hamiltonian_index] = hamiltonian_half + dagger(hamiltonian_half)
+            end
+            return sum(hamiltonians)
         end
-        return sum(hamiltonians)
-    end
-    """
-)
+        """
+    )
 
 
 class Bloch:
@@ -51,6 +59,9 @@ class Bloch:
         Currently only RF (M1) transitions are supported; electric transitions and
         spontaneous emission are not (yet) supported.
         """
+        if not _HAS_JULIA:
+            raise RuntimeError("JuliaCall not found. Try `poetry install -E bloch`.")
+
         self.atom: Atom = atom
         self.basis: juliacall.AnyValue = jl.NLevelBasis(self.atom.num_states)
 
@@ -111,7 +122,7 @@ class Bloch:
             jl.Matrix[jl.Float64](detuning_matrix),
         )
 
-    def make_ket(self, state_vector: np.array):
+    def make_ket(self, state_vector: np.ndarray):
         """Converts a numpy array representation of a state vector into a ``JuliaCall``
         wrapper around a ``QuantumOptics.jl`` ``Ket`` object.
 
@@ -132,8 +143,8 @@ class Bloch:
         )
 
     def solve_schroedinger(
-        self, hamiltonian: juliacall.AnyValue, psi0: np.array, t: np.array
-    ) -> np.array:
+        self, hamiltonian, psi0: np.ndarray, t: np.ndarray
+    ) -> np.ndarray:
         """Integrate the time-dependent Schroedinger equation for a given Hamiltonian
         and initial state.
 
