@@ -3,16 +3,9 @@ import unittest
 import numpy as np
 
 from atomic_physics.atoms.two_state import TwoStateAtom, field_for_frequency
+from atomic_physics.bloch import Bloch, _HAS_JULIA
 from atomic_physics.core import RFDrive
 from atomic_physics.polarization import SIGMA_PLUS_POLARIZATION
-
-try:
-    from atomic_physics.bloch import Bloch
-
-    _HAS_JULIA = True
-
-except ModuleNotFoundError:
-    _HAS_JULIA = False
 
 
 class TestBloch(unittest.TestCase):

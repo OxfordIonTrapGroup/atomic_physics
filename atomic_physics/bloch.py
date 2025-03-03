@@ -11,12 +11,12 @@ from atomic_physics.polarization import (
 try:
     import juliacall
 
-    _HAS_JULIA = True
+    HAS_JULIA = True
 except ModuleNotFoundError:
-    _HAS_JULIA = False
+    HAS_JULIA = False
     # pytype: skip-file
 
-if _HAS_JULIA:
+if HAS_JULIA:
     jl = juliacall.newmodule("Bloch")
     jl.seval(
         """
@@ -59,7 +59,7 @@ class Bloch:
         Currently only RF (M1) transitions are supported; electric transitions and
         spontaneous emission are not (yet) supported.
         """
-        if not _HAS_JULIA:
+        if not HAS_JULIA:
             raise RuntimeError("JuliaCall not found. Try `poetry install -E bloch`.")
 
         self.atom: Atom = atom
