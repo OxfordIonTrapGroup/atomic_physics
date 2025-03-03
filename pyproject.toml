@@ -40,7 +40,7 @@ fmt-jl.script = "atomic_physics.julia_tools:fmt"
 fmt-test-jl.script = "atomic_physics.julia_tools:fmt_test"
 
 fmt = ["fmt-py", "fmt-jl"]
-fmt_test = ["fmt-test-py", "fmt-test-jl"]
+fmt-test = ["fmt-test-py", "fmt-test-jl"]
 
 types = { script = "run_pytype:main" }
 
