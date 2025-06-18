@@ -3,6 +3,7 @@ name = "atomic_physics"
 version = "2.0.5"
 description = "Lightweight python library for calculations based on atomic structure"
 authors = ["hartytp <thomas.peter.harty@gmail.com>"]
+license = "Apache-2.0"
 
 [tool.poetry.dependencies]
 python = "^3.10"
