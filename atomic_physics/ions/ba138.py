@@ -11,6 +11,9 @@ References::
     * [2] Zhiqiang Zhang, K. J. Arnold, S. R. Chanu, R. Kaewuam,
       M. S. Safronova, and M. D. Barrett Phys. Rev. A 101, 062515 (2020)
     * [3] N. Yu, W. Nagourney, and H. Dehmelt, Phys. Rev. Lett. 78, 4898 (1997)
+    * [4] K. H. Knoll et al., PRA54 1199 (1996)
+    * [5] O. Poulson & P.J. Ramanujam, PRA 14 1463 (1976)
+    * [6] N. Kurz et al., PRA 82 030501 (2010)
 
 """
 
@@ -44,11 +47,11 @@ class Ba138Factory(AtomFactory):
 
     def __init__(self):
         level_data = (
-            LevelData(level=self.S12, Ahfs=0, Bhfs=0),
-            LevelData(level=self.P12, Ahfs=0, Bhfs=0),
-            LevelData(level=self.P32, Ahfs=0, Bhfs=0),
-            LevelData(level=self.D32, Ahfs=0, Bhfs=0),
-            LevelData(level=self.D52, Ahfs=0, Bhfs=0),
+            LevelData(level=self.S12, g_J =  2.0024922, Ahfs=0, Bhfs=0), # [4]
+            LevelData(level=self.P12, g_J = 0.672, Ahfs=0, Bhfs=0), # [5]
+            LevelData(level=self.P32, g_J = 1.328, Ahfs=0, Bhfs=0), # [5]
+            LevelData(level=self.D32, g_J = 0.7993278, Ahfs=0, Bhfs=0), # [4]
+            LevelData(level=self.D52, g_J = 1.2020, Ahfs=0, Bhfs=0), # [6]
         )
 
         transitions = {
