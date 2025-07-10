@@ -47,11 +47,11 @@ class Ba138Factory(AtomFactory):
 
     def __init__(self):
         level_data = (
-            LevelData(level=self.S12, g_J =  2.0024922, Ahfs=0, Bhfs=0), # [4]
-            LevelData(level=self.P12, g_J = 0.672, Ahfs=0, Bhfs=0), # [5]
-            LevelData(level=self.P32, g_J = 1.328, Ahfs=0, Bhfs=0), # [5]
-            LevelData(level=self.D32, g_J = 0.7993278, Ahfs=0, Bhfs=0), # [4]
-            LevelData(level=self.D52, g_J = 1.2020, Ahfs=0, Bhfs=0), # [6]
+            LevelData(level=self.S12, g_J=2.0024922, Ahfs=0, Bhfs=0),  # [4]
+            LevelData(level=self.P12, g_J=0.672, Ahfs=0, Bhfs=0),  # [5]
+            LevelData(level=self.P32, g_J=1.328, Ahfs=0, Bhfs=0),  # [5]
+            LevelData(level=self.D32, g_J=0.7993278, Ahfs=0, Bhfs=0),  # [4]
+            LevelData(level=self.D52, g_J=1.2020, Ahfs=0, Bhfs=0),  # [6]
         )
 
         transitions = {
