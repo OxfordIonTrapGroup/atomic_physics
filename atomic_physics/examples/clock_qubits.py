@@ -22,7 +22,9 @@ for M3 in range(-3, +3 + 1):
             F4 = ion.get_state_for_F(Ca43.ground_level, F=4, M_F=M3 - q)
             F3 = ion.get_state_for_F(Ca43.ground_level, F=3, M_F=M3)
             f0 = ion.get_transition_frequency_for_states((F4, F3))
-            d2fdB2 = d2omega_dB2(atom_factory=factory, magnetic_field=B0, states=(F4, F3))
+            d2fdB2 = d2omega_dB2(
+                atom_factory=factory, magnetic_field=B0, states=(F4, F3)
+            )
             print(
                 "4, {} --> 3, {}: {:.6f} GHz @ {:.5f} G ({:.3e} Hz/G^2)".format(
                     M3 - q,
