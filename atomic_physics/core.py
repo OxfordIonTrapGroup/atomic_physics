@@ -69,7 +69,7 @@ class LevelStates:
     r"""Stores information about the states within a level.
 
     Attributes:
-        freq: frequency (rad/s) of the centre-of-gravity transition from the ground-level
+        freq: angular frequency (rad/s) of the centre-of-gravity transition from the ground-level
             to this level. These frequencies are calculated automatically by combining
             data from atom's transitions. In cases where the the level structure is multiply connected,
             taking different routes between the same levels may give slightly different
@@ -98,7 +98,7 @@ class Transition:
     Attributes:
         lower: the :class:`Level` in the transition with lower energy
         upper:  the :class:`Level` in the transition with greater energy
-        freq: the transition frequency (rad/s)
+        freq: the transition angular frequency (rad/s)
         einstein_A: the transition's Einstein A coefficient
     """
 
@@ -119,8 +119,9 @@ class Laser:
             (``q = M_upper - M_lower``). ``q = +1`` for σ+ light, ``q = -1`` for σ-
             light and ``q = 0`` for π light.
         intensity: the laser intensity (saturation intensities).
-        detuning: the laser's detuning (rad/s) from the transition centre of gravity,
-           defined so that ``w_laser = w_transition + detuning``.
+        detuning: the laser's angular-frequency detuning (rad/s) from the transition
+            centre of gravity,
+            defined so that ``w_laser = w_transition + detuning``.
     """
 
     transition: str
@@ -134,7 +135,7 @@ class RFDrive:
     """Represents an AC magnetic field, which drives magnetic dipole transitions.
 
     Attributes:
-        frequency: frequency of the RF drive (rad/s).
+        frequency: angular frequency of the RF drive (rad/s).
         amplitude: amplitude of the field (T).
         polarization: Jones vector describing the magnetic field's polarization.
     """
@@ -389,8 +390,7 @@ class Atom:
     def get_transition_frequency_for_states(
         self, states: tuple[int, int], relative: bool = True
     ) -> float:
-        """Returns the frequency (angular units) of the transition between a pair of
-        states.
+        """Returns the angular frequency of the transition between a pair of states.
 
         :param states: tuple of indices of the states involved in the transition.
         :param relative: if ``False`` the returned frequency is the absolute frequency
@@ -398,7 +398,7 @@ class Atom:
             centre of gravity frequency of the transition between the two levels the
             states lie in to calculate the frequency relative to the overall
             transition's centre of gravity.
-        :return: the transition frequency (rad/s).
+        :return: the transition angular frequency (rad/s).
         """
         if len(states) != 2:
             raise ValueError(f"Expected 2 state indices, got {len(states)}.")

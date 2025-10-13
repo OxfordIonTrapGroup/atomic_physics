@@ -18,14 +18,14 @@ def df_dB(
     states: tuple[int, int],
     eps: float = 1e-6,
 ) -> float:
-    r"""Returns the field-sensitivity (:math:`\frac{\mathrm{d}f}{\mathrm{d}B}`)
+    r"""Returns the field-sensitivity (:math:`\frac{\mathrm{d}\omega}{\mathrm{d}B}`)
     of a transition between two states in the same level at a given magnetic field.
 
     :param atom_factory: factory class for the atom of interest.
     :param magnetic_field: the magnetic to calculate the field sensitivity at.
     :param states: tuple of indices involved in this transition.
     :param eps: field difference (T) to use when calculating derivatives numerically.
-    :return: the transition's field sensitivity (rad/s/T).
+    :return: the transition's angular-frequency field sensitivity (rad/s/T).
     """
     f_p = atom_factory(
         magnetic_field=magnetic_field + eps
@@ -42,14 +42,15 @@ def d2f_dB2(
     states: tuple[int, int],
     eps: float = 1e-6,
 ) -> float:
-    r"""Returns the second-order field-sensitivity (:math:`\frac{\mathrm{d}^2f}{\mathrm{d}B^2}`)
-    of a transition between two states in the same level at a given magnetic field.
+    r"""Returns the second-order field-sensitivity (
+    :math:`\frac{\mathrm{d}^2\omega}{\mathrm{d}B^2}`) of a transition between two
+    states in the same level at a given magnetic field.
 
     :param atom_factory: factory class for the atom of interest.
     :param magnetic_field: the magnetic to calculate the field sensitivity at.
     :param states: tuple of indices involved in this transition.
     :param eps: field difference (T) to use when calculating derivatives numerically.
-    :return: the transition's field sensitivity (rad/s/T^2).
+    :return: the transition's angular-frequency field sensitivity (rad/s/T^2).
     """
     df_p = df_dB(atom_factory, magnetic_field + eps, states, eps)
     df_m = df_dB(atom_factory, magnetic_field - eps, states, eps)
@@ -151,7 +152,7 @@ def ac_zeeman_shift_for_state(atom: Atom, state: int, drive: RFDrive) -> float:
     :param atom: the atom.
     :param state: index of the state to calculate the shift for.
     :param drive: the applied RF drive.
-    :return: the AC Zeeman shift (rad/s).
+    :return: the AC Zeeman shift in angular frequency units (rad/s).
     """
     level = atom.get_level_for_state(state)
     magnetic_dipoles = atom.get_magnetic_dipoles()
@@ -204,7 +205,7 @@ def ac_zeeman_shift_for_transition(
     :param atom: the atom.
     :param states: tuple containing indices of the two states involved in the transition.
     :param drive: the applied RF drive.
-    :return: the AC Zeeman shift (rad/s).
+    :return: the AC Zeeman shift in angular frequency units (rad/s).
     """
     if len(states) != 2:
         raise ValueError(f"Expected 2 state indices, got {len(states)}.")
