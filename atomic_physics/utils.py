@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import scipy.constants as consts
 import scipy.optimize as opt
@@ -12,7 +14,7 @@ _uB = consts.physical_constants["Bohr magneton"][0]
 _uN = consts.physical_constants["nuclear magneton"][0]
 
 
-def df_dB(
+def domega_dB(
     atom_factory: AtomFactory,
     magnetic_field: float,
     states: tuple[int, int],
@@ -22,7 +24,8 @@ def df_dB(
     of a transition between two states in the same level at a given magnetic field.
 
     :param atom_factory: factory class for the atom of interest.
-    :param magnetic_field: the magnetic to calculate the field sensitivity at.
+    :param magnetic_field: the magnetic field to evaluate the angular-frequency
+        sensitivity at.
     :param states: tuple of indices involved in this transition.
     :param eps: field difference (T) to use when calculating derivatives numerically.
     :return: the transition's angular-frequency field sensitivity (rad/s/T).
@@ -36,7 +39,7 @@ def df_dB(
     return (f_p - f_m) / (2 * eps)
 
 
-def d2f_dB2(
+def d2omega_dB2(
     atom_factory: AtomFactory,
     magnetic_field: float,
     states: tuple[int, int],
@@ -47,14 +50,57 @@ def d2f_dB2(
     states in the same level at a given magnetic field.
 
     :param atom_factory: factory class for the atom of interest.
-    :param magnetic_field: the magnetic to calculate the field sensitivity at.
+    :param magnetic_field: the magnetic field to evaluate the angular-frequency
+        curvature at.
     :param states: tuple of indices involved in this transition.
     :param eps: field difference (T) to use when calculating derivatives numerically.
     :return: the transition's angular-frequency field sensitivity (rad/s/T^2).
     """
-    df_p = df_dB(atom_factory, magnetic_field + eps, states, eps)
-    df_m = df_dB(atom_factory, magnetic_field - eps, states, eps)
-    return (df_p - df_m) / (2 * eps)
+    domega_p = domega_dB(atom_factory, magnetic_field + eps, states, eps)
+    domega_m = domega_dB(atom_factory, magnetic_field - eps, states, eps)
+    return (domega_p - domega_m) / (2 * eps)
+
+
+def df_dB(
+    atom_factory: AtomFactory,
+    magnetic_field: float,
+    states: tuple[int, int],
+    eps: float = 1e-6,
+) -> float:
+    """Deprecated alias for :func:`domega_dB`."""
+    warnings.warn(
+        "`df_dB` is deprecated and will be removed in a future release. "
+        "Use `domega_dB` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return domega_dB(
+        atom_factory=atom_factory,
+        magnetic_field=magnetic_field,
+        states=states,
+        eps=eps,
+    )
+
+
+def d2f_dB2(
+    atom_factory: AtomFactory,
+    magnetic_field: float,
+    states: tuple[int, int],
+    eps: float = 1e-6,
+) -> float:
+    """Deprecated alias for :func:`d2omega_dB2`."""
+    warnings.warn(
+        "`d2f_dB2` is deprecated and will be removed in a future release. "
+        "Use `d2omega_dB2` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return d2omega_dB2(
+        atom_factory=atom_factory,
+        magnetic_field=magnetic_field,
+        states=states,
+        eps=eps,
+    )
 
 
 def field_insensitive_point(
@@ -97,7 +143,7 @@ def field_insensitive_point(
             atom.get_state_for_F(level=level_1, F=F_1, M_F=M_F_1),
         )
 
-        return df_dB(
+        return domega_dB(
             atom_factory,
             magnetic_field,
             states,
