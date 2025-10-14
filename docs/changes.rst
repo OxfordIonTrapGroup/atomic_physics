@@ -3,6 +3,13 @@
 Change Log
 ==========
 
+Unreleased
+~~~~~~~~~~
+
+* Added ``domega_dB`` and ``d2omega_dB2`` helpers to clarify angular-frequency units in
+  field-sensitivity calculations. Existing ``df_dB`` and ``d2f_dB2`` names remain as
+  deprecated aliases for a release cycle.
+
 v2.0.3
 ~~~~~~
 
