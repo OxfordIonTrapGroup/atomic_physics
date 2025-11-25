@@ -14,8 +14,8 @@ from atomic_physics.polarization import (
 from atomic_physics.utils import (
     ac_zeeman_shift_for_state,
     ac_zeeman_shift_for_transition,
-    d2f_dB2,
-    df_dB,
+    d2omega_dB2,
+    domega_dB,
     field_insensitive_point,
     rayleigh_range,
 )
@@ -46,8 +46,8 @@ class TestFieldSensitivity(unittest.TestCase):
         [1] T Harty DPhil Thesis.
     """
 
-    def test_df_db(self):
-        """Tests for ``utils.dF_dB``."""
+    def test_domega_db(self):
+        """Tests for ``utils.domega_dB``."""
         ion = Ca43(magnetic_field=146.0942e-4)
 
         # [1] table E.4
@@ -79,7 +79,7 @@ class TestFieldSensitivity(unittest.TestCase):
             l_index = ion.get_state_for_F(level=Ca43.ground_level, F=4, M_F=M4)
             u_index = ion.get_state_for_F(level=Ca43.ground_level, F=3, M_F=M3)
             np.testing.assert_allclose(
-                df_dB(
+                domega_dB(
                     atom_factory=Ca43,
                     states=(l_index, u_index),
                     magnetic_field=146.0942e-4,
@@ -89,12 +89,12 @@ class TestFieldSensitivity(unittest.TestCase):
                 atol=1e-6,
             )
 
-    def test_d2f_db2(self):
-        """Tests for ``utils.d2F_dB2``."""
+    def test_d2omega_db2(self):
+        """Tests for ``utils.d2omega_dB2``."""
         ion = Ca43(magnetic_field=146.0942e-4)
 
         np.testing.assert_allclose(
-            d2f_dB2(
+            d2omega_dB2(
                 atom_factory=Ca43,
                 magnetic_field=146.0942e-4,
                 states=(

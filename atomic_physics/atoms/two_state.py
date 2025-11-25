@@ -6,9 +6,9 @@ from atomic_physics.core import AtomFactory, Level, LevelData
 
 
 def field_for_frequency(frequency: float) -> float:
-    """Returns the B-field needed to produce a given transition frequency.
+    """Returns the B-field needed to produce a given transition angular frequency.
 
-    :param frequency: the desired transition frequency (rad/s).
+    :param frequency: the desired transition angular frequency (rad/s).
     :return: the required magnetic field (T).
     """
     # E = h * f = gJ * uB * B

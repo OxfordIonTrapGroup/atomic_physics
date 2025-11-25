@@ -10,7 +10,7 @@ python = "^3.10"
 numpy = ">=1.22.0,<3.0"
 scipy = "^1.7.3"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 poethepoet = "^0.12.1"
 sympy = "^1.9"
@@ -31,8 +31,8 @@ fmt-test = "ruff format --check ."
 fmt = "ruff format"
 lint = "ruff check"
 types = { script = "run_pytype:main" }
-docs = { cwd = "./docs", cmd = "make html doctest" }
-docs-clean = { cwd = "./docs", cmd = "make clean" }
+docs = "cd docs && make html doctest"
+docs-clean = "cd docs && make clean"
 
 [tool.ruff]
 exclude = [
